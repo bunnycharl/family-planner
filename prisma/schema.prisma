@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String   @id @default(cuid())
+  name           String
+  email          String   @unique
+  hashedPassword String
+  avatarColor    String   @default("#6366f1")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  createdEvents     Event[]     @relation("EventCreator")
+  modifiedEvents    Event[]     @relation("EventModifier")
+  assignedEvents    Event[]     @relation("EventAssignees")
+  createdTasks      Task[]      @relation("TaskCreator")
+  assignedTasks     Task[]      @relation("TaskAssignee")
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  color     String
+  icon      String?
+  createdAt DateTime @default(now())
+
+  events Event[]
+  tasks  Task[]
+}
+
+model Event {
+  id             String    @id @default(cuid())
+  title          String
+  description    String?
+  startDate      DateTime
+  endDate        DateTime?
+  location       String?
+  isRecurring    Boolean   @default(false)
+  recurrenceRule String?
+  isCompleted    Boolean   @default(false)
+  color          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  categoryId   String?
+  category     Category? @relation(fields: [categoryId], references: [id])
+  createdById  String
+  createdBy    User      @relation("EventCreator", fields: [createdById], references: [id])
+  modifiedById String?
+  modifiedBy   User?     @relation("EventModifier", fields: [modifiedById], references: [id])
+  assignees    User[]    @relation("EventAssignees")
+
+  @@index([startDate])
+  @@index([categoryId])
+  @@index([createdById])
+}
+
+model Task {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  status      String    @default("TODO")
+  priority    String    @default("MEDIUM")
+  position    Int       @default(0)
+  dueDate     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  categoryId  String?
+  category    Category? @relation(fields: [categoryId], references: [id])
+  createdById String
+  createdBy   User      @relation("TaskCreator", fields: [createdById], references: [id])
+  assigneeId  String?
+  assignee    User?     @relation("TaskAssignee", fields: [assigneeId], references: [id])
+
+  @@index([status])
+  @@index([createdById])
+  @@index([assigneeId])
+}
+
