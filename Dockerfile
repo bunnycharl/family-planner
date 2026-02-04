@@ -26,6 +26,9 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
+# Install sqlite for database initialization
+RUN apk add --no-cache sqlite
+
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
@@ -36,17 +39,14 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Copy prisma schema, migrations, and CLI
+# Copy prisma schema, client, and init SQL
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
+COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client
 
-# Create startup script
-RUN echo '#!/bin/sh' > /app/start.sh && \
-    echo 'node /app/node_modules/prisma/build/index.js migrate deploy' >> /app/start.sh && \
-    echo 'node server.js' >> /app/start.sh && \
-    chmod +x /app/start.sh
+# Copy entrypoint script
+COPY --chown=nextjs:nodejs docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN chmod +x /app/docker-entrypoint.sh
 
 # Create data directory with correct permissions
 RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
@@ -58,4 +58,4 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["/app/start.sh"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
