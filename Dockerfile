@@ -36,10 +36,20 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Copy prisma schema and migrations
+# Copy prisma schema, migrations, and CLI
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
+
+# Create startup script
+RUN echo '#!/bin/sh' > /app/start.sh && \
+    echo 'npx prisma migrate deploy' >> /app/start.sh && \
+    echo 'node server.js' >> /app/start.sh && \
+    chmod +x /app/start.sh
+
+# Create data directory with correct permissions
+RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
 
 USER nextjs
 
@@ -48,4 +58,4 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+CMD ["/app/start.sh"]
