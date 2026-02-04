@@ -44,7 +44,7 @@ COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 
 # Create startup script
 RUN echo '#!/bin/sh' > /app/start.sh && \
-    echo 'npx prisma migrate deploy' >> /app/start.sh && \
+    echo 'node /app/node_modules/prisma/build/index.js migrate deploy' >> /app/start.sh && \
     echo 'node server.js' >> /app/start.sh && \
     chmod +x /app/start.sh
 
