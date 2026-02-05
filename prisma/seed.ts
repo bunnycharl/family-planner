@@ -37,6 +37,7 @@ async function main() {
     { name: "Здоровье", color: "#ec4899", icon: "activity" },
     { name: "Дом", color: "#f97316", icon: "wrench" },
     { name: "Работа", color: "#8b5cf6", icon: "briefcase" },
+    { name: "Иммиграция", color: "#06b6d4", icon: "globe" },
   ];
 
   for (const cat of categories) {

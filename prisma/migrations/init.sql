@@ -112,5 +112,6 @@ VALUES
   ('cat_household', 'Быт', '#6b7280', 'home', CURRENT_TIMESTAMP),
   ('cat_health', 'Здоровье', '#ec4899', 'activity', CURRENT_TIMESTAMP),
   ('cat_home', 'Дом', '#f97316', 'wrench', CURRENT_TIMESTAMP),
-  ('cat_work', 'Работа', '#8b5cf6', 'briefcase', CURRENT_TIMESTAMP);
+  ('cat_work', 'Работа', '#8b5cf6', 'briefcase', CURRENT_TIMESTAMP),
+  ('cat_immigration', 'Иммиграция', '#06b6d4', 'globe', CURRENT_TIMESTAMP);
 
