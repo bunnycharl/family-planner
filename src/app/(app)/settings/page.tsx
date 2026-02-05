@@ -175,6 +175,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Categories list */}
+        <>
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-[var(--color-border)] border-t-[var(--color-primary)]" />
@@ -284,7 +285,7 @@ export default function SettingsPage() {
               </div>
             ))}
           </div>
-        )
+        )}
 
         {/* Add category form */}
         <form
@@ -354,6 +355,7 @@ export default function SettingsPage() {
             </div>
           </div>
         </form>
+        </>
       </section>
 
       {/* Delete confirmation dialog */}
