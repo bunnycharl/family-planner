@@ -103,6 +103,27 @@ button, a, input, select, textarea {
   outline-offset: 2px;
 }
 
+/* iOS Safari date input fix */
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  min-height: 44px;
+  background-color: var(--color-bg);
+}
+
+/* Ensure date inputs have proper border-radius on iOS */
+@supports (-webkit-touch-callout: none) {
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"] {
+    border-radius: 0.75rem !important;
+    -webkit-border-radius: 0.75rem !important;
+  }
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
