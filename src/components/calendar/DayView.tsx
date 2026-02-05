@@ -54,7 +54,7 @@ export function DayView({ currentDate, events, onEventClick, onDateChange }: Day
 
   return (
     <div
-      className="flex flex-col px-2 sm:px-4"
+      className="flex flex-col px-2 sm:px-4 h-full min-h-[calc(100vh-200px)]"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
