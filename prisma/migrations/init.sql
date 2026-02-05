@@ -97,13 +97,8 @@ CREATE UNIQUE INDEX "_EventAssignees_AB_unique" ON "_EventAssignees"("A", "B");
 -- CreateIndex
 CREATE INDEX "_EventAssignees_B_index" ON "_EventAssignees"("B");
 
--- Seed Users
-INSERT INTO "User" ("id", "name", "email", "hashedPassword", "avatarColor", "createdAt", "updatedAt")
-VALUES
-  ('user_nkudryawov', 'Никита', 'nkudryawov', '$2b$10$aPP.Xnb.ffcUVgTYUzFiuugzE0ISlhoTK1pDxGHEZgaNbMCWVsCYS', '#6366f1', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-  ('user_allodasha', 'Даша', 'allodasha', '$2b$10$Vs12HtrnI0y.FSUANIm6GeKsUcWQyyqEioYNtgjfLqc.EyND9CKnq', '#ec4899', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
-
 -- Seed Categories
+-- Note: Users are created via seed.ts using environment variables
 INSERT INTO "Category" ("id", "name", "color", "icon", "createdAt")
 VALUES
   ('cat_travel', 'Путешествия', '#3b82f6', 'plane', CURRENT_TIMESTAMP),

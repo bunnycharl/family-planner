@@ -88,12 +88,21 @@ npm run dev
 
 Приложение будет доступно по адресу http://localhost:3000
 
-### Учётные записи по умолчанию
+### Учётные записи
 
-| Email | Пароль |
-|-------|--------|
-| partner1@family.app | password123 |
-| partner2@family.app | password123 |
+Пользователи создаются через переменные окружения. Добавьте в `.env`:
+
+```bash
+SEED_USER1_EMAIL="user1"
+SEED_USER1_NAME="Partner 1"
+SEED_USER1_PASSWORD="your-pin"
+
+SEED_USER2_EMAIL="user2"
+SEED_USER2_NAME="Partner 2"
+SEED_USER2_PASSWORD="your-pin"
+```
+
+Затем выполните `npx prisma db seed`.
 
 ## Структура проекта
 
@@ -101,7 +110,7 @@ npm run dev
 family-planner/
 ├── prisma/
 │   ├── schema.prisma       # Схема БД (User, Category, Event, Task, Milestone)
-│   └── seed.ts              # Начальные данные: 2 пользователя + 7 категорий
+│   └── seed.ts              # Начальные данные: пользователи (из env) + категории
 ├── middleware.ts             # Защита роутов (Auth.js)
 ├── src/
 │   ├── app/

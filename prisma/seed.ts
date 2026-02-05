@@ -4,30 +4,41 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  const password1 = await bcrypt.hash("2403", 10);
-  const password2 = await bcrypt.hash("0880", 10);
-
-  const user1 = await prisma.user.upsert({
-    where: { email: "nkudryawov" },
-    update: { hashedPassword: password1 },
-    create: {
-      name: "Никита",
-      email: "nkudryawov",
-      hashedPassword: password1,
+  // Users are configured via environment variables
+  const users = [
+    {
+      email: process.env.SEED_USER1_EMAIL,
+      name: process.env.SEED_USER1_NAME,
+      password: process.env.SEED_USER1_PASSWORD,
       avatarColor: "#6366f1",
     },
-  });
-
-  const user2 = await prisma.user.upsert({
-    where: { email: "allodasha" },
-    update: { hashedPassword: password2 },
-    create: {
-      name: "Даша",
-      email: "allodasha",
-      hashedPassword: password2,
+    {
+      email: process.env.SEED_USER2_EMAIL,
+      name: process.env.SEED_USER2_NAME,
+      password: process.env.SEED_USER2_PASSWORD,
       avatarColor: "#ec4899",
     },
-  });
+  ];
+
+  const createdUsers = [];
+  for (const userData of users) {
+    if (!userData.email || !userData.name || !userData.password) {
+      console.log(`Skipping user: missing env vars`);
+      continue;
+    }
+    const hashedPassword = await bcrypt.hash(userData.password, 10);
+    const user = await prisma.user.upsert({
+      where: { email: userData.email },
+      update: { hashedPassword },
+      create: {
+        name: userData.name,
+        email: userData.email,
+        hashedPassword,
+        avatarColor: userData.avatarColor,
+      },
+    });
+    createdUsers.push(user);
+  }
 
   const categories = [
     { name: "Путешествия", color: "#3b82f6", icon: "plane" },
@@ -49,7 +60,7 @@ async function main() {
   }
 
   console.log("Seed completed:");
-  console.log(`  Users: ${user1.name}, ${user2.name}`);
+  console.log(`  Users: ${createdUsers.map(u => u.name).join(", ") || "none (set SEED_USER* env vars)"}`);
   console.log(`  Categories: ${categories.length}`);
 }
 

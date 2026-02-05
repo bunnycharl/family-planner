@@ -1,6 +1,6 @@
 services:
   app:
-    build: .
+    image: ghcr.io/bunnycharl/family-planner:latest
     ports:
       - "3000:3000"
     environment:
