@@ -48,3 +48,5 @@ prisma/dev.db-journal
 # Production data
 /data/*.db
 /data/*.db-journal
+dev.db
+.claude/skills/
