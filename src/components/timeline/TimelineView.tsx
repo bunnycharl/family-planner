@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import { format } from "date-fns";
+import { format, differenceInMonths } from "date-fns";
 import { ru } from "date-fns/locale";
 import { useEvents } from "@/hooks/useEvents";
 import { EventForm } from "../calendar/EventForm";
@@ -10,6 +10,7 @@ import { QuickAddMenu, type QuickAddOption } from "../ui/QuickAddMenu";
 import { cn } from "@/lib/utils";
 
 const TOTAL_YEARS = 5;
+type ViewMode = "vertical" | "horizontal";
 
 interface TimelineEvent {
   id: string;
@@ -23,6 +24,8 @@ interface TimelineEvent {
 
 export function TimelineView() {
   const todayRef = useRef<HTMLDivElement>(null);
+  const horizontalScrollRef = useRef<HTMLDivElement>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>("vertical");
   const [eventFormOpen, setEventFormOpen] = useState(false);
   const [taskFormOpen, setTaskFormOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<TimelineEvent | null>(null);
@@ -118,9 +121,44 @@ export function TimelineView() {
       {/* Header */}
       <div className="px-4 pt-4 pb-3 flex items-center justify-between shrink-0 bg-[var(--color-bg-card)] border-b border-[var(--color-border)]">
         <h1 className="text-xl font-bold text-[var(--color-text)]">Таймлайн</h1>
-        <span className="text-sm font-medium text-[var(--color-text-muted)] bg-[var(--color-bg)] px-3 py-1 rounded-lg">
-          {startYear} &ndash; {endYear}
-        </span>
+        <div className="flex items-center gap-2">
+          {/* View mode toggle */}
+          <div className="flex rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg)] p-0.5">
+            <button
+              type="button"
+              onClick={() => setViewMode("vertical")}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer",
+                viewMode === "vertical"
+                  ? "bg-[var(--color-primary)] text-white"
+                  : "text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
+              )}
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+              <span className="hidden sm:inline">Список</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("horizontal")}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer",
+                viewMode === "horizontal"
+                  ? "bg-[var(--color-primary)] text-white"
+                  : "text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
+              )}
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
+              </svg>
+              <span className="hidden sm:inline">Линия</span>
+            </button>
+          </div>
+          <span className="text-sm font-medium text-[var(--color-text-muted)] bg-[var(--color-bg)] px-3 py-1.5 rounded-lg">
+            {startYear} &ndash; {endYear}
+          </span>
+        </div>
       </div>
 
       {/* Loading state */}
@@ -131,7 +169,165 @@ export function TimelineView() {
         </div>
       )}
 
-      {/* Scrollable timeline */}
+      {/* Horizontal timeline view */}
+      {viewMode === "horizontal" && (
+        <div className="flex-1 overflow-hidden pb-24">
+          <div
+            ref={horizontalScrollRef}
+            className="h-full overflow-x-auto overflow-y-auto px-4 py-6"
+          >
+            {/* Timeline container */}
+            <div className="relative min-w-[1200px] pb-8">
+              {/* Year markers */}
+              <div className="flex mb-2">
+                {Array.from({ length: TOTAL_YEARS }, (_, i) => {
+                  const year = startYear + i;
+                  const isCurrentYear = year === today.getFullYear();
+                  return (
+                    <div key={year} className="flex-1 text-center">
+                      <span
+                        className={cn(
+                          "inline-block px-4 py-1.5 rounded-lg text-sm font-bold",
+                          isCurrentYear
+                            ? "bg-[var(--color-primary)] text-white"
+                            : "bg-[var(--color-bg-card)] text-[var(--color-text-secondary)] border border-[var(--color-border)]"
+                        )}
+                      >
+                        {year}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Main timeline line */}
+              <div className="relative h-3 bg-[var(--color-border)] rounded-full my-6">
+                {/* Current position marker */}
+                {(() => {
+                  const totalMonths = TOTAL_YEARS * 12;
+                  const monthsFromStart = differenceInMonths(today, new Date(startYear, 0, 1));
+                  const progressPercent = Math.min(100, Math.max(0, (monthsFromStart / totalMonths) * 100));
+                  return (
+                    <>
+                      {/* Progress fill */}
+                      <div
+                        className="absolute top-0 left-0 h-full bg-[var(--color-primary)]/30 rounded-full"
+                        style={{ width: `${progressPercent}%` }}
+                      />
+                      {/* Today marker */}
+                      <div
+                        className="absolute top-1/2 -translate-y-1/2 w-5 h-5 bg-[var(--color-primary)] rounded-full border-4 border-white shadow-lg z-10"
+                        style={{ left: `${progressPercent}%`, marginLeft: "-10px" }}
+                        title="Сегодня"
+                      />
+                    </>
+                  );
+                })()}
+
+                {/* Event markers on the line */}
+                {eventList.map((evt) => {
+                  const evtDate = new Date(evt.startDate);
+                  const monthsFromStart = differenceInMonths(evtDate, new Date(startYear, 0, 1));
+                  const totalMonths = TOTAL_YEARS * 12;
+                  const positionPercent = Math.min(100, Math.max(0, (monthsFromStart / totalMonths) * 100));
+                  const displayColor = evt.color || evt.category?.color || "#0D9488";
+                  const isPast = evtDate < today;
+
+                  return (
+                    <button
+                      key={evt.id}
+                      type="button"
+                      onClick={() => handleEventClick(evt)}
+                      className={cn(
+                        "absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 border-white shadow-md cursor-pointer transition-transform hover:scale-150 z-20",
+                        isPast && "opacity-50"
+                      )}
+                      style={{
+                        left: `${positionPercent}%`,
+                        marginLeft: "-8px",
+                        backgroundColor: displayColor,
+                      }}
+                      title={`${evt.title} - ${format(evtDate, "d MMM yyyy", { locale: ru })}`}
+                    />
+                  );
+                })}
+              </div>
+
+              {/* Month labels */}
+              <div className="flex text-[10px] text-[var(--color-text-muted)] mb-8">
+                {Array.from({ length: TOTAL_YEARS }, (_, yearIdx) => (
+                  <div key={yearIdx} className="flex-1 flex">
+                    {Array.from({ length: 12 }, (_, monthIdx) => {
+                      const monthDate = new Date(startYear + yearIdx, monthIdx, 1);
+                      const isCurrentMonth = format(monthDate, "yyyy-MM") === currentMonthKey;
+                      return (
+                        <div
+                          key={monthIdx}
+                          className={cn(
+                            "flex-1 text-center",
+                            isCurrentMonth && "font-bold text-[var(--color-primary)]"
+                          )}
+                        >
+                          {format(monthDate, "MMM", { locale: ru })}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+
+              {/* Events list below timeline */}
+              <div className="space-y-2 max-w-3xl mx-auto">
+                <h3 className="text-sm font-semibold text-[var(--color-text-muted)] mb-3">
+                  Ближайшие события
+                </h3>
+                {eventList
+                  .filter((evt) => new Date(evt.startDate) >= today)
+                  .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
+                  .slice(0, 10)
+                  .map((evt) => {
+                    const displayColor = evt.color || evt.category?.color || "#0D9488";
+                    return (
+                      <button
+                        key={evt.id}
+                        type="button"
+                        onClick={() => handleEventClick(evt)}
+                        className="w-full flex items-center gap-3 p-3 rounded-xl bg-[var(--color-bg-card)] border border-[var(--color-border)] hover:border-[var(--color-primary)]/30 hover:shadow-sm transition-all cursor-pointer text-left"
+                      >
+                        <span
+                          className="w-3 h-3 rounded-full shrink-0"
+                          style={{ backgroundColor: displayColor }}
+                        />
+                        <span className="flex-1 font-medium text-[var(--color-text)] truncate">
+                          {evt.title}
+                        </span>
+                        {evt.category && (
+                          <span
+                            className="text-[10px] px-1.5 py-0.5 rounded-md font-semibold text-white shrink-0"
+                            style={{ backgroundColor: evt.category.color }}
+                          >
+                            {evt.category.name}
+                          </span>
+                        )}
+                        <span className="text-sm text-[var(--color-text-secondary)] shrink-0">
+                          {format(new Date(evt.startDate), "d MMM yyyy", { locale: ru })}
+                        </span>
+                      </button>
+                    );
+                  })}
+                {eventList.filter((evt) => new Date(evt.startDate) >= today).length === 0 && (
+                  <p className="text-sm text-[var(--color-text-muted)] italic text-center py-4">
+                    Нет предстоящих событий
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Vertical scrollable timeline */}
+      {viewMode === "vertical" && (
       <div className="flex-1 overflow-y-auto pb-24">
         {/* Year sections */}
         {Array.from({ length: TOTAL_YEARS }, (_, yearIdx) => {
@@ -343,6 +539,7 @@ export function TimelineView() {
           );
         })}
       </div>
+      )}
 
       {/* Quick add menu */}
       <QuickAddMenu
