@@ -23,8 +23,9 @@ jobs:
           script: |
             cd /opt/family-planner
             git pull origin main
-            docker compose down --remove-orphans --timeout 10
-            docker rm -f family-planner-app-1 2>/dev/null || true
+            # Pull new image BEFORE stopping (zero-downtime)
             docker pull ghcr.io/bunnycharl/family-planner:latest
+            # Now stop and restart (image already cached)
+            docker compose down --remove-orphans --timeout 10
             docker compose up -d
             docker image prune -f
