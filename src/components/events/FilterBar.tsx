@@ -148,8 +148,8 @@ export function FilterBar({
       </div>
 
       {/* Row 2: Date range */}
-      <div className="flex items-end gap-2">
-        <div className="flex flex-1 flex-col gap-1">
+      <div className="grid grid-cols-2 gap-2">
+        <div className="flex flex-col gap-1">
           <label
             htmlFor="filter-start"
             className="text-xs font-medium text-gray-500"
@@ -167,13 +167,13 @@ export function FilterBar({
               })
             }
             className={cn(
-              "w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm",
+              "w-full rounded-md border border-gray-300 px-3 py-2 text-sm",
               "focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             )}
           />
         </div>
 
-        <div className="flex flex-1 flex-col gap-1">
+        <div className="flex flex-col gap-1">
           <label
             htmlFor="filter-end"
             className="text-xs font-medium text-gray-500"
@@ -191,26 +191,26 @@ export function FilterBar({
               })
             }
             className={cn(
-              "w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm",
+              "w-full rounded-md border border-gray-300 px-3 py-2 text-sm",
               "focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             )}
           />
         </div>
-
-        {/* Clear button */}
-        {hasActiveFilters && (
-          <button
-            type="button"
-            onClick={handleClear}
-            className={cn(
-              "shrink-0 rounded-md px-3 py-1.5 text-sm font-medium",
-              "text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors"
-            )}
-          >
-            Сбросить
-          </button>
-        )}
       </div>
+
+      {/* Row 3: Clear button */}
+      {hasActiveFilters && (
+        <button
+          type="button"
+          onClick={handleClear}
+          className={cn(
+            "w-full rounded-md px-3 py-2 text-sm font-medium",
+            "text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors"
+          )}
+        >
+          Сбросить фильтры
+        </button>
+      )}
     </div>
   );
 }
