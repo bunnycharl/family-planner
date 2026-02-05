@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
-import { format, differenceInMonths } from "date-fns";
+import { useRef, useEffect, useState, useCallback } from "react";
+import { format, differenceInMonths, getDaysInMonth } from "date-fns";
 import { ru } from "date-fns/locale";
 import { useEvents } from "@/hooks/useEvents";
 import { EventForm } from "../calendar/EventForm";
@@ -25,14 +25,46 @@ interface TimelineEvent {
 export function TimelineView() {
   const todayRef = useRef<HTMLDivElement>(null);
   const horizontalScrollRef = useRef<HTMLDivElement>(null);
+  const touchStartRef = useRef<number | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("vertical");
   const [eventFormOpen, setEventFormOpen] = useState(false);
   const [taskFormOpen, setTaskFormOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<TimelineEvent | null>(null);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   const currentYear = new Date().getFullYear();
   const startYear = currentYear;
   const endYear = currentYear + TOTAL_YEARS - 1;
+
+  // Year navigation
+  const canGoPrev = selectedYear > startYear;
+  const canGoNext = selectedYear < endYear;
+
+  const goToPrevYear = useCallback(() => {
+    if (canGoPrev) setSelectedYear((y) => y - 1);
+  }, [canGoPrev]);
+
+  const goToNextYear = useCallback(() => {
+    if (canGoNext) setSelectedYear((y) => y + 1);
+  }, [canGoNext]);
+
+  // Swipe handlers for year navigation
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartRef.current = e.touches[0].clientX;
+  }, []);
+
+  const handleTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      if (touchStartRef.current === null) return;
+      const diff = touchStartRef.current - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 80) {
+        if (diff > 0) goToNextYear();
+        else goToPrevYear();
+      }
+      touchStartRef.current = null;
+    },
+    [goToNextYear, goToPrevYear]
+  );
 
   const { events, isLoading, mutate } = useEvents({
     start: new Date(startYear, 0, 1).toISOString(),
@@ -171,156 +203,189 @@ export function TimelineView() {
 
       {/* Horizontal timeline view */}
       {viewMode === "horizontal" && (
-        <div className="flex-1 overflow-hidden pb-24">
+        <div
+          className="flex-1 overflow-hidden pb-24 flex flex-col"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          {/* Year navigation */}
+          <div className="flex items-center justify-center gap-4 py-4 bg-[var(--color-bg-card)] border-b border-[var(--color-border)]">
+            <button
+              type="button"
+              onClick={goToPrevYear}
+              disabled={!canGoPrev}
+              className={cn(
+                "p-2 rounded-xl transition-all cursor-pointer",
+                canGoPrev
+                  ? "hover:bg-[var(--color-bg)] text-[var(--color-text)]"
+                  : "text-[var(--color-text-muted)] opacity-30 cursor-not-allowed"
+              )}
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <div className="flex items-center gap-2">
+              {Array.from({ length: TOTAL_YEARS }, (_, i) => {
+                const year = startYear + i;
+                const isSelected = year === selectedYear;
+                const isCurrent = year === currentYear;
+                return (
+                  <button
+                    key={year}
+                    type="button"
+                    onClick={() => setSelectedYear(year)}
+                    className={cn(
+                      "px-3 py-1.5 rounded-lg text-sm font-bold transition-all cursor-pointer",
+                      isSelected
+                        ? "bg-[var(--color-primary)] text-white shadow-md"
+                        : isCurrent
+                          ? "bg-[var(--color-primary-50)] text-[var(--color-primary)]"
+                          : "text-[var(--color-text-muted)] hover:bg-[var(--color-bg)]"
+                    )}
+                  >
+                    {year}
+                  </button>
+                );
+              })}
+            </div>
+            <button
+              type="button"
+              onClick={goToNextYear}
+              disabled={!canGoNext}
+              className={cn(
+                "p-2 rounded-xl transition-all cursor-pointer",
+                canGoNext
+                  ? "hover:bg-[var(--color-bg)] text-[var(--color-text)]"
+                  : "text-[var(--color-text-muted)] opacity-30 cursor-not-allowed"
+              )}
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Timeline content */}
           <div
             ref={horizontalScrollRef}
-            className="h-full overflow-x-auto overflow-y-auto px-4 py-6"
+            className="flex-1 overflow-y-auto px-4 py-6"
           >
-            {/* Timeline container */}
-            <div className="relative min-w-[1200px] pb-8">
-              {/* Year markers */}
-              <div className="flex mb-2">
-                {Array.from({ length: TOTAL_YEARS }, (_, i) => {
-                  const year = startYear + i;
-                  const isCurrentYear = year === today.getFullYear();
-                  return (
-                    <div key={year} className="flex-1 text-center">
-                      <span
-                        className={cn(
-                          "inline-block px-4 py-1.5 rounded-lg text-sm font-bold",
-                          isCurrentYear
-                            ? "bg-[var(--color-primary)] text-white"
-                            : "bg-[var(--color-bg-card)] text-[var(--color-text-secondary)] border border-[var(--color-border)]"
-                        )}
-                      >
-                        {year}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Main timeline line */}
-              <div className="relative h-3 bg-[var(--color-border)] rounded-full my-6">
-                {/* Current position marker */}
-                {(() => {
-                  const totalMonths = TOTAL_YEARS * 12;
-                  const monthsFromStart = differenceInMonths(today, new Date(startYear, 0, 1));
-                  const progressPercent = Math.min(100, Math.max(0, (monthsFromStart / totalMonths) * 100));
-                  return (
-                    <>
-                      {/* Progress fill */}
-                      <div
-                        className="absolute top-0 left-0 h-full bg-[var(--color-primary)]/30 rounded-full"
-                        style={{ width: `${progressPercent}%` }}
-                      />
-                      {/* Today marker */}
-                      <div
-                        className="absolute top-1/2 -translate-y-1/2 w-5 h-5 bg-[var(--color-primary)] rounded-full border-4 border-white shadow-lg z-10"
-                        style={{ left: `${progressPercent}%`, marginLeft: "-10px" }}
-                        title="Сегодня"
-                      />
-                    </>
-                  );
-                })()}
-
-                {/* Event markers on the line */}
-                {eventList.map((evt) => {
+            {/* Month columns grid */}
+            <div className="grid grid-cols-12 gap-1 sm:gap-2 min-h-[400px]">
+              {Array.from({ length: 12 }, (_, monthIdx) => {
+                const monthDate = new Date(selectedYear, monthIdx, 1);
+                const monthKey = format(monthDate, "yyyy-MM");
+                const isCurrentMonth = monthKey === currentMonthKey;
+                const isPastMonth = monthDate < new Date(today.getFullYear(), today.getMonth(), 1);
+                const monthEvents = eventList.filter((evt) => {
                   const evtDate = new Date(evt.startDate);
-                  const monthsFromStart = differenceInMonths(evtDate, new Date(startYear, 0, 1));
-                  const totalMonths = TOTAL_YEARS * 12;
-                  const positionPercent = Math.min(100, Math.max(0, (monthsFromStart / totalMonths) * 100));
-                  const displayColor = evt.color || evt.category?.color || "#0D9488";
-                  const isPast = evtDate < today;
+                  return evtDate.getFullYear() === selectedYear && evtDate.getMonth() === monthIdx;
+                });
 
-                  return (
-                    <button
-                      key={evt.id}
-                      type="button"
-                      onClick={() => handleEventClick(evt)}
+                // Calculate today position within month
+                const isCurrentMonthWithToday = isCurrentMonth && selectedYear === today.getFullYear();
+                const todayPosition = isCurrentMonthWithToday
+                  ? ((today.getDate() - 1) / getDaysInMonth(today)) * 100
+                  : null;
+
+                return (
+                  <div
+                    key={monthIdx}
+                    className={cn(
+                      "flex flex-col rounded-xl border-2 transition-all min-h-[350px]",
+                      isCurrentMonth
+                        ? "border-[var(--color-primary)] bg-[var(--color-primary-50)]/50"
+                        : isPastMonth
+                          ? "border-[var(--color-border)] bg-[var(--color-bg)] opacity-60"
+                          : "border-[var(--color-border)] bg-[var(--color-bg-card)]"
+                    )}
+                  >
+                    {/* Month header */}
+                    <div
                       className={cn(
-                        "absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 border-white shadow-md cursor-pointer transition-transform hover:scale-150 z-20",
-                        isPast && "opacity-50"
+                        "py-2 px-1 text-center border-b",
+                        isCurrentMonth
+                          ? "bg-[var(--color-primary)] text-white border-[var(--color-primary)]"
+                          : "bg-[var(--color-bg)] border-[var(--color-border)]"
                       )}
-                      style={{
-                        left: `${positionPercent}%`,
-                        marginLeft: "-8px",
-                        backgroundColor: displayColor,
-                      }}
-                      title={`${evt.title} - ${format(evtDate, "d MMM yyyy", { locale: ru })}`}
-                    />
-                  );
-                })}
-              </div>
+                    >
+                      <div className="text-xs sm:text-sm font-bold capitalize">
+                        {format(monthDate, "LLL", { locale: ru })}
+                      </div>
+                    </div>
 
-              {/* Month labels */}
-              <div className="flex text-[10px] text-[var(--color-text-muted)] mb-8">
-                {Array.from({ length: TOTAL_YEARS }, (_, yearIdx) => (
-                  <div key={yearIdx} className="flex-1 flex">
-                    {Array.from({ length: 12 }, (_, monthIdx) => {
-                      const monthDate = new Date(startYear + yearIdx, monthIdx, 1);
-                      const isCurrentMonth = format(monthDate, "yyyy-MM") === currentMonthKey;
-                      return (
+                    {/* Timeline bar within month */}
+                    <div className="relative h-2 mx-1 mt-2 bg-[var(--color-border)] rounded-full">
+                      {/* Today marker */}
+                      {todayPosition !== null && (
                         <div
-                          key={monthIdx}
-                          className={cn(
-                            "flex-1 text-center",
-                            isCurrentMonth && "font-bold text-[var(--color-primary)]"
-                          )}
-                        >
-                          {format(monthDate, "MMM", { locale: ru })}
-                        </div>
-                      );
-                    })}
-                  </div>
-                ))}
-              </div>
-
-              {/* Events list below timeline */}
-              <div className="space-y-2 max-w-3xl mx-auto">
-                <h3 className="text-sm font-semibold text-[var(--color-text-muted)] mb-3">
-                  Ближайшие события
-                </h3>
-                {eventList
-                  .filter((evt) => new Date(evt.startDate) >= today)
-                  .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
-                  .slice(0, 10)
-                  .map((evt) => {
-                    const displayColor = evt.color || evt.category?.color || "#0D9488";
-                    return (
-                      <button
-                        key={evt.id}
-                        type="button"
-                        onClick={() => handleEventClick(evt)}
-                        className="w-full flex items-center gap-3 p-3 rounded-xl bg-[var(--color-bg-card)] border border-[var(--color-border)] hover:border-[var(--color-primary)]/30 hover:shadow-sm transition-all cursor-pointer text-left"
-                      >
-                        <span
-                          className="w-3 h-3 rounded-full shrink-0"
-                          style={{ backgroundColor: displayColor }}
+                          className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-[var(--color-primary)] rounded-full border-2 border-white shadow-md z-10"
+                          style={{ left: `${todayPosition}%`, marginLeft: "-6px" }}
+                          title="Сегодня"
                         />
-                        <span className="flex-1 font-medium text-[var(--color-text)] truncate">
-                          {evt.title}
-                        </span>
-                        {evt.category && (
-                          <span
-                            className="text-[10px] px-1.5 py-0.5 rounded-md font-semibold text-white shrink-0"
-                            style={{ backgroundColor: evt.category.color }}
-                          >
-                            {evt.category.name}
-                          </span>
-                        )}
-                        <span className="text-sm text-[var(--color-text-secondary)] shrink-0">
-                          {format(new Date(evt.startDate), "d MMM yyyy", { locale: ru })}
-                        </span>
-                      </button>
-                    );
-                  })}
-                {eventList.filter((evt) => new Date(evt.startDate) >= today).length === 0 && (
-                  <p className="text-sm text-[var(--color-text-muted)] italic text-center py-4">
-                    Нет предстоящих событий
-                  </p>
-                )}
-              </div>
+                      )}
+                      {/* Event markers on mini timeline */}
+                      {monthEvents.map((evt) => {
+                        const evtDate = new Date(evt.startDate);
+                        const dayPosition = ((evtDate.getDate() - 1) / getDaysInMonth(evtDate)) * 100;
+                        const displayColor = evt.color || evt.category?.color || "#0D9488";
+                        return (
+                          <div
+                            key={evt.id}
+                            className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full"
+                            style={{
+                              left: `${dayPosition}%`,
+                              marginLeft: "-4px",
+                              backgroundColor: displayColor,
+                            }}
+                          />
+                        );
+                      })}
+                    </div>
+
+                    {/* Events list */}
+                    <div className="flex-1 p-1 space-y-1 overflow-y-auto">
+                      {monthEvents.length > 0 ? (
+                        monthEvents.map((evt) => {
+                          const evtDate = new Date(evt.startDate);
+                          const displayColor = evt.color || evt.category?.color || "#0D9488";
+                          const isPast = evtDate < today;
+                          return (
+                            <button
+                              key={evt.id}
+                              type="button"
+                              onClick={() => handleEventClick(evt)}
+                              className={cn(
+                                "w-full text-left p-1.5 sm:p-2 rounded-lg border-l-3 transition-all cursor-pointer",
+                                "hover:shadow-md bg-[var(--color-bg-card)]",
+                                isPast && "opacity-50"
+                              )}
+                              style={{ borderLeftColor: displayColor, borderLeftWidth: "3px" }}
+                            >
+                              <div className="flex items-start gap-1">
+                                <span
+                                  className="shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-md flex items-center justify-center text-[10px] sm:text-xs font-bold text-white"
+                                  style={{ backgroundColor: displayColor }}
+                                >
+                                  {evtDate.getDate()}
+                                </span>
+                                <span className="text-[10px] sm:text-xs font-medium text-[var(--color-text)] line-clamp-2 leading-tight">
+                                  {evt.title}
+                                </span>
+                              </div>
+                            </button>
+                          );
+                        })
+                      ) : (
+                        <div className="h-full flex items-center justify-center">
+                          <span className="text-[10px] text-[var(--color-text-muted)] italic">—</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
