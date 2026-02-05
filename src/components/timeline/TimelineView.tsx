@@ -114,19 +114,20 @@ export function TimelineView() {
   });
 
   return (
-    <div className="relative h-full flex flex-col">
+    <div className="relative h-full flex flex-col bg-[var(--color-bg)]">
       {/* Header */}
-      <div className="px-4 pt-4 pb-2 flex items-center justify-between shrink-0">
-        <h1 className="text-xl font-bold text-gray-900">Таймлайн</h1>
-        <span className="text-sm text-gray-500">
+      <div className="px-4 pt-4 pb-3 flex items-center justify-between shrink-0 bg-[var(--color-bg-card)] border-b border-[var(--color-border)]">
+        <h1 className="text-xl font-bold text-[var(--color-text)]">Таймлайн</h1>
+        <span className="text-sm font-medium text-[var(--color-text-muted)] bg-[var(--color-bg)] px-3 py-1 rounded-lg">
           {startYear} &ndash; {endYear}
         </span>
       </div>
 
       {/* Loading state */}
       {isLoading && (
-        <div className="px-4 py-8 text-center text-gray-400 text-sm">
-          Загрузка...
+        <div className="px-4 py-12 flex flex-col items-center justify-center gap-3">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--color-border)] border-t-[var(--color-primary)]" />
+          <span className="text-sm text-[var(--color-text-muted)]">Загрузка...</span>
         </div>
       )}
 
@@ -146,27 +147,27 @@ export function TimelineView() {
               {/* Year header */}
               <div
                 className={cn(
-                  "sticky top-0 z-20 px-4 py-3 border-b",
+                  "sticky top-0 z-20 px-4 py-3 border-b backdrop-blur-sm",
                   isCurrentYear
-                    ? "bg-indigo-50 border-indigo-200"
+                    ? "bg-[var(--color-primary-50)]/90 border-[var(--color-primary)]/20"
                     : isPastYear
-                      ? "bg-gray-100 border-gray-200"
-                      : "bg-gray-50 border-gray-200"
+                      ? "bg-[var(--color-bg)]/90 border-[var(--color-border)]"
+                      : "bg-[var(--color-bg-card)]/90 border-[var(--color-border)]"
                 )}
               >
                 <h2
                   className={cn(
                     "text-lg font-bold",
                     isCurrentYear
-                      ? "text-indigo-700"
+                      ? "text-[var(--color-primary)]"
                       : isPastYear
-                        ? "text-gray-500"
-                        : "text-gray-700"
+                        ? "text-[var(--color-text-muted)]"
+                        : "text-[var(--color-text)]"
                   )}
                 >
                   {year}
                   {isCurrentYear && (
-                    <span className="ml-2 text-sm font-normal text-indigo-500">
+                    <span className="ml-2 text-sm font-normal text-[var(--color-primary-light)]">
                       — текущий год
                     </span>
                   )}
@@ -185,21 +186,21 @@ export function TimelineView() {
                       key={monthKey}
                       ref={isCurrentMonth ? todayRef : undefined}
                       className={cn(
-                        "rounded-xl p-4 transition-opacity",
+                        "rounded-2xl p-4 transition-all",
                         isPast && "opacity-50",
                         isCurrentMonth
-                          ? "bg-indigo-50/50 ring-2 ring-indigo-200"
-                          : "bg-white border border-gray-100"
+                          ? "bg-[var(--color-primary-50)] ring-2 ring-[var(--color-primary)]/30"
+                          : "bg-[var(--color-bg-card)] border border-[var(--color-border)]"
                       )}
                     >
                       {/* Month header */}
-                      <div className="flex items-center gap-3 mb-3">
+                      <div className="flex items-center gap-3 mb-4">
                         <div
                           className={cn(
-                            "flex h-10 w-10 items-center justify-center rounded-full font-bold text-lg",
+                            "flex h-11 w-11 items-center justify-center rounded-xl font-bold text-lg",
                             isCurrentMonth
-                              ? "bg-indigo-600 text-white"
-                              : "bg-gray-100 text-gray-600"
+                              ? "bg-[var(--color-primary)] text-white shadow-sm"
+                              : "bg-[var(--color-bg)] text-[var(--color-text-secondary)]"
                           )}
                         >
                           {format(monthDate, "M", { locale: ru })}
@@ -208,13 +209,13 @@ export function TimelineView() {
                           <h3
                             className={cn(
                               "font-semibold capitalize",
-                              isCurrentMonth ? "text-indigo-700" : "text-gray-800"
+                              isCurrentMonth ? "text-[var(--color-primary)]" : "text-[var(--color-text)]"
                             )}
                           >
                             {monthName}
                           </h3>
                           {isCurrentMonth && (
-                            <span className="text-xs text-indigo-500">
+                            <span className="text-xs text-[var(--color-primary-light)]">
                               Текущий месяц
                             </span>
                           )}

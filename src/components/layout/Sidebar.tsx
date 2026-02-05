@@ -10,8 +10,8 @@ const navItems = [
     href: "/calendar",
     icon: (
       <svg
-        width="24"
-        height="24"
+        width="20"
+        height="20"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -31,8 +31,8 @@ const navItems = [
     href: "/timeline",
     icon: (
       <svg
-        width="24"
-        height="24"
+        width="20"
+        height="20"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -52,8 +52,8 @@ const navItems = [
     href: "/board",
     icon: (
       <svg
-        width="24"
-        height="24"
+        width="20"
+        height="20"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -72,8 +72,8 @@ const navItems = [
     href: "/events",
     icon: (
       <svg
-        width="24"
-        height="24"
+        width="20"
+        height="20"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -97,8 +97,8 @@ const settingsItem = {
   href: "/settings",
   icon: (
     <svg
-      width="24"
-      height="24"
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -116,12 +116,41 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden w-64 shrink-0 flex-col border-r bg-white md:flex">
-      <div className="p-6">
-        <h1 className="text-xl font-bold text-gray-900">Family Planner</h1>
+    <aside className="hidden w-64 shrink-0 flex-col border-r border-[var(--color-border)] bg-[var(--color-bg-card)] md:flex">
+      {/* Logo */}
+      <div className="p-6 pb-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-primary)] shadow-sm">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="white"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+              <polyline points="9 22 9 12 15 12 15 22" />
+            </svg>
+          </div>
+          <div>
+            <h1 className="text-lg font-bold text-[var(--color-text)]">
+              Family Planner
+            </h1>
+            <p className="text-xs text-[var(--color-text-muted)]">
+              Планирование семьи
+            </p>
+          </div>
+        </div>
       </div>
 
+      {/* Navigation */}
       <nav className="flex flex-1 flex-col gap-1 px-3">
+        <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
+          Меню
+        </p>
         {navItems.map((item) => {
           const isActive = pathname.startsWith(item.href);
           return (
@@ -129,29 +158,38 @@ export function Sidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-4 py-3 text-gray-700 hover:bg-gray-100",
-                isActive && "bg-indigo-50 text-indigo-600"
+                "flex items-center gap-3 rounded-xl px-4 py-3 font-medium transition-all cursor-pointer",
+                isActive
+                  ? "bg-[var(--color-primary)] text-white shadow-sm"
+                  : "text-[var(--color-text-secondary)] hover:bg-[var(--color-primary-50)] hover:text-[var(--color-primary)]"
               )}
             >
               {item.icon}
               <span>{item.label}</span>
+              {isActive && (
+                <div className="ml-auto h-2 w-2 rounded-full bg-white/50" />
+              )}
             </Link>
           );
         })}
 
         <div className="flex-1" />
 
-        <Link
-          href={settingsItem.href}
-          className={cn(
-            "mb-4 flex items-center gap-3 rounded-lg px-4 py-3 text-gray-700 hover:bg-gray-100",
-            pathname.startsWith(settingsItem.href) &&
-              "bg-indigo-50 text-indigo-600"
-          )}
-        >
-          {settingsItem.icon}
-          <span>{settingsItem.label}</span>
-        </Link>
+        {/* Settings */}
+        <div className="border-t border-[var(--color-border)] pt-3">
+          <Link
+            href={settingsItem.href}
+            className={cn(
+              "mb-4 flex items-center gap-3 rounded-xl px-4 py-3 font-medium transition-all cursor-pointer",
+              pathname.startsWith(settingsItem.href)
+                ? "bg-[var(--color-primary)] text-white shadow-sm"
+                : "text-[var(--color-text-secondary)] hover:bg-[var(--color-primary-50)] hover:text-[var(--color-primary)]"
+            )}
+          >
+            {settingsItem.icon}
+            <span>{settingsItem.label}</span>
+          </Link>
+        </div>
       </nav>
     </aside>
   );

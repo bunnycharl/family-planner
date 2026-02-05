@@ -48,13 +48,18 @@ export function MonthView({
   }
 
   return (
-    <div className="flex flex-col px-2 sm:px-4">
+    <div className="flex flex-col px-2 sm:px-4 pb-4">
       {/* Day name headers */}
-      <div className="grid grid-cols-7">
-        {DAY_NAMES.map((name) => (
+      <div className="grid grid-cols-7 mb-2">
+        {DAY_NAMES.map((name, idx) => (
           <div
             key={name}
-            className="py-2 text-center text-xs font-medium text-gray-500"
+            className={cn(
+              "py-3 text-center text-xs font-semibold uppercase tracking-wider",
+              idx >= 5
+                ? "text-[var(--color-accent)]"
+                : "text-[var(--color-text-muted)]"
+            )}
           >
             {name}
           </div>
@@ -62,7 +67,7 @@ export function MonthView({
       </div>
 
       {/* Day cells */}
-      <div className="grid grid-cols-7 flex-1 border-t border-l">
+      <div className="grid grid-cols-7 flex-1 gap-1">
         {days.map((day) => {
           const dayEvents = getEventsForDay(day);
           const inCurrentMonth = isSameMonth(day, currentDate);
@@ -74,22 +79,25 @@ export function MonthView({
               key={day.toISOString()}
               onClick={() => onDateClick(day)}
               className={cn(
-                "min-h-[80px] cursor-pointer border-b border-r p-1 transition-colors hover:bg-gray-50 sm:min-h-[100px] sm:p-2",
-                !inCurrentMonth && "bg-gray-50/50"
+                "min-h-[80px] cursor-pointer rounded-xl p-2 transition-all sm:min-h-[100px]",
+                "hover:bg-[var(--color-primary-50)] hover:ring-1 hover:ring-[var(--color-primary)]/20",
+                !inCurrentMonth && "opacity-40",
+                inCurrentMonth && "bg-[var(--color-bg-card)]",
+                today && "ring-2 ring-[var(--color-primary)] bg-[var(--color-primary-50)]"
               )}
             >
               <div
                 className={cn(
-                  "mb-1 flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium sm:text-sm",
-                  today && "ring-2 ring-indigo-500 bg-indigo-50 text-indigo-700",
-                  !inCurrentMonth && "text-gray-300",
-                  inCurrentMonth && !today && "text-gray-900"
+                  "mb-1 flex h-7 w-7 items-center justify-center rounded-lg text-sm font-semibold",
+                  today && "bg-[var(--color-primary)] text-white",
+                  !today && inCurrentMonth && "text-[var(--color-text)]",
+                  !inCurrentMonth && "text-[var(--color-text-muted)]"
                 )}
               >
                 {format(day, "d")}
               </div>
 
-              <div className="space-y-0.5">
+              <div className="space-y-1">
                 {dayEvents.slice(0, MAX_VISIBLE_EVENTS).map((event) => (
                   <EventChip
                     key={event.id}
@@ -98,8 +106,8 @@ export function MonthView({
                   />
                 ))}
                 {extraCount > 0 && (
-                  <div className="px-1 text-xs text-gray-500">
-                    +{extraCount}
+                  <div className="px-1 text-xs font-medium text-[var(--color-primary)]">
+                    +{extraCount} ещё
                   </div>
                 )}
               </div>

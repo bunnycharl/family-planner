@@ -67,26 +67,44 @@ export function EventCard({ event, onClick }: EventCardProps) {
         }
       }}
       className={cn(
-        "bg-white rounded-lg p-4 shadow-sm border-l-4",
-        "cursor-pointer hover:shadow-md transition-shadow"
+        "bg-[var(--color-bg-card)] rounded-2xl p-4 border border-[var(--color-border)]",
+        "cursor-pointer transition-all hover:shadow-lg hover:border-[var(--color-primary)]/30",
+        "hover:translate-y-[-2px]"
       )}
-      style={{
-        borderLeftColor: event.category?.color ?? "#9ca3af",
-      }}
     >
+      {/* Header with category color bar */}
+      <div
+        className="h-1 w-12 rounded-full mb-3"
+        style={{ backgroundColor: event.category?.color ?? "#0D9488" }}
+      />
+
       {/* Title */}
-      <h3 className="font-medium text-gray-900 line-clamp-1">{event.title}</h3>
+      <h3 className="font-semibold text-[var(--color-text)] line-clamp-1 mb-1">
+        {event.title}
+      </h3>
 
       {/* Date/time */}
-      <p className="mt-1 text-sm text-gray-500">{formatEventDate(event)}</p>
+      <div className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)] mb-3">
+        <svg
+          className="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <rect x="3" y="4" width="18" height="18" rx="2" />
+          <line x1="3" y1="10" x2="21" y2="10" />
+        </svg>
+        {formatEventDate(event)}
+      </div>
 
       {/* Bottom row */}
-      <div className="mt-2 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 min-w-0">
+      <div className="flex items-center justify-between gap-2 pt-3 border-t border-[var(--color-border-light)]">
+        <div className="flex items-center gap-2 min-w-0 flex-wrap">
           {/* Category badge */}
           {event.category && (
             <span
-              className="inline-flex shrink-0 rounded-full px-2 py-0.5 text-xs font-medium text-white"
+              className="inline-flex shrink-0 rounded-lg px-2.5 py-1 text-xs font-semibold text-white"
               style={{ backgroundColor: event.category.color }}
             >
               {event.category.name}
@@ -95,9 +113,9 @@ export function EventCard({ event, onClick }: EventCardProps) {
 
           {/* Location */}
           {event.location && (
-            <span className="flex items-center gap-1 text-xs text-gray-400 truncate min-w-0">
+            <span className="flex items-center gap-1 text-xs text-[var(--color-text-muted)] truncate min-w-0">
               <svg
-                className="h-3 w-3 shrink-0"
+                className="h-3.5 w-3.5 shrink-0"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth={2}
@@ -121,7 +139,7 @@ export function EventCard({ event, onClick }: EventCardProps) {
 
         {/* Creator avatar */}
         <div
-          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-medium text-white"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white shadow-sm"
           style={{ backgroundColor: event.createdBy.avatarColor }}
           title={event.createdBy.name}
         >

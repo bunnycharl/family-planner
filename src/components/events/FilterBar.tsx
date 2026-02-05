@@ -55,18 +55,38 @@ export function FilterBar({
   );
 
   return (
-    <div className="space-y-2 p-3 bg-white rounded-lg shadow-sm">
-      {/* Row 1: Category picker */}
-      <div className="flex flex-col gap-1">
-        <span className="text-xs font-medium text-gray-500">Категория</span>
+    <div className="space-y-3 p-4 bg-[var(--color-bg-card)] rounded-2xl border border-[var(--color-border)]">
+      {/* Header */}
+      <div className="flex items-center gap-2 text-sm font-semibold text-[var(--color-text)]">
+        <svg
+          className="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+          />
+        </svg>
+        Фильтры
+      </div>
+
+      {/* Category picker */}
+      <div className="flex flex-col gap-1.5">
+        <span className="text-xs font-medium text-[var(--color-text-muted)]">
+          Категория
+        </span>
         <div className="relative" ref={dropdownRef}>
           <button
             type="button"
             onClick={() => setCategoryOpen(!categoryOpen)}
             className={cn(
-              "flex w-full items-center justify-between rounded-md border border-gray-300 px-3 py-2.5 text-base",
-              "focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
-              "bg-white text-left"
+              "flex w-full items-center justify-between rounded-xl border-2 border-[var(--color-border)] px-3 py-2.5 text-sm",
+              "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]",
+              "bg-[var(--color-bg)] text-left transition-all cursor-pointer"
             )}
           >
             <span className="flex items-center gap-2 truncate">
@@ -76,15 +96,15 @@ export function FilterBar({
                     className="inline-block h-3 w-3 shrink-0 rounded-full"
                     style={{ backgroundColor: selectedCategory.color }}
                   />
-                  <span className="text-gray-900">{selectedCategory.name}</span>
+                  <span className="text-[var(--color-text)]">{selectedCategory.name}</span>
                 </>
               ) : (
-                <span className="text-gray-500">Все категории</span>
+                <span className="text-[var(--color-text-muted)]">Все категории</span>
               )}
             </span>
             <svg
               className={cn(
-                "h-4 w-4 shrink-0 text-gray-400 transition-transform",
+                "h-4 w-4 shrink-0 text-[var(--color-text-muted)] transition-transform",
                 categoryOpen && "rotate-180"
               )}
               fill="none"
@@ -101,7 +121,7 @@ export function FilterBar({
           </button>
 
           {categoryOpen && (
-            <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-64 overflow-y-auto rounded-lg border bg-white shadow-lg">
+            <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-64 overflow-y-auto rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg-card)] shadow-lg">
               {/* "All" option */}
               <button
                 type="button"
@@ -110,13 +130,13 @@ export function FilterBar({
                   setCategoryOpen(false);
                 }}
                 className={cn(
-                  "flex w-full items-center gap-3 px-4 py-3 text-left text-base transition-colors",
+                  "flex w-full items-center gap-3 px-4 py-3 text-left text-sm transition-colors cursor-pointer",
                   !filters.categoryId
-                    ? "bg-indigo-50 text-indigo-700 font-medium"
-                    : "text-gray-700 hover:bg-gray-50"
+                    ? "bg-[var(--color-primary-50)] text-[var(--color-primary)] font-semibold"
+                    : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)]"
                 )}
               >
-                <span className="inline-block h-3 w-3 shrink-0 rounded-full bg-gray-300" />
+                <span className="inline-block h-3 w-3 shrink-0 rounded-full bg-[var(--color-text-muted)]" />
                 Все категории
               </button>
 
@@ -129,10 +149,10 @@ export function FilterBar({
                     setCategoryOpen(false);
                   }}
                   className={cn(
-                    "flex w-full items-center gap-3 px-4 py-3 text-left text-base transition-colors",
+                    "flex w-full items-center gap-3 px-4 py-3 text-left text-sm transition-colors cursor-pointer",
                     filters.categoryId === cat.id
-                      ? "bg-indigo-50 text-indigo-700 font-medium"
-                      : "text-gray-700 hover:bg-gray-50"
+                      ? "bg-[var(--color-primary-50)] text-[var(--color-primary)] font-semibold"
+                      : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)]"
                   )}
                 >
                   <span
@@ -147,12 +167,12 @@ export function FilterBar({
         </div>
       </div>
 
-      {/* Row 2: Date range */}
-      <div className="grid grid-cols-2 gap-2 overflow-hidden">
-        <div className="flex flex-col gap-1 min-w-0">
+      {/* Date range */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-col gap-1.5">
           <label
             htmlFor="filter-start"
-            className="text-xs font-medium text-gray-500"
+            className="text-xs font-medium text-[var(--color-text-muted)]"
           >
             С
           </label>
@@ -167,17 +187,18 @@ export function FilterBar({
               })
             }
             className={cn(
-              "w-full min-w-0 rounded-md border border-gray-300 px-2 py-2 text-sm",
-              "focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
+              "w-full rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm",
+              "text-[var(--color-text)]",
+              "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]",
               "[&::-webkit-date-and-time-value]:text-left"
             )}
           />
         </div>
 
-        <div className="flex flex-col gap-1 min-w-0">
+        <div className="flex flex-col gap-1.5">
           <label
             htmlFor="filter-end"
-            className="text-xs font-medium text-gray-500"
+            className="text-xs font-medium text-[var(--color-text-muted)]"
           >
             По
           </label>
@@ -192,22 +213,26 @@ export function FilterBar({
               })
             }
             className={cn(
-              "w-full min-w-0 rounded-md border border-gray-300 px-2 py-2 text-sm",
-              "focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
+              "w-full rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm",
+              "text-[var(--color-text)]",
+              "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]",
               "[&::-webkit-date-and-time-value]:text-left"
             )}
           />
         </div>
       </div>
 
-      {/* Row 3: Clear button */}
+      {/* Clear button */}
       {hasActiveFilters && (
         <button
           type="button"
           onClick={handleClear}
           className={cn(
-            "w-full rounded-md px-3 py-2 text-sm font-medium",
-            "text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors"
+            "w-full rounded-xl px-4 py-2.5 text-sm font-semibold",
+            "text-[var(--color-text-secondary)] bg-[var(--color-bg)]",
+            "border-2 border-[var(--color-border)]",
+            "hover:border-[var(--color-error)] hover:text-[var(--color-error)] hover:bg-[var(--color-error)]/5",
+            "transition-all cursor-pointer"
           )}
         >
           Сбросить фильтры

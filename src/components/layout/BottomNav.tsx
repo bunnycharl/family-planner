@@ -10,8 +10,8 @@ const navItems = [
     href: "/calendar",
     icon: (
       <svg
-        width="24"
-        height="24"
+        width="22"
+        height="22"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -31,8 +31,8 @@ const navItems = [
     href: "/timeline",
     icon: (
       <svg
-        width="24"
-        height="24"
+        width="22"
+        height="22"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -52,8 +52,8 @@ const navItems = [
     href: "/board",
     icon: (
       <svg
-        width="24"
-        height="24"
+        width="22"
+        height="22"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -72,8 +72,8 @@ const navItems = [
     href: "/events",
     icon: (
       <svg
-        width="24"
-        height="24"
+        width="22"
+        height="22"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -96,23 +96,41 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-16 items-center border-t bg-white md:hidden">
-      {navItems.map((item) => {
-        const isActive = pathname.startsWith(item.href);
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={cn(
-              "flex flex-1 flex-col items-center justify-center text-xs text-gray-500",
-              isActive && "text-indigo-600"
-            )}
-          >
-            {item.icon}
-            <span className="mt-1">{item.label}</span>
-          </Link>
-        );
-      })}
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--color-border)] bg-[var(--color-bg-card)]/95 backdrop-blur-sm md:hidden">
+      <div className="flex h-16 items-center justify-around px-2 pb-safe">
+        {navItems.map((item) => {
+          const isActive = pathname.startsWith(item.href);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex flex-1 flex-col items-center justify-center gap-0.5 py-1 transition-all cursor-pointer",
+                isActive
+                  ? "text-[var(--color-primary)]"
+                  : "text-[var(--color-text-muted)] active:text-[var(--color-primary)]"
+              )}
+            >
+              <div
+                className={cn(
+                  "flex h-8 w-8 items-center justify-center rounded-xl transition-all",
+                  isActive && "bg-[var(--color-primary-100)]"
+                )}
+              >
+                {item.icon}
+              </div>
+              <span
+                className={cn(
+                  "text-[10px] font-medium",
+                  isActive && "font-semibold"
+                )}
+              >
+                {item.label}
+              </span>
+            </Link>
+          );
+        })}
+      </div>
     </nav>
   );
 }

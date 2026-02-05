@@ -33,9 +33,9 @@ interface Task {
 }
 
 const COLUMNS = [
-  { status: "TODO", title: "К выполнению" },
-  { status: "IN_PROGRESS", title: "В процессе" },
-  { status: "DONE", title: "Готово" },
+  { status: "TODO", title: "К выполнению", icon: "circle" },
+  { status: "IN_PROGRESS", title: "В процессе", icon: "progress" },
+  { status: "DONE", title: "Готово", icon: "check" },
 ] as const;
 
 export function KanbanBoard() {
@@ -170,7 +170,7 @@ export function KanbanBoard() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-indigo-600" />
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--color-border)] border-t-[var(--color-primary)]" />
       </div>
     );
   }

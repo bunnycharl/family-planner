@@ -59,76 +59,90 @@ export function CalendarHeader({
   const modes: ViewMode[] = ["day", "month", "year"];
 
   return (
-    <div className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between bg-[var(--color-bg-card)] border-b border-[var(--color-border)]">
       {/* Left: navigation */}
       <div className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={() => navigate(-1)}
-          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100"
-          aria-label="Назад"
-        >
-          <svg
-            className="h-4 w-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+        <div className="flex items-center bg-[var(--color-bg)] rounded-xl p-1">
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className={cn(
+              "inline-flex h-9 w-9 items-center justify-center rounded-lg",
+              "text-[var(--color-text-secondary)] hover:bg-[var(--color-primary-50)] hover:text-[var(--color-primary)]",
+              "transition-all cursor-pointer"
+            )}
+            aria-label="Назад"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-        </button>
+            <svg
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+          </button>
 
-        <button
-          type="button"
-          onClick={() => navigate(1)}
-          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100"
-          aria-label="Вперёд"
-        >
-          <svg
-            className="h-4 w-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+          <button
+            type="button"
+            onClick={() => navigate(1)}
+            className={cn(
+              "inline-flex h-9 w-9 items-center justify-center rounded-lg",
+              "text-[var(--color-text-secondary)] hover:bg-[var(--color-primary-50)] hover:text-[var(--color-primary)]",
+              "transition-all cursor-pointer"
+            )}
+            aria-label="Вперёд"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </button>
+            <svg
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </button>
+        </div>
 
         <button
           type="button"
           onClick={goToToday}
-          className="rounded-md border border-gray-300 px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-100"
+          className={cn(
+            "rounded-xl border-2 border-[var(--color-primary)] px-4 py-2 text-sm font-semibold",
+            "text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white",
+            "transition-all cursor-pointer"
+          )}
         >
           Сегодня
         </button>
 
-        <h2 className="ml-2 text-base font-semibold capitalize text-gray-900 sm:text-lg">
+        <h2 className="ml-2 text-lg font-bold capitalize text-[var(--color-text)] sm:text-xl">
           {getDateLabel(currentDate, viewMode)}
         </h2>
       </div>
 
       {/* Right: view mode tabs */}
-      <div className="flex items-center gap-1 rounded-lg bg-gray-100 p-1">
+      <div className="flex items-center gap-1 rounded-xl bg-[var(--color-bg)] p-1">
         {modes.map((mode) => (
           <button
             key={mode}
             type="button"
             onClick={() => onViewModeChange(mode)}
             className={cn(
-              "rounded-md px-2 py-1 text-xs font-medium transition-colors sm:px-3 sm:text-sm",
+              "rounded-lg px-4 py-2 text-sm font-medium transition-all cursor-pointer",
               viewMode === mode
-                ? "bg-white text-indigo-600 shadow-sm"
-                : "text-gray-600 hover:text-gray-900"
+                ? "bg-[var(--color-primary)] text-white shadow-sm"
+                : "text-[var(--color-text-secondary)] hover:text-[var(--color-primary)]"
             )}
           >
             {VIEW_LABELS[mode]}
