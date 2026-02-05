@@ -73,7 +73,7 @@ function CustomSelect({
 
   return (
     <div>
-      <span className="mb-1 block text-sm font-medium text-gray-700">
+      <span className="mb-1.5 block text-xs font-medium text-[var(--color-text-muted)]">
         {label}
       </span>
       <div className="relative" ref={ref}>
@@ -81,9 +81,9 @@ function CustomSelect({
           type="button"
           onClick={() => setOpen(!open)}
           className={cn(
-            "flex w-full items-center justify-between rounded-lg border border-gray-300 px-3 py-2 text-base",
-            "focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
-            "bg-white text-left"
+            "flex w-full items-center justify-between rounded-xl border-2 border-[var(--color-border)] px-4 py-2.5 text-sm",
+            "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]",
+            "bg-[var(--color-bg)] text-left transition-all cursor-pointer"
           )}
         >
           <span className="flex items-center gap-2 truncate">
@@ -95,17 +95,17 @@ function CustomSelect({
                     style={{ backgroundColor: selected.color }}
                   />
                 )}
-                <span className="text-gray-900">{selected.label}</span>
+                <span className="text-[var(--color-text)]">{selected.label}</span>
               </>
             ) : (
-              <span className="text-gray-500">
+              <span className="text-[var(--color-text-muted)]">
                 {placeholder || "Выбрать..."}
               </span>
             )}
           </span>
           <svg
             className={cn(
-              "h-4 w-4 shrink-0 text-gray-400 transition-transform",
+              "h-4 w-4 shrink-0 text-[var(--color-text-muted)] transition-transform",
               open && "rotate-180"
             )}
             fill="none"
@@ -122,7 +122,7 @@ function CustomSelect({
         </button>
 
         {open && (
-          <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-56 overflow-y-auto rounded-lg border bg-white shadow-lg">
+          <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-56 overflow-y-auto rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg-card)] shadow-lg">
             {options.map((opt) => (
               <button
                 key={opt.value}
@@ -132,10 +132,10 @@ function CustomSelect({
                   setOpen(false);
                 }}
                 className={cn(
-                  "flex w-full items-center gap-3 px-4 py-3 text-left text-base transition-colors",
+                  "flex w-full items-center gap-3 px-4 py-3 text-left text-sm transition-colors cursor-pointer",
                   value === opt.value
-                    ? "bg-indigo-50 text-indigo-700 font-medium"
-                    : "text-gray-700 hover:bg-gray-50"
+                    ? "bg-[var(--color-primary-50)] text-[var(--color-primary)] font-semibold"
+                    : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)]"
                 )}
               >
                 {opt.color && (
@@ -294,49 +294,56 @@ export function TaskForm({
   return (
     <div className="fixed inset-0 z-[60]">
       {/* Overlay */}
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
       {/* Modal — full screen on mobile */}
       <div
         className={cn(
-          "absolute inset-0 z-10 bg-white flex flex-col",
+          "absolute inset-0 z-10 bg-[var(--color-bg-card)] flex flex-col",
           "md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2",
-          "md:max-w-lg md:w-full md:rounded-xl md:shadow-xl md:max-h-[90vh]"
+          "md:max-w-lg md:w-full md:rounded-2xl md:shadow-xl md:max-h-[90vh] md:border md:border-[var(--color-border)]"
         )}
       >
         <form onSubmit={handleSubmit} className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between border-b px-4 py-3 shrink-0">
-            <h2 className="text-lg font-semibold text-gray-900">
-              {isEditing ? "Редактировать задачу" : "Новая задача"}
-            </h2>
+          <div className="flex items-center justify-between border-b border-[var(--color-border)] px-4 py-3 shrink-0">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-primary)]">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M9 11l3 3L22 4" />
+                  <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
+                </svg>
+              </div>
+              <h2 className="text-lg font-bold text-[var(--color-text)]">
+                {isEditing ? "Редактировать задачу" : "Новая задача"}
+              </h2>
+            </div>
             <button
               type="button"
               onClick={onClose}
-              className="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100"
+              className="flex h-9 w-9 items-center justify-center rounded-xl text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-text)] transition-all cursor-pointer"
             >
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
 
           {/* Scrollable body */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto p-4 space-y-5">
             {/* Title */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Название <span className="text-red-500">*</span>
+              <label className="block text-xs font-medium text-[var(--color-text-muted)] mb-1.5">
+                Название <span className="text-[var(--color-error)]">*</span>
               </label>
               <input
                 type="text"
@@ -344,13 +351,17 @@ export function TaskForm({
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Название задачи"
                 required
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className={cn(
+                  "w-full rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2.5 text-sm",
+                  "text-[var(--color-text)] placeholder:text-[var(--color-text-muted)]",
+                  "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]"
+                )}
               />
             </div>
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-xs font-medium text-[var(--color-text-muted)] mb-1.5">
                 Описание
               </label>
               <textarea
@@ -358,7 +369,11 @@ export function TaskForm({
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Описание задачи"
                 rows={3}
-                className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className={cn(
+                  "w-full resize-none rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2.5 text-sm",
+                  "text-[var(--color-text)] placeholder:text-[var(--color-text-muted)]",
+                  "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]"
+                )}
               />
             </div>
 
@@ -388,14 +403,19 @@ export function TaskForm({
 
             {/* Due Date */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-xs font-medium text-[var(--color-text-muted)] mb-1.5">
                 Срок
               </label>
               <input
                 type="date"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className={cn(
+                  "w-full rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2.5 text-sm",
+                  "text-[var(--color-text)]",
+                  "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]",
+                  "[&::-webkit-date-and-time-value]:text-left"
+                )}
               />
             </div>
 
@@ -419,25 +439,25 @@ export function TaskForm({
           </div>
 
           {/* Footer — always visible */}
-          <div className="flex gap-3 p-4 pb-6 border-t shrink-0 bg-white md:pb-4">
+          <div className="flex gap-3 p-4 pb-6 border-t border-[var(--color-border)] shrink-0 bg-[var(--color-bg-card)] md:pb-4">
             {isEditing && !showDeleteConfirm && (
               <button
                 type="button"
                 onClick={() => setShowDeleteConfirm(true)}
-                className="rounded-lg border border-red-300 px-4 py-2.5 text-base font-medium text-red-600 hover:bg-red-50"
+                className="rounded-xl px-4 py-2.5 text-sm font-semibold text-[var(--color-error)] bg-[var(--color-bg-card)] border-2 border-[var(--color-error)]/30 hover:bg-[var(--color-error)]/10 transition-all cursor-pointer"
               >
                 Удалить
               </button>
             )}
             {showDeleteConfirm ? (
               <>
-                <span className="flex-1 flex items-center text-sm text-red-600">
+                <span className="flex-1 flex items-center text-sm font-medium text-[var(--color-error)]">
                   Удалить задачу?
                 </span>
                 <button
                   type="button"
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="rounded-lg border border-gray-300 px-4 py-2.5 text-base font-medium text-gray-700 hover:bg-gray-50"
+                  className="rounded-xl px-4 py-2.5 text-sm font-semibold text-[var(--color-text-secondary)] bg-[var(--color-bg)] border-2 border-[var(--color-border)] hover:bg-[var(--color-border-light)] transition-all cursor-pointer"
                 >
                   Отмена
                 </button>
@@ -446,8 +466,8 @@ export function TaskForm({
                   onClick={handleDelete}
                   disabled={isDeleting}
                   className={cn(
-                    "rounded-lg px-4 py-2.5 text-base font-medium text-white",
-                    "bg-red-600 hover:bg-red-700",
+                    "rounded-xl px-4 py-2.5 text-sm font-semibold text-white",
+                    "bg-[var(--color-error)] hover:bg-red-700 transition-all cursor-pointer",
                     "disabled:cursor-not-allowed disabled:opacity-50"
                   )}
                 >
@@ -460,7 +480,7 @@ export function TaskForm({
                   type="button"
                   onClick={onClose}
                   className={cn(
-                    "rounded-lg border border-gray-300 px-4 py-2.5 text-base font-medium text-gray-700 hover:bg-gray-50",
+                    "rounded-xl px-4 py-2.5 text-sm font-semibold text-[var(--color-text-secondary)] bg-[var(--color-bg)] border-2 border-[var(--color-border)] hover:bg-[var(--color-border-light)] transition-all cursor-pointer",
                     !isEditing && "flex-1"
                   )}
                 >
@@ -470,8 +490,8 @@ export function TaskForm({
                   type="submit"
                   disabled={isSubmitting}
                   className={cn(
-                    "flex-1 rounded-lg px-4 py-2.5 text-base font-medium text-white",
-                    "bg-indigo-600 hover:bg-indigo-700",
+                    "flex-1 rounded-xl px-5 py-2.5 text-sm font-semibold text-white",
+                    "bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] transition-all cursor-pointer",
                     "disabled:cursor-not-allowed disabled:opacity-50"
                   )}
                 >

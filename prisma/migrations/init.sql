@@ -97,3 +97,20 @@ CREATE UNIQUE INDEX "_EventAssignees_AB_unique" ON "_EventAssignees"("A", "B");
 -- CreateIndex
 CREATE INDEX "_EventAssignees_B_index" ON "_EventAssignees"("B");
 
+-- Seed Users
+INSERT INTO "User" ("id", "name", "email", "hashedPassword", "avatarColor", "createdAt", "updatedAt")
+VALUES
+  ('user_nkudryawov', 'Никита', 'nkudryawov', '$2b$10$aPP.Xnb.ffcUVgTYUzFiuugzE0ISlhoTK1pDxGHEZgaNbMCWVsCYS', '#6366f1', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  ('user_allodasha', 'Даша', 'allodasha', '$2b$10$Vs12HtrnI0y.FSUANIm6GeKsUcWQyyqEioYNtgjfLqc.EyND9CKnq', '#ec4899', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+-- Seed Categories
+INSERT INTO "Category" ("id", "name", "color", "icon", "createdAt")
+VALUES
+  ('cat_travel', 'Путешествия', '#3b82f6', 'plane', CURRENT_TIMESTAMP),
+  ('cat_finance', 'Финансы', '#22c55e', 'wallet', CURRENT_TIMESTAMP),
+  ('cat_dates', 'Важные даты', '#ef4444', 'heart', CURRENT_TIMESTAMP),
+  ('cat_household', 'Быт', '#6b7280', 'home', CURRENT_TIMESTAMP),
+  ('cat_health', 'Здоровье', '#ec4899', 'activity', CURRENT_TIMESTAMP),
+  ('cat_home', 'Дом', '#f97316', 'wrench', CURRENT_TIMESTAMP),
+  ('cat_work', 'Работа', '#8b5cf6', 'briefcase', CURRENT_TIMESTAMP);
+

@@ -229,7 +229,7 @@ export function TimelineView() {
                             // Event with color = milestone-like (flag icon)
                             // Event without color = regular event (calendar icon)
                             const hasColor = !!evt.color;
-                            const displayColor = evt.color || evt.category?.color || "#6366f1";
+                            const displayColor = evt.color || evt.category?.color || "#0D9488";
 
                             return (
                               <button
@@ -237,10 +237,11 @@ export function TimelineView() {
                                 type="button"
                                 onClick={() => handleEventClick(evt)}
                                 className={cn(
-                                  "w-full text-left p-3 rounded-lg bg-white border transition-all hover:shadow-md",
+                                  "w-full text-left p-3 rounded-xl bg-[var(--color-bg-card)] border transition-all cursor-pointer",
+                                  "hover:shadow-md hover:border-[var(--color-primary)]/30",
                                   evt.isCompleted
-                                    ? "opacity-60 border-gray-200"
-                                    : "border-l-4 shadow-sm"
+                                    ? "opacity-60 border-[var(--color-border)]"
+                                    : "border-l-4 border-[var(--color-border)] shadow-sm"
                                 )}
                                 style={{
                                   borderLeftColor: evt.isCompleted
@@ -251,8 +252,8 @@ export function TimelineView() {
                                 <div className="flex items-center gap-3">
                                   <span
                                     className={cn(
-                                      "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
-                                      evt.isCompleted && "ring-2 ring-green-500 ring-offset-1"
+                                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl",
+                                      evt.isCompleted && "ring-2 ring-[var(--color-success)] ring-offset-1"
                                     )}
                                     style={{ backgroundColor: displayColor }}
                                   >
@@ -301,12 +302,12 @@ export function TimelineView() {
                                   </span>
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2">
-                                      <span className="font-medium text-gray-900">
+                                      <span className="font-medium text-[var(--color-text)]">
                                         {evt.title}
                                       </span>
                                       {evt.category && (
                                         <span
-                                          className="text-[10px] px-1.5 py-0.5 rounded text-white"
+                                          className="text-[10px] px-1.5 py-0.5 rounded-md font-semibold text-white"
                                           style={{ backgroundColor: evt.category.color }}
                                         >
                                           {evt.category.name}
@@ -314,12 +315,12 @@ export function TimelineView() {
                                       )}
                                     </div>
                                     {evt.description && (
-                                      <p className="text-xs text-gray-500 truncate mt-0.5">
+                                      <p className="text-xs text-[var(--color-text-muted)] truncate mt-0.5">
                                         {evt.description}
                                       </p>
                                     )}
                                   </div>
-                                  <span className="text-sm font-medium text-gray-500">
+                                  <span className="text-sm font-bold text-[var(--color-text-secondary)] bg-[var(--color-bg)] px-2 py-1 rounded-lg">
                                     {format(new Date(evt.startDate), "d", {
                                       locale: ru,
                                     })}
@@ -330,7 +331,7 @@ export function TimelineView() {
                           })}
                         </div>
                       ) : (
-                        <p className="text-sm text-gray-400 italic">
+                        <p className="text-sm text-[var(--color-text-muted)] italic">
                           Нет событий
                         </p>
                       )}

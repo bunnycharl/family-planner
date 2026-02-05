@@ -7,13 +7,15 @@ import { cn } from "@/lib/utils";
 import { useCategories } from "@/hooks/useCategories";
 
 const PRESET_COLORS = [
-  "#8b5cf6",
-  "#3b82f6",
-  "#22c55e",
-  "#ef4444",
-  "#f97316",
-  "#ec4899",
-  "#6b7280",
+  "#ef4444", // red
+  "#f97316", // orange
+  "#eab308", // yellow
+  "#22c55e", // green
+  "#14b8a6", // teal
+  "#3b82f6", // blue
+  "#6366f1", // indigo
+  "#8b5cf6", // violet
+  "#ec4899", // pink
 ];
 
 interface CalendarEvent {
@@ -176,42 +178,63 @@ export function EventForm({
     <div className="fixed inset-0 z-[60]">
       {/* Overlay */}
       <div
-        className="absolute inset-0 bg-black/40"
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
 
       {/* Modal — full screen on mobile, centered card on desktop */}
       <div
         className={cn(
-          "absolute inset-0 z-10 bg-white flex flex-col",
+          "absolute inset-0 z-10 bg-[var(--color-bg-card)] flex flex-col",
           "md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2",
-          "md:max-w-lg md:w-full md:rounded-lg md:shadow-xl md:max-h-[90vh]"
+          "md:max-w-lg md:w-full md:rounded-2xl md:shadow-xl md:max-h-[90vh] md:border md:border-[var(--color-border)]"
         )}
       >
         <form onSubmit={handleSubmit} className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b shrink-0">
-            <h2 className="text-lg font-semibold text-gray-900">
-              {isEditing ? "Редактировать событие" : "Новое событие"}
-            </h2>
+          <div className="flex items-center justify-between p-4 border-b border-[var(--color-border)] shrink-0">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-primary)]">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect x="3" y="4" width="18" height="18" rx="2" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                </svg>
+              </div>
+              <h2 className="text-lg font-bold text-[var(--color-text)]">
+                {isEditing ? "Редактировать событие" : "Новое событие"}
+              </h2>
+            </div>
             <button
               type="button"
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+              className="flex h-9 w-9 items-center justify-center rounded-xl text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-text)] transition-all cursor-pointer"
             >
-              &times;
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           </div>
 
           {/* Scrollable body */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto p-4 space-y-5">
             {/* Title */}
             <div>
               <label
                 htmlFor="event-title"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-xs font-medium text-[var(--color-text-muted)] mb-1.5"
               >
-                Название *
+                Название <span className="text-[var(--color-error)]">*</span>
               </label>
               <input
                 id="event-title"
@@ -220,7 +243,11 @@ export function EventForm({
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Название события"
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-base text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className={cn(
+                  "w-full rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2.5 text-sm",
+                  "text-[var(--color-text)] placeholder:text-[var(--color-text-muted)]",
+                  "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]"
+                )}
               />
             </div>
 
@@ -228,7 +255,7 @@ export function EventForm({
             <div>
               <label
                 htmlFor="event-description"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-xs font-medium text-[var(--color-text-muted)] mb-1.5"
               >
                 Описание
               </label>
@@ -238,7 +265,11 @@ export function EventForm({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Описание события"
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-base text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                className={cn(
+                  "w-full rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2.5 text-sm resize-none",
+                  "text-[var(--color-text)] placeholder:text-[var(--color-text-muted)]",
+                  "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]"
+                )}
               />
             </div>
 
@@ -246,7 +277,7 @@ export function EventForm({
             <div>
               <label
                 htmlFor="event-start"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-xs font-medium text-[var(--color-text-muted)] mb-1.5"
               >
                 Дата
               </label>
@@ -256,13 +287,18 @@ export function EventForm({
                 required
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-base text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className={cn(
+                  "w-full rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2.5 text-sm",
+                  "text-[var(--color-text)]",
+                  "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]",
+                  "[&::-webkit-date-and-time-value]:text-left"
+                )}
               />
             </div>
 
             {/* Category — custom dropdown */}
             <div>
-              <span className="block text-sm font-medium text-gray-700 mb-1">
+              <span className="block text-xs font-medium text-[var(--color-text-muted)] mb-1.5">
                 Категория
               </span>
               <div className="relative" ref={categoryRef}>
@@ -270,9 +306,9 @@ export function EventForm({
                   type="button"
                   onClick={() => setCategoryOpen(!categoryOpen)}
                   className={cn(
-                    "flex w-full items-center justify-between rounded-md border border-gray-300 px-3 py-2 text-base",
-                    "focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
-                    "bg-white text-left"
+                    "flex w-full items-center justify-between rounded-xl border-2 border-[var(--color-border)] px-4 py-2.5 text-sm",
+                    "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]",
+                    "bg-[var(--color-bg)] text-left transition-all cursor-pointer"
                   )}
                 >
                   <span className="flex items-center gap-2 truncate">
@@ -282,17 +318,17 @@ export function EventForm({
                           className="inline-block h-3 w-3 shrink-0 rounded-full"
                           style={{ backgroundColor: selectedCategory.color }}
                         />
-                        <span className="text-gray-900">
+                        <span className="text-[var(--color-text)]">
                           {selectedCategory.name}
                         </span>
                       </>
                     ) : (
-                      <span className="text-gray-500">Без категории</span>
+                      <span className="text-[var(--color-text-muted)]">Без категории</span>
                     )}
                   </span>
                   <svg
                     className={cn(
-                      "h-4 w-4 shrink-0 text-gray-400 transition-transform",
+                      "h-4 w-4 shrink-0 text-[var(--color-text-muted)] transition-transform",
                       categoryOpen && "rotate-180"
                     )}
                     fill="none"
@@ -309,7 +345,7 @@ export function EventForm({
                 </button>
 
                 {categoryOpen && (
-                  <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-56 overflow-y-auto rounded-lg border bg-white shadow-lg">
+                  <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-56 overflow-y-auto rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg-card)] shadow-lg">
                     <button
                       type="button"
                       onClick={() => {
@@ -317,13 +353,13 @@ export function EventForm({
                         setCategoryOpen(false);
                       }}
                       className={cn(
-                        "flex w-full items-center gap-3 px-4 py-3 text-left text-base transition-colors",
+                        "flex w-full items-center gap-3 px-4 py-3 text-left text-sm transition-colors cursor-pointer",
                         !categoryId
-                          ? "bg-indigo-50 text-indigo-700 font-medium"
-                          : "text-gray-700 hover:bg-gray-50"
+                          ? "bg-[var(--color-primary-50)] text-[var(--color-primary)] font-semibold"
+                          : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)]"
                       )}
                     >
-                      <span className="inline-block h-3 w-3 shrink-0 rounded-full bg-gray-300" />
+                      <span className="inline-block h-3 w-3 shrink-0 rounded-full bg-[var(--color-text-muted)]" />
                       Без категории
                     </button>
                     {categories.map(
@@ -336,10 +372,10 @@ export function EventForm({
                             setCategoryOpen(false);
                           }}
                           className={cn(
-                            "flex w-full items-center gap-3 px-4 py-3 text-left text-base transition-colors",
+                            "flex w-full items-center gap-3 px-4 py-3 text-left text-sm transition-colors cursor-pointer",
                             categoryId === cat.id
-                              ? "bg-indigo-50 text-indigo-700 font-medium"
-                              : "text-gray-700 hover:bg-gray-50"
+                              ? "bg-[var(--color-primary-50)] text-[var(--color-primary)] font-semibold"
+                              : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)]"
                           )}
                         >
                           <span
@@ -359,7 +395,7 @@ export function EventForm({
             <div>
               <label
                 htmlFor="event-location"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-xs font-medium text-[var(--color-text-muted)] mb-1.5"
               >
                 Место
               </label>
@@ -369,16 +405,20 @@ export function EventForm({
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="Место проведения"
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-base text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className={cn(
+                  "w-full rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2.5 text-sm",
+                  "text-[var(--color-text)] placeholder:text-[var(--color-text-muted)]",
+                  "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]"
+                )}
               />
             </div>
 
             {/* Color picker with flag icon */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs font-medium text-[var(--color-text-muted)] mb-2">
                 <span className="flex items-center gap-2">
                   <svg
-                    className="h-4 w-4 text-gray-500"
+                    className="h-4 w-4 text-[var(--color-text-muted)]"
                     fill="none"
                     viewBox="0 0 24 24"
                     strokeWidth={2}
@@ -393,20 +433,20 @@ export function EventForm({
                   Цвет (флажок)
                 </span>
               </label>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setColor(null)}
                   className={cn(
-                    "w-8 h-8 rounded-full border-2 transition-all flex items-center justify-center",
+                    "h-8 w-8 rounded-lg border-2 transition-all flex items-center justify-center cursor-pointer",
                     color === null
-                      ? "border-indigo-500 ring-2 ring-offset-2 ring-indigo-300"
-                      : "border-gray-300 hover:border-gray-400"
+                      ? "border-[var(--color-text)] scale-110 ring-2 ring-offset-1 ring-[var(--color-text)]/20"
+                      : "border-[var(--color-border)] hover:scale-105"
                   )}
                   title="Без цвета"
                 >
                   <svg
-                    className="h-4 w-4 text-gray-400"
+                    className="h-4 w-4 text-[var(--color-text-muted)]"
                     fill="none"
                     viewBox="0 0 24 24"
                     strokeWidth={2}
@@ -425,12 +465,13 @@ export function EventForm({
                     type="button"
                     onClick={() => setColor(c)}
                     className={cn(
-                      "w-8 h-8 rounded-full transition-all",
+                      "h-8 w-8 rounded-lg border-2 transition-all cursor-pointer",
                       color === c
-                        ? "ring-2 ring-offset-2 ring-gray-400 scale-110"
-                        : "hover:scale-105"
+                        ? "border-[var(--color-text)] scale-110 ring-2 ring-offset-1 ring-[var(--color-text)]/20"
+                        : "border-transparent hover:scale-105"
                     )}
                     style={{ backgroundColor: c }}
+                    aria-label={`Цвет ${c}`}
                   />
                 ))}
               </div>
@@ -438,17 +479,17 @@ export function EventForm({
 
             {/* Completed checkbox (only when editing) */}
             {isEditing && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--color-bg)] border border-[var(--color-border)]">
                 <input
                   id="event-completed"
                   type="checkbox"
                   checked={isCompleted}
                   onChange={(e) => setIsCompleted(e.target.checked)}
-                  className="h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                  className="h-5 w-5 rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)] cursor-pointer"
                 />
                 <label
                   htmlFor="event-completed"
-                  className="text-base text-gray-700"
+                  className="text-sm font-medium text-[var(--color-text)] cursor-pointer"
                 >
                   Выполнено
                 </label>
@@ -457,25 +498,25 @@ export function EventForm({
           </div>
 
           {/* Footer — always visible at bottom */}
-          <div className="flex items-center gap-2 p-4 pb-6 border-t shrink-0 bg-white md:pb-4">
+          <div className="flex items-center gap-3 p-4 pb-6 border-t border-[var(--color-border)] shrink-0 bg-[var(--color-bg-card)] md:pb-4">
             {isEditing && !showDeleteConfirm && (
               <button
                 type="button"
                 onClick={() => setShowDeleteConfirm(true)}
-                className="px-4 py-2.5 text-base font-medium text-red-600 bg-white border border-red-300 rounded-md hover:bg-red-50"
+                className="rounded-xl px-4 py-2.5 text-sm font-semibold text-[var(--color-error)] bg-[var(--color-bg-card)] border-2 border-[var(--color-error)]/30 hover:bg-[var(--color-error)]/10 transition-all cursor-pointer"
               >
                 Удалить
               </button>
             )}
             {showDeleteConfirm ? (
               <>
-                <span className="flex-1 text-sm text-red-600">
+                <span className="flex-1 text-sm font-medium text-[var(--color-error)]">
                   Удалить событие?
                 </span>
                 <button
                   type="button"
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="px-4 py-2.5 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                  className="rounded-xl px-4 py-2.5 text-sm font-semibold text-[var(--color-text-secondary)] bg-[var(--color-bg)] border-2 border-[var(--color-border)] hover:bg-[var(--color-border-light)] transition-all cursor-pointer"
                 >
                   Отмена
                 </button>
@@ -484,7 +525,7 @@ export function EventForm({
                   onClick={handleDelete}
                   disabled={isDeleting}
                   className={cn(
-                    "px-4 py-2.5 text-base font-medium text-white bg-red-600 rounded-md hover:bg-red-700",
+                    "rounded-xl px-4 py-2.5 text-sm font-semibold text-white bg-[var(--color-error)] hover:bg-red-700 transition-all cursor-pointer",
                     "disabled:opacity-50 disabled:cursor-not-allowed"
                   )}
                 >
@@ -497,7 +538,7 @@ export function EventForm({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2.5 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                  className="rounded-xl px-4 py-2.5 text-sm font-semibold text-[var(--color-text-secondary)] bg-[var(--color-bg)] border-2 border-[var(--color-border)] hover:bg-[var(--color-border-light)] transition-all cursor-pointer"
                 >
                   Отмена
                 </button>
@@ -505,7 +546,7 @@ export function EventForm({
                   type="submit"
                   disabled={isSubmitting}
                   className={cn(
-                    "px-4 py-2.5 text-base font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700",
+                    "rounded-xl px-5 py-2.5 text-sm font-semibold text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] transition-all cursor-pointer",
                     "disabled:opacity-50 disabled:cursor-not-allowed"
                   )}
                 >
