@@ -148,8 +148,8 @@ export function FilterBar({
       </div>
 
       {/* Row 2: Date range */}
-      <div className="grid grid-cols-2 gap-2">
-        <div className="flex flex-col gap-1">
+      <div className="grid grid-cols-2 gap-2 overflow-hidden">
+        <div className="flex flex-col gap-1 min-w-0">
           <label
             htmlFor="filter-start"
             className="text-xs font-medium text-gray-500"
@@ -167,13 +167,14 @@ export function FilterBar({
               })
             }
             className={cn(
-              "w-full rounded-md border border-gray-300 px-3 py-2 text-sm",
-              "focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              "w-full min-w-0 rounded-md border border-gray-300 px-2 py-2 text-sm",
+              "focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
+              "[&::-webkit-date-and-time-value]:text-left"
             )}
           />
         </div>
 
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 min-w-0">
           <label
             htmlFor="filter-end"
             className="text-xs font-medium text-gray-500"
@@ -191,8 +192,9 @@ export function FilterBar({
               })
             }
             className={cn(
-              "w-full rounded-md border border-gray-300 px-3 py-2 text-sm",
-              "focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              "w-full min-w-0 rounded-md border border-gray-300 px-2 py-2 text-sm",
+              "focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
+              "[&::-webkit-date-and-time-value]:text-left"
             )}
           />
         </div>
