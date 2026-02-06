@@ -22,7 +22,9 @@ export function useTasks(params?: UseTasksParams) {
   const query = searchParams.toString();
   const url = `/api/tasks${query ? `?${query}` : ""}`;
 
-  const { data, error, isLoading, mutate } = useSWR(url, fetcher);
+  const { data, error, isLoading, mutate } = useSWR(url, fetcher, {
+    dedupingInterval: 5000,
+  });
 
   return {
     tasks: data || [],

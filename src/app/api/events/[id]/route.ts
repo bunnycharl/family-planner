@@ -1,18 +1,11 @@
-import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { updateEventSchema } from "@/lib/validations/event";
+import { withAuth } from "@/lib/api-utils";
+import { logger } from "@/lib/logger";
 
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { id } = await params;
+export const GET = withAuth(async (request, session, context) => {
+  const { id } = await context!.params;
 
   try {
     const event = await prisma.event.findUnique({
@@ -31,24 +24,13 @@ export async function GET(
 
     return NextResponse.json(event);
   } catch (error) {
-    console.error("Failed to fetch event:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch event" },
-      { status: 500 }
-    );
+    logger.error({ err: error }, "Failed to fetch event");
+    return NextResponse.json({ error: "Failed to fetch event" }, { status: 500 });
   }
-}
+});
 
-export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { id } = await params;
+export const PUT = withAuth(async (request, session, context) => {
+  const { id } = await context!.params;
 
   try {
     const body = await request.json();
@@ -65,7 +47,7 @@ export async function PUT(
 
     const updateData: Record<string, unknown> = {
       ...data,
-      modifiedById: session.user.id!,
+      modifiedById: session.user!.id!,
     };
 
     if (data.startDate) {
@@ -96,24 +78,13 @@ export async function PUT(
 
     return NextResponse.json(event);
   } catch (error) {
-    console.error("Failed to update event:", error);
-    return NextResponse.json(
-      { error: "Failed to update event" },
-      { status: 500 }
-    );
+    logger.error({ err: error }, "Failed to update event");
+    return NextResponse.json({ error: "Failed to update event" }, { status: 500 });
   }
-}
+});
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { id } = await params;
+export const DELETE = withAuth(async (request, session, context) => {
+  const { id } = await context!.params;
 
   try {
     await prisma.event.delete({
@@ -122,10 +93,7 @@ export async function DELETE(
 
     return NextResponse.json({ message: "Event deleted" });
   } catch (error) {
-    console.error("Failed to delete event:", error);
-    return NextResponse.json(
-      { error: "Failed to delete event" },
-      { status: 500 }
-    );
+    logger.error({ err: error }, "Failed to delete event");
+    return NextResponse.json({ error: "Failed to delete event" }, { status: 500 });
   }
-}
+});

@@ -1,14 +1,10 @@
-import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { createCategorySchema } from "@/lib/validations/category";
+import { withAuth } from "@/lib/api-utils";
+import { logger } from "@/lib/logger";
 
-export async function GET() {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
+export const GET = withAuth(async () => {
   try {
     const categories = await prisma.category.findMany({
       orderBy: {
@@ -18,20 +14,12 @@ export async function GET() {
 
     return NextResponse.json(categories);
   } catch (error) {
-    console.error("Failed to fetch categories:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch categories" },
-      { status: 500 }
-    );
+    logger.error({ err: error }, "Failed to fetch categories");
+    return NextResponse.json({ error: "Failed to fetch categories" }, { status: 500 });
   }
-}
+});
 
-export async function POST(request: Request) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
+export const POST = withAuth(async (request) => {
   try {
     const body = await request.json();
     const result = createCategorySchema.safeParse(body);
@@ -49,10 +37,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(category, { status: 201 });
   } catch (error) {
-    console.error("Failed to create category:", error);
-    return NextResponse.json(
-      { error: "Failed to create category" },
-      { status: 500 }
-    );
+    logger.error({ err: error }, "Failed to create category");
+    return NextResponse.json({ error: "Failed to create category" }, { status: 500 });
   }
-}
+});

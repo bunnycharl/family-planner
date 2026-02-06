@@ -1,14 +1,10 @@
-import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { createTaskSchema } from "@/lib/validations/task";
+import { withAuth } from "@/lib/api-utils";
+import { logger } from "@/lib/logger";
 
-export async function GET(request: Request) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
+export const GET = withAuth(async (request) => {
   const { searchParams } = new URL(request.url);
   const status = searchParams.get("status");
   const categoryId = searchParams.get("categoryId");
@@ -60,20 +56,12 @@ export async function GET(request: Request) {
 
     return NextResponse.json(tasks);
   } catch (error) {
-    console.error("Failed to fetch tasks:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch tasks" },
-      { status: 500 }
-    );
+    logger.error({ err: error }, "Failed to fetch tasks");
+    return NextResponse.json({ error: "Failed to fetch tasks" }, { status: 500 });
   }
-}
+});
 
-export async function POST(request: Request) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
+export const POST = withAuth(async (request, session) => {
   try {
     const body = await request.json();
     const result = createTaskSchema.safeParse(body);
@@ -99,7 +87,7 @@ export async function POST(request: Request) {
         ...data,
         dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
         position,
-        createdById: session.user.id!,
+        createdById: session.user!.id!,
       },
       include: {
         category: true,
@@ -110,10 +98,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(task, { status: 201 });
   } catch (error) {
-    console.error("Failed to create task:", error);
-    return NextResponse.json(
-      { error: "Failed to create task" },
-      { status: 500 }
-    );
+    logger.error({ err: error }, "Failed to create task");
+    return NextResponse.json({ error: "Failed to create task" }, { status: 500 });
   }
-}
+});

@@ -1,41 +1,55 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap");
 
 :root {
   /* Primary palette - Teal focus */
-  --color-primary: #0D9488;
-  --color-primary-light: #14B8A6;
-  --color-primary-dark: #0F766E;
-  --color-primary-50: #F0FDFA;
-  --color-primary-100: #CCFBF1;
+  --color-primary: #0d9488;
+  --color-primary-light: #14b8a6;
+  --color-primary-dark: #0f766e;
+  --color-primary-50: #f0fdfa;
+  --color-primary-100: #ccfbf1;
 
   /* Secondary - Action orange */
-  --color-accent: #F97316;
-  --color-accent-light: #FB923C;
-  --color-accent-dark: #EA580C;
+  --color-accent: #f97316;
+  --color-accent-light: #fb923c;
+  --color-accent-dark: #ea580c;
 
   /* Neutrals */
-  --color-bg: #F8FAFC;
-  --color-bg-card: #FFFFFF;
-  --color-text: #134E4A;
-  --color-text-secondary: #5F7572;
-  --color-text-muted: #94A3B8;
-  --color-border: #E2E8F0;
-  --color-border-light: #F1F5F9;
+  --color-bg: #f8fafc;
+  --color-bg-card: #ffffff;
+  --color-text: #134e4a;
+  --color-text-secondary: #5f7572;
+  --color-text-muted: #94a3b8;
+  --color-border: #e2e8f0;
+  --color-border-light: #f1f5f9;
 
   /* Semantic colors */
-  --color-success: #10B981;
-  --color-warning: #F59E0B;
-  --color-error: #EF4444;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
 
-  --background: #F8FAFC;
-  --foreground: #134E4A;
+  /* Kanban status columns */
+  --color-status-todo-bg: #f1f5f9;
+  --color-status-todo-border: #e2e8f0;
+  --color-status-todo-text: #475569;
+  --color-status-todo-badge: #cbd5e1;
+  --color-status-progress-bg: #fffbeb;
+  --color-status-progress-border: #fde68a;
+  --color-status-progress-text: #b45309;
+  --color-status-progress-badge: #fcd34d;
+  --color-status-done-bg: #ecfdf5;
+  --color-status-done-border: #a7f3d0;
+  --color-status-done-text: #047857;
+  --color-status-done-badge: #6ee7b7;
+
+  --background: #f8fafc;
+  --foreground: #134e4a;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
 
   /* Custom colors for Tailwind */
   --color-primary-50: var(--color-primary-50);
@@ -50,30 +64,81 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0F1419;
-    --foreground: #E7ECEA;
-    --color-bg: #0F1419;
-    --color-bg-card: #1A2127;
-    --color-text: #E7ECEA;
-    --color-text-secondary: #94A3B8;
-    --color-text-muted: #64748B;
-    --color-border: #2D3B45;
-    --color-border-light: #1E2A32;
-    --color-primary-50: #134E4A;
-    --color-primary-100: #115E59;
+    --background: #0f1419;
+    --foreground: #e7ecea;
+    --color-bg: #0f1419;
+    --color-bg-card: #1a2127;
+    --color-text: #e7ecea;
+    --color-text-secondary: #94a3b8;
+    --color-text-muted: #64748b;
+    --color-border: #2d3b45;
+    --color-border-light: #1e2a32;
+    --color-primary-50: #134e4a;
+    --color-primary-100: #115e59;
+
+    /* Kanban status columns - dark */
+    --color-status-todo-bg: #1e2a32;
+    --color-status-todo-border: #2d3b45;
+    --color-status-todo-text: #94a3b8;
+    --color-status-todo-badge: #3b4d5a;
+    --color-status-progress-bg: #1f1a0f;
+    --color-status-progress-border: #4d3a0a;
+    --color-status-progress-text: #fbbf24;
+    --color-status-progress-badge: #6b4f0a;
+    --color-status-done-bg: #0f1f17;
+    --color-status-done-border: #134e32;
+    --color-status-done-text: #34d399;
+    --color-status-done-badge: #166534;
   }
+}
+
+.dark {
+  --background: #0f1419;
+  --foreground: #e7ecea;
+  --color-bg: #0f1419;
+  --color-bg-card: #1a2127;
+  --color-text: #e7ecea;
+  --color-text-secondary: #94a3b8;
+  --color-text-muted: #64748b;
+  --color-border: #2d3b45;
+  --color-border-light: #1e2a32;
+  --color-primary-50: #134e4a;
+  --color-primary-100: #115e59;
+
+  /* Kanban status columns - dark */
+  --color-status-todo-bg: #1e2a32;
+  --color-status-todo-border: #2d3b45;
+  --color-status-todo-text: #94a3b8;
+  --color-status-todo-badge: #3b4d5a;
+  --color-status-progress-bg: #1f1a0f;
+  --color-status-progress-border: #4d3a0a;
+  --color-status-progress-text: #fbbf24;
+  --color-status-progress-badge: #6b4f0a;
+  --color-status-done-bg: #0f1f17;
+  --color-status-done-border: #134e32;
+  --color-status-done-text: #34d399;
+  --color-status-done-badge: #166534;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family:
+    "Plus Jakarta Sans",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 /* Smooth transitions for interactive elements */
-button, a, input, select, textarea {
+button,
+a,
+input,
+select,
+textarea {
   transition: all 0.2s ease;
 }
 
@@ -126,7 +191,9 @@ input[type="datetime-local"] {
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

@@ -16,7 +16,9 @@ export function useEvents(params?: UseEventsParams) {
   const query = searchParams.toString();
   const url = `/api/events${query ? `?${query}` : ""}`;
 
-  const { data, error, isLoading, mutate } = useSWR(url, fetcher);
+  const { data, error, isLoading, mutate } = useSWR(url, fetcher, {
+    dedupingInterval: 5000,
+  });
 
   return {
     events: data || [],

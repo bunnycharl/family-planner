@@ -1,18 +1,11 @@
-import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { updateTaskSchema, moveTaskSchema } from "@/lib/validations/task";
+import { withAuth } from "@/lib/api-utils";
+import { logger } from "@/lib/logger";
 
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { id } = await params;
+export const GET = withAuth(async (request, session, context) => {
+  const { id } = await context!.params;
 
   try {
     const task = await prisma.task.findUnique({
@@ -30,24 +23,13 @@ export async function GET(
 
     return NextResponse.json(task);
   } catch (error) {
-    console.error("Failed to fetch task:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch task" },
-      { status: 500 }
-    );
+    logger.error({ err: error }, "Failed to fetch task");
+    return NextResponse.json({ error: "Failed to fetch task" }, { status: 500 });
   }
-}
+});
 
-export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { id } = await params;
+export const PUT = withAuth(async (request, session, context) => {
+  const { id } = await context!.params;
 
   try {
     const body = await request.json();
@@ -77,24 +59,13 @@ export async function PUT(
 
     return NextResponse.json(task);
   } catch (error) {
-    console.error("Failed to update task:", error);
-    return NextResponse.json(
-      { error: "Failed to update task" },
-      { status: 500 }
-    );
+    logger.error({ err: error }, "Failed to update task");
+    return NextResponse.json({ error: "Failed to update task" }, { status: 500 });
   }
-}
+});
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { id } = await params;
+export const PATCH = withAuth(async (request, session, context) => {
+  const { id } = await context!.params;
 
   try {
     const body = await request.json();
@@ -124,24 +95,13 @@ export async function PATCH(
 
     return NextResponse.json(task);
   } catch (error) {
-    console.error("Failed to move task:", error);
-    return NextResponse.json(
-      { error: "Failed to move task" },
-      { status: 500 }
-    );
+    logger.error({ err: error }, "Failed to move task");
+    return NextResponse.json({ error: "Failed to move task" }, { status: 500 });
   }
-}
+});
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { id } = await params;
+export const DELETE = withAuth(async (request, session, context) => {
+  const { id } = await context!.params;
 
   try {
     await prisma.task.delete({
@@ -150,10 +110,7 @@ export async function DELETE(
 
     return NextResponse.json({ message: "Task deleted" });
   } catch (error) {
-    console.error("Failed to delete task:", error);
-    return NextResponse.json(
-      { error: "Failed to delete task" },
-      { status: 500 }
-    );
+    logger.error({ err: error }, "Failed to delete task");
+    return NextResponse.json({ error: "Failed to delete task" }, { status: 500 });
   }
-}
+});

@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useCategories } from "@/hooks/useCategories";
+import { useTheme } from "@/components/providers/ThemeProvider";
 
 const PRESET_COLORS = [
   "#ef4444", // red
@@ -25,8 +26,68 @@ interface Category {
   icon?: string | null;
 }
 
+const THEME_OPTIONS = [
+  {
+    value: "light" as const,
+    label: "Светлая",
+    icon: (
+      <svg
+        className="h-5 w-5"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={2}
+      >
+        <circle cx="12" cy="12" r="5" />
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
+        />
+      </svg>
+    ),
+  },
+  {
+    value: "dark" as const,
+    label: "Тёмная",
+    icon: (
+      <svg
+        className="h-5 w-5"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={2}
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"
+        />
+      </svg>
+    ),
+  },
+  {
+    value: "system" as const,
+    label: "Как в системе",
+    icon: (
+      <svg
+        className="h-5 w-5"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={2}
+      >
+        <rect x="2" y="3" width="20" height="14" rx="2" />
+        <line x1="8" y1="21" x2="16" y2="21" />
+        <line x1="12" y1="17" x2="12" y2="21" />
+      </svg>
+    ),
+  },
+];
+
 export default function SettingsPage() {
   const { categories, isLoading, mutate } = useCategories();
+  const { theme, setTheme } = useTheme();
 
   // Add form state
   const [newName, setNewName] = useState("");
@@ -65,9 +126,7 @@ export default function SettingsPage() {
       setNewColor(PRESET_COLORS[0]);
       mutate();
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Ошибка создания категории"
-      );
+      toast.error(err instanceof Error ? err.message : "Ошибка создания категории");
     } finally {
       setIsAdding(false);
     }
@@ -105,9 +164,7 @@ export default function SettingsPage() {
       cancelEditing();
       mutate();
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Ошибка обновления категории"
-      );
+      toast.error(err instanceof Error ? err.message : "Ошибка обновления категории");
     } finally {
       setIsSavingEdit(false);
     }
@@ -127,9 +184,7 @@ export default function SettingsPage() {
       setDeletingId(null);
       mutate();
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Ошибка удаления категории"
-      );
+      toast.error(err instanceof Error ? err.message : "Ошибка удаления категории");
     } finally {
       setIsDeleting(false);
     }
@@ -157,6 +212,45 @@ export default function SettingsPage() {
         <h1 className="text-2xl font-bold text-[var(--color-text)]">Настройки</h1>
       </div>
 
+      {/* Theme settings */}
+      <section className="bg-[var(--color-bg-card)] rounded-2xl border border-[var(--color-border)] p-4 md:p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <svg
+            className="h-5 w-5 text-[var(--color-primary)]"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+            />
+          </svg>
+          <h2 className="text-lg font-semibold text-[var(--color-text)]">Тема оформления</h2>
+        </div>
+
+        <div className="grid grid-cols-3 gap-3">
+          {THEME_OPTIONS.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => setTheme(option.value)}
+              className={cn(
+                "flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all cursor-pointer",
+                theme === option.value
+                  ? "border-[var(--color-primary)] bg-[var(--color-primary)]/10 text-[var(--color-primary)]"
+                  : "border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-primary)]/30 hover:bg-[var(--color-border-light)]"
+              )}
+            >
+              {option.icon}
+              <span className="text-sm font-semibold">{option.label}</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
       {/* Categories management */}
       <section className="bg-[var(--color-bg-card)] rounded-2xl border border-[var(--color-border)] p-4 md:p-6">
         <div className="flex items-center gap-2 mb-4">
@@ -167,194 +261,204 @@ export default function SettingsPage() {
             stroke="currentColor"
             strokeWidth={2}
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"
+            />
           </svg>
-          <h2 className="text-lg font-semibold text-[var(--color-text)]">
-            Категории
-          </h2>
+          <h2 className="text-lg font-semibold text-[var(--color-text)]">Категории</h2>
         </div>
 
         {/* Categories list */}
         <>
-        {isLoading ? (
-          <div className="flex items-center justify-center py-8">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-[var(--color-border)] border-t-[var(--color-primary)]" />
-          </div>
-        ) : categories.length === 0 ? (
-          <div className="text-center py-8">
-            <div className="w-12 h-12 mx-auto mb-3 bg-[var(--color-bg)] rounded-full flex items-center justify-center">
-              <svg className="h-6 w-6 text-[var(--color-text-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z" />
-              </svg>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-[var(--color-border)] border-t-[var(--color-primary)]" />
             </div>
-            <p className="text-sm text-[var(--color-text-muted)]">
-              Категорий пока нет. Создайте первую!
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-2 mb-6">
-            {categories.map((category: Category) => (
-              <div key={category.id}>
-                {editingId === category.id ? (
-                  /* Editing mode */
-                  <div className="flex flex-wrap items-center gap-3 rounded-xl border-2 border-[var(--color-primary)]/30 bg-[var(--color-primary-50)] p-4">
-                    <input
-                      type="text"
-                      value={editName}
-                      onChange={(e) => setEditName(e.target.value)}
-                      className={cn(
-                        "flex-1 min-w-[120px] rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg-card)] px-3 py-2 text-sm",
-                        "text-[var(--color-text)]",
-                        "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]"
-                      )}
-                      autoFocus
-                    />
-
-                    {/* Color swatches */}
-                    <div className="flex items-center gap-1.5">
-                      {PRESET_COLORS.map((color) => (
-                        <button
-                          key={color}
-                          type="button"
-                          onClick={() => setEditColor(color)}
-                          className={cn(
-                            "h-7 w-7 rounded-lg border-2 transition-all cursor-pointer",
-                            editColor === color
-                              ? "border-[var(--color-text)] scale-110 ring-2 ring-offset-1 ring-[var(--color-text)]/20"
-                              : "border-transparent hover:scale-105"
-                          )}
-                          style={{ backgroundColor: color }}
-                          aria-label={`Цвет ${color}`}
-                        />
-                      ))}
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={handleSaveEdit}
-                        disabled={isSavingEdit || !editName.trim()}
-                        className={cn(
-                          "rounded-xl px-4 py-2 text-sm font-semibold cursor-pointer",
-                          "text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] transition-all",
-                          "disabled:opacity-50 disabled:cursor-not-allowed"
-                        )}
-                      >
-                        {isSavingEdit ? "..." : "Сохранить"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={cancelEditing}
-                        className="rounded-xl px-4 py-2 text-sm font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)] transition-all cursor-pointer"
-                      >
-                        Отмена
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  /* Display mode */
-                  <div className="flex items-center justify-between rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-4 transition-all hover:border-[var(--color-primary)]/30">
-                    <div className="flex items-center gap-3">
-                      <span
-                        className="inline-block h-5 w-5 rounded-lg shrink-0"
-                        style={{ backgroundColor: category.color }}
-                      />
-                      <span className="text-sm font-semibold text-[var(--color-text)]">
-                        {category.name}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => startEditing(category)}
-                        className="rounded-lg px-3 py-1.5 text-xs font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary-50)] transition-all cursor-pointer"
-                      >
-                        Изменить
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setDeletingId(category.id)}
-                        className="rounded-lg px-3 py-1.5 text-xs font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-error)] hover:bg-[var(--color-error)]/10 transition-all cursor-pointer"
-                      >
-                        Удалить
-                      </button>
-                    </div>
-                  </div>
-                )}
+          ) : categories.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="w-12 h-12 mx-auto mb-3 bg-[var(--color-bg)] rounded-full flex items-center justify-center">
+                <svg
+                  className="h-6 w-6 text-[var(--color-text-muted)]"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"
+                  />
+                </svg>
               </div>
-            ))}
-          </div>
-        )}
-
-        {/* Add category form */}
-        <form
-          onSubmit={handleAddCategory}
-          className="border-t border-[var(--color-border)] pt-5 space-y-4"
-        >
-          <h3 className="text-sm font-semibold text-[var(--color-text)]">
-            Добавить категорию
-          </h3>
-
-          <div className="flex flex-wrap items-end gap-3">
-            <div className="flex-1 min-w-[160px]">
-              <label
-                htmlFor="new-category-name"
-                className="block text-xs font-medium text-[var(--color-text-muted)] mb-1.5"
-              >
-                Название
-              </label>
-              <input
-                id="new-category-name"
-                type="text"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                placeholder="Название категории"
-                className={cn(
-                  "w-full rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2.5 text-sm",
-                  "text-[var(--color-text)] placeholder:text-[var(--color-text-muted)]",
-                  "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]"
-                )}
-              />
+              <p className="text-sm text-[var(--color-text-muted)]">
+                Категорий пока нет. Создайте первую!
+              </p>
             </div>
+          ) : (
+            <div className="space-y-2 mb-6">
+              {categories.map((category: Category) => (
+                <div key={category.id}>
+                  {editingId === category.id ? (
+                    /* Editing mode */
+                    <div className="flex flex-wrap items-center gap-3 rounded-xl border-2 border-[var(--color-primary)]/30 bg-[var(--color-primary-50)] p-4">
+                      <input
+                        type="text"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        className={cn(
+                          "flex-1 min-w-[120px] rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg-card)] px-3 py-2 text-sm",
+                          "text-[var(--color-text)]",
+                          "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]"
+                        )}
+                        autoFocus
+                      />
 
-            <button
-              type="submit"
-              disabled={isAdding || !newName.trim()}
-              className={cn(
-                "rounded-xl px-5 py-2.5 text-sm font-semibold cursor-pointer",
-                "text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] transition-all",
-                "disabled:opacity-50 disabled:cursor-not-allowed"
-              )}
-            >
-              {isAdding ? "Создание..." : "Добавить"}
-            </button>
-          </div>
+                      {/* Color swatches */}
+                      <div className="flex items-center gap-1.5">
+                        {PRESET_COLORS.map((color) => (
+                          <button
+                            key={color}
+                            type="button"
+                            onClick={() => setEditColor(color)}
+                            className={cn(
+                              "h-7 w-7 rounded-lg border-2 transition-all cursor-pointer",
+                              editColor === color
+                                ? "border-[var(--color-text)] scale-110 ring-2 ring-offset-1 ring-[var(--color-text)]/20"
+                                : "border-transparent hover:scale-105"
+                            )}
+                            style={{ backgroundColor: color }}
+                            aria-label={`Цвет ${color}`}
+                          />
+                        ))}
+                      </div>
 
-          {/* Color picker row */}
-          <div>
-            <label className="block text-xs font-medium text-[var(--color-text-muted)] mb-2">
-              Цвет
-            </label>
-            <div className="flex flex-wrap items-center gap-2">
-              {PRESET_COLORS.map((color) => (
-                <button
-                  key={color}
-                  type="button"
-                  onClick={() => setNewColor(color)}
-                  className={cn(
-                    "h-8 w-8 rounded-lg border-2 transition-all cursor-pointer",
-                    newColor === color
-                      ? "border-[var(--color-text)] scale-110 ring-2 ring-offset-1 ring-[var(--color-text)]/20"
-                      : "border-transparent hover:scale-105"
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={handleSaveEdit}
+                          disabled={isSavingEdit || !editName.trim()}
+                          className={cn(
+                            "rounded-xl px-4 py-2 text-sm font-semibold cursor-pointer",
+                            "text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] transition-all",
+                            "disabled:opacity-50 disabled:cursor-not-allowed"
+                          )}
+                        >
+                          {isSavingEdit ? "..." : "Сохранить"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={cancelEditing}
+                          className="rounded-xl px-4 py-2 text-sm font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)] transition-all cursor-pointer"
+                        >
+                          Отмена
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    /* Display mode */
+                    <div className="flex items-center justify-between rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-4 transition-all hover:border-[var(--color-primary)]/30">
+                      <div className="flex items-center gap-3">
+                        <span
+                          className="inline-block h-5 w-5 rounded-lg shrink-0"
+                          style={{ backgroundColor: category.color }}
+                        />
+                        <span className="text-sm font-semibold text-[var(--color-text)]">
+                          {category.name}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => startEditing(category)}
+                          className="rounded-lg px-3 py-1.5 text-xs font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary-50)] transition-all cursor-pointer"
+                        >
+                          Изменить
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setDeletingId(category.id)}
+                          className="rounded-lg px-3 py-1.5 text-xs font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-error)] hover:bg-[var(--color-error)]/10 transition-all cursor-pointer"
+                        >
+                          Удалить
+                        </button>
+                      </div>
+                    </div>
                   )}
-                  style={{ backgroundColor: color }}
-                  aria-label={`Цвет ${color}`}
-                />
+                </div>
               ))}
             </div>
-          </div>
-        </form>
+          )}
+
+          {/* Add category form */}
+          <form
+            onSubmit={handleAddCategory}
+            className="border-t border-[var(--color-border)] pt-5 space-y-4"
+          >
+            <h3 className="text-sm font-semibold text-[var(--color-text)]">Добавить категорию</h3>
+
+            <div className="flex flex-wrap items-end gap-3">
+              <div className="flex-1 min-w-[160px]">
+                <label
+                  htmlFor="new-category-name"
+                  className="block text-xs font-medium text-[var(--color-text-muted)] mb-1.5"
+                >
+                  Название
+                </label>
+                <input
+                  id="new-category-name"
+                  type="text"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  placeholder="Название категории"
+                  className={cn(
+                    "w-full rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2.5 text-sm",
+                    "text-[var(--color-text)] placeholder:text-[var(--color-text-muted)]",
+                    "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]"
+                  )}
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isAdding || !newName.trim()}
+                className={cn(
+                  "rounded-xl px-5 py-2.5 text-sm font-semibold cursor-pointer",
+                  "text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] transition-all",
+                  "disabled:opacity-50 disabled:cursor-not-allowed"
+                )}
+              >
+                {isAdding ? "Создание..." : "Добавить"}
+              </button>
+            </div>
+
+            {/* Color picker row */}
+            <div>
+              <label className="block text-xs font-medium text-[var(--color-text-muted)] mb-2">
+                Цвет
+              </label>
+              <div className="flex flex-wrap items-center gap-2">
+                {PRESET_COLORS.map((color) => (
+                  <button
+                    key={color}
+                    type="button"
+                    onClick={() => setNewColor(color)}
+                    className={cn(
+                      "h-8 w-8 rounded-lg border-2 transition-all cursor-pointer",
+                      newColor === color
+                        ? "border-[var(--color-text)] scale-110 ring-2 ring-offset-1 ring-[var(--color-text)]/20"
+                        : "border-transparent hover:scale-105"
+                    )}
+                    style={{ backgroundColor: color }}
+                    aria-label={`Цвет ${color}`}
+                  />
+                ))}
+              </div>
+            </div>
+          </form>
         </>
       </section>
 
@@ -368,17 +472,25 @@ export default function SettingsPage() {
           <div className="relative z-10 w-full max-w-sm rounded-2xl bg-[var(--color-bg-card)] border border-[var(--color-border)] p-6 shadow-xl mx-4">
             <div className="flex items-center gap-3 mb-4">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-error)]/10">
-                <svg className="h-5 w-5 text-[var(--color-error)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                <svg
+                  className="h-5 w-5 text-[var(--color-error)]"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
                 </svg>
               </div>
-              <h3 className="text-lg font-bold text-[var(--color-text)]">
-                Удалить категорию?
-              </h3>
+              <h3 className="text-lg font-bold text-[var(--color-text)]">Удалить категорию?</h3>
             </div>
             <p className="text-sm text-[var(--color-text-secondary)] mb-5">
-              Это действие нельзя отменить. Категория будет удалена навсегда.
-              События с этой категорией не будут удалены.
+              Это действие нельзя отменить. Категория будет удалена навсегда. События с этой
+              категорией не будут удалены.
             </p>
             <div className="flex items-center justify-end gap-3">
               <button

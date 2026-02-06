@@ -16,7 +16,7 @@ const OPTION_CONFIG: Record<
 > = {
   event: {
     label: "Событие",
-    color: "text-indigo-600",
+    color: "text-[var(--color-primary)]",
     icon: (
       <svg
         className="h-5 w-5"
@@ -34,7 +34,7 @@ const OPTION_CONFIG: Record<
   },
   task: {
     label: "Задача",
-    color: "text-emerald-600",
+    color: "text-[var(--color-success)]",
     icon: (
       <svg
         className="h-5 w-5"
@@ -53,10 +53,7 @@ const OPTION_CONFIG: Record<
   },
 };
 
-export function QuickAddMenu({
-  options = ["event", "task"],
-  onSelect,
-}: QuickAddMenuProps) {
+export function QuickAddMenu({ options = ["event", "task"], onSelect }: QuickAddMenuProps) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -86,7 +83,7 @@ export function QuickAddMenu({
     <div ref={menuRef} className="fixed bottom-20 right-4 md:bottom-8 md:right-8 z-40">
       {/* Popup menu */}
       {open && (
-        <div className="absolute bottom-16 right-0 mb-2 w-48 rounded-xl bg-white shadow-xl border border-gray-200 overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-150">
+        <div className="absolute bottom-16 right-0 mb-2 w-48 rounded-xl bg-[var(--color-bg-card)] shadow-xl border border-[var(--color-border)] overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-150">
           {options.map((opt) => {
             const cfg = OPTION_CONFIG[opt];
             return (
@@ -97,7 +94,7 @@ export function QuickAddMenu({
                   setOpen(false);
                   onSelect(opt);
                 }}
-                className="flex w-full items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                className="flex w-full items-center gap-3 px-4 py-3 text-sm font-medium text-[var(--color-text)] hover:bg-[var(--color-border-light)] transition-colors"
               >
                 <span className={cfg.color}>{cfg.icon}</span>
                 {cfg.label}
@@ -113,8 +110,8 @@ export function QuickAddMenu({
         onClick={() => setOpen(!open)}
         className={cn(
           "flex h-14 w-14 items-center justify-center rounded-full",
-          "bg-indigo-600 text-white shadow-lg",
-          "hover:bg-indigo-700 active:scale-95 transition-all",
+          "bg-[var(--color-primary)] text-white shadow-lg",
+          "hover:bg-[var(--color-primary-dark)] active:scale-95 transition-all",
           open && "rotate-45"
         )}
         aria-label="Добавить"
@@ -126,11 +123,7 @@ export function QuickAddMenu({
           strokeWidth={2.5}
           stroke="currentColor"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 4.5v15m7.5-7.5h-15"
-          />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
       </button>
     </div>

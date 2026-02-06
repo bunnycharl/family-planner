@@ -1,18 +1,11 @@
-import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { updateCategorySchema } from "@/lib/validations/category";
+import { withAuth } from "@/lib/api-utils";
+import { logger } from "@/lib/logger";
 
-export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { id } = await params;
+export const PUT = withAuth(async (request, session, context) => {
+  const { id } = await context!.params;
 
   try {
     const body = await request.json();
@@ -32,24 +25,13 @@ export async function PUT(
 
     return NextResponse.json(category);
   } catch (error) {
-    console.error("Failed to update category:", error);
-    return NextResponse.json(
-      { error: "Failed to update category" },
-      { status: 500 }
-    );
+    logger.error({ err: error }, "Failed to update category");
+    return NextResponse.json({ error: "Failed to update category" }, { status: 500 });
   }
-}
+});
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { id } = await params;
+export const DELETE = withAuth(async (request, session, context) => {
+  const { id } = await context!.params;
 
   try {
     await prisma.category.delete({
@@ -58,10 +40,7 @@ export async function DELETE(
 
     return NextResponse.json({ message: "Category deleted" });
   } catch (error) {
-    console.error("Failed to delete category:", error);
-    return NextResponse.json(
-      { error: "Failed to delete category" },
-      { status: 500 }
-    );
+    logger.error({ err: error }, "Failed to delete category");
+    return NextResponse.json({ error: "Failed to delete category" }, { status: 500 });
   }
-}
+});

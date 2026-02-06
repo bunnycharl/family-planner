@@ -71,8 +71,7 @@ export default function EventDetailPage() {
 
     if (event.endDate) {
       const end = new Date(event.endDate);
-      const sameDay =
-        format(start, "yyyy-MM-dd") === format(end, "yyyy-MM-dd");
+      const sameDay = format(start, "yyyy-MM-dd") === format(end, "yyyy-MM-dd");
 
       if (!sameDay) {
         return `${format(start, "d MMMM yyyy", { locale: ru })} \u2013 ${format(end, "d MMMM yyyy", { locale: ru })}`;
@@ -85,7 +84,7 @@ export default function EventDetailPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-indigo-600" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[var(--color-border)] border-t-[var(--color-primary)]" />
       </div>
     );
   }
@@ -93,11 +92,11 @@ export default function EventDetailPage() {
   if (!event) {
     return (
       <div className="p-4 md:p-6 text-center py-24">
-        <p className="text-gray-500">Событие не найдено</p>
+        <p className="text-[var(--color-text-muted)]">Событие не найдено</p>
         <button
           type="button"
           onClick={() => router.push("/events")}
-          className="mt-4 text-sm text-indigo-600 hover:underline"
+          className="mt-4 text-sm text-[var(--color-primary)] hover:underline"
         >
           Вернуться к списку
         </button>
@@ -118,7 +117,7 @@ export default function EventDetailPage() {
       <button
         type="button"
         onClick={() => router.push("/events")}
-        className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+        className="flex items-center gap-1 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"
       >
         <svg
           className="h-4 w-4"
@@ -127,23 +126,19 @@ export default function EventDetailPage() {
           strokeWidth={2}
           stroke="currentColor"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M15.75 19.5 8.25 12l7.5-7.5"
-          />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
         </svg>
         Назад к событиям
       </button>
 
       {/* Header card */}
       <div
-        className="bg-white rounded-lg shadow-sm border-l-4 p-6"
+        className="bg-[var(--color-bg-card)] rounded-lg shadow-sm border border-[var(--color-border)] border-l-4 p-6"
         style={{ borderLeftColor: event.category?.color ?? "#9ca3af" }}
       >
         {/* Title + actions */}
         <div className="flex items-start justify-between gap-4">
-          <h1 className="text-xl font-bold text-gray-900">{event.title}</h1>
+          <h1 className="text-xl font-bold text-[var(--color-text)]">{event.title}</h1>
 
           <div className="flex items-center gap-2 shrink-0">
             <button
@@ -151,7 +146,7 @@ export default function EventDetailPage() {
               onClick={() => setIsFormOpen(true)}
               className={cn(
                 "rounded-md px-3 py-1.5 text-sm font-medium",
-                "text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition-colors"
+                "text-[var(--color-primary)] bg-[var(--color-primary)]/10 hover:bg-[var(--color-primary)]/20 transition-colors"
               )}
             >
               Редактировать
@@ -161,7 +156,7 @@ export default function EventDetailPage() {
               onClick={() => setShowDeleteConfirm(true)}
               className={cn(
                 "rounded-md px-3 py-1.5 text-sm font-medium",
-                "text-red-600 bg-red-50 hover:bg-red-100 transition-colors"
+                "text-[var(--color-error)] bg-[var(--color-error)]/10 hover:bg-[var(--color-error)]/20 transition-colors"
               )}
             >
               Удалить
@@ -182,9 +177,9 @@ export default function EventDetailPage() {
         )}
 
         {/* Date */}
-        <div className="mt-4 flex items-center gap-2 text-sm text-gray-600">
+        <div className="mt-4 flex items-center gap-2 text-sm text-[var(--color-text-secondary)]">
           <svg
-            className="h-4 w-4 text-gray-400"
+            className="h-4 w-4 text-[var(--color-text-muted)]"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={1.5}
@@ -201,9 +196,9 @@ export default function EventDetailPage() {
 
         {/* Location */}
         {event.location && (
-          <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
+          <div className="mt-2 flex items-center gap-2 text-sm text-[var(--color-text-secondary)]">
             <svg
-              className="h-4 w-4 text-gray-400"
+              className="h-4 w-4 text-[var(--color-text-muted)]"
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth={1.5}
@@ -226,21 +221,17 @@ export default function EventDetailPage() {
 
         {/* Description */}
         {event.description && (
-          <div className="mt-4 pt-4 border-t">
-            <h2 className="text-sm font-medium text-gray-700 mb-1">
-              Описание
-            </h2>
-            <p className="text-sm text-gray-600 whitespace-pre-wrap">
+          <div className="mt-4 pt-4 border-t border-[var(--color-border)]">
+            <h2 className="text-sm font-medium text-[var(--color-text)] mb-1">Описание</h2>
+            <p className="text-sm text-[var(--color-text-secondary)] whitespace-pre-wrap">
               {event.description}
             </p>
           </div>
         )}
 
         {/* Creator */}
-        <div className="mt-4 pt-4 border-t">
-          <h2 className="text-sm font-medium text-gray-700 mb-2">
-            Создатель
-          </h2>
+        <div className="mt-4 pt-4 border-t border-[var(--color-border)]">
+          <h2 className="text-sm font-medium text-[var(--color-text)] mb-2">Создатель</h2>
           <div className="flex items-center gap-2">
             <div
               className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-medium text-white"
@@ -248,7 +239,7 @@ export default function EventDetailPage() {
             >
               {creatorInitials}
             </div>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-[var(--color-text-secondary)]">
               {event.createdBy.name}
             </span>
           </div>
@@ -256,10 +247,8 @@ export default function EventDetailPage() {
 
         {/* Assignees */}
         {event.assignees.length > 0 && (
-          <div className="mt-4 pt-4 border-t">
-            <h2 className="text-sm font-medium text-gray-700 mb-2">
-              Участники
-            </h2>
+          <div className="mt-4 pt-4 border-t border-[var(--color-border)]">
+            <h2 className="text-sm font-medium text-[var(--color-text)] mb-2">Участники</h2>
             <div className="flex flex-wrap gap-2">
               {event.assignees.map((assignee) => {
                 const initials = assignee.name
@@ -272,7 +261,7 @@ export default function EventDetailPage() {
                 return (
                   <div
                     key={assignee.id}
-                    className="flex items-center gap-2 rounded-full bg-gray-50 px-3 py-1"
+                    className="flex items-center gap-2 rounded-full bg-[var(--color-border-light)] px-3 py-1"
                   >
                     <div
                       className="flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-medium text-white"
@@ -280,9 +269,7 @@ export default function EventDetailPage() {
                     >
                       {initials}
                     </div>
-                    <span className="text-sm text-gray-700">
-                      {assignee.name}
-                    </span>
+                    <span className="text-sm text-[var(--color-text)]">{assignee.name}</span>
                   </div>
                 );
               })}
@@ -298,19 +285,17 @@ export default function EventDetailPage() {
             className="absolute inset-0 bg-black/40"
             onClick={() => setShowDeleteConfirm(false)}
           />
-          <div className="relative z-10 w-full max-w-sm rounded-lg bg-white p-6 shadow-xl mx-4">
-            <h3 className="text-lg font-semibold text-gray-900">
-              Удалить событие?
-            </h3>
-            <p className="mt-2 text-sm text-gray-500">
-              Это действие нельзя отменить. Событие &laquo;{event.title}&raquo;
-              будет удалено навсегда.
+          <div className="relative z-10 w-full max-w-sm rounded-lg bg-[var(--color-bg-card)] p-6 shadow-xl mx-4 border border-[var(--color-border)]">
+            <h3 className="text-lg font-semibold text-[var(--color-text)]">Удалить событие?</h3>
+            <p className="mt-2 text-sm text-[var(--color-text-muted)]">
+              Это действие нельзя отменить. Событие &laquo;{event.title}&raquo; будет удалено
+              навсегда.
             </p>
             <div className="mt-4 flex items-center justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setShowDeleteConfirm(false)}
-                className="rounded-md px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
+                className="rounded-md px-4 py-2 text-sm font-medium text-[var(--color-text)] bg-[var(--color-bg-card)] border border-[var(--color-border)] hover:bg-[var(--color-border-light)]"
               >
                 Отмена
               </button>
@@ -319,7 +304,7 @@ export default function EventDetailPage() {
                 onClick={handleDelete}
                 disabled={isDeleting}
                 className={cn(
-                  "rounded-md px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700",
+                  "rounded-md px-4 py-2 text-sm font-medium text-white bg-[var(--color-error)] hover:opacity-90",
                   "disabled:opacity-50 disabled:cursor-not-allowed"
                 )}
               >

@@ -35,24 +35,18 @@ interface KanbanColumnProps {
 }
 
 const STATUS_COLORS = {
-  TODO: "bg-slate-100 border-slate-200",
-  IN_PROGRESS: "bg-amber-50 border-amber-200",
-  DONE: "bg-emerald-50 border-emerald-200",
+  TODO: "bg-[var(--color-status-todo-bg)] border-[var(--color-status-todo-border)]",
+  IN_PROGRESS: "bg-[var(--color-status-progress-bg)] border-[var(--color-status-progress-border)]",
+  DONE: "bg-[var(--color-status-done-bg)] border-[var(--color-status-done-border)]",
 };
 
 const STATUS_HEADER_COLORS = {
-  TODO: "text-slate-600 bg-slate-200",
-  IN_PROGRESS: "text-amber-700 bg-amber-200",
-  DONE: "text-emerald-700 bg-emerald-200",
+  TODO: "text-[var(--color-status-todo-text)] bg-[var(--color-status-todo-badge)]",
+  IN_PROGRESS: "text-[var(--color-status-progress-text)] bg-[var(--color-status-progress-badge)]",
+  DONE: "text-[var(--color-status-done-text)] bg-[var(--color-status-done-badge)]",
 };
 
-export function KanbanColumn({
-  title,
-  status,
-  tasks,
-  onTaskClick,
-  onAddTask,
-}: KanbanColumnProps) {
+export function KanbanColumn({ title, status, tasks, onTaskClick, onAddTask }: KanbanColumnProps) {
   return (
     <div
       className={cn(
@@ -89,12 +83,7 @@ export function KanbanColumn({
             )}
           >
             {tasks.map((task, index) => (
-              <TaskCard
-                key={task.id}
-                task={task}
-                onClick={onTaskClick}
-                index={index}
-              />
+              <TaskCard key={task.id} task={task} onClick={onTaskClick} index={index} />
             ))}
             {provided.placeholder}
           </div>
@@ -113,18 +102,8 @@ export function KanbanColumn({
           "transition-all cursor-pointer"
         )}
       >
-        <svg
-          className="h-5 w-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M12 4v16m8-8H4"
-          />
+        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
         </svg>
         Добавить задачу
       </button>

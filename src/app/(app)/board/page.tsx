@@ -1,6 +1,17 @@
 "use client";
 
-import { KanbanBoard } from "@/components/board/KanbanBoard";
+import dynamic from "next/dynamic";
+
+const KanbanBoard = dynamic(
+  () => import("@/components/board/KanbanBoard").then((mod) => mod.KanbanBoard),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center py-20">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--color-border)] border-t-[var(--color-primary)]" />
+      </div>
+    ),
+  }
+);
 
 export default function BoardPage() {
   return (

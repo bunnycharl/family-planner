@@ -8,9 +8,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <Sidebar />
       <div className="flex flex-1 flex-col min-h-0 min-w-0">
         <Header />
-        <main className="flex-1 overflow-auto bg-gray-50 pb-16 md:pb-0">
-          {children}
-        </main>
+        <main className="flex-1 overflow-auto bg-[var(--color-bg)] pb-16 md:pb-0">{children}</main>
         <BottomNav />
       </div>
     </div>

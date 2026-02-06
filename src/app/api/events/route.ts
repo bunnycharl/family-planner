@@ -1,14 +1,10 @@
-import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { createEventSchema } from "@/lib/validations/event";
+import { withAuth } from "@/lib/api-utils";
+import { logger } from "@/lib/logger";
 
-export async function GET(request: Request) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
+export const GET = withAuth(async (request) => {
   const { searchParams } = new URL(request.url);
   const start = searchParams.get("start");
   const end = searchParams.get("end");
@@ -51,20 +47,12 @@ export async function GET(request: Request) {
 
     return NextResponse.json(events);
   } catch (error) {
-    console.error("Failed to fetch events:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch events" },
-      { status: 500 }
-    );
+    logger.error({ err: error }, "Failed to fetch events");
+    return NextResponse.json({ error: "Failed to fetch events" }, { status: 500 });
   }
-}
+});
 
-export async function POST(request: Request) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
+export const POST = withAuth(async (request, session) => {
   try {
     const body = await request.json();
     const result = createEventSchema.safeParse(body);
@@ -83,10 +71,8 @@ export async function POST(request: Request) {
         ...data,
         startDate: new Date(data.startDate),
         endDate: data.endDate ? new Date(data.endDate) : undefined,
-        createdById: session.user.id!,
-        assignees: assigneeIds
-          ? { connect: assigneeIds.map((id) => ({ id })) }
-          : undefined,
+        createdById: session.user!.id!,
+        assignees: assigneeIds ? { connect: assigneeIds.map((id) => ({ id })) } : undefined,
       },
       include: {
         category: true,
@@ -98,10 +84,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(event, { status: 201 });
   } catch (error) {
-    console.error("Failed to create event:", error);
-    return NextResponse.json(
-      { error: "Failed to create event" },
-      { status: 500 }
-    );
+    logger.error({ err: error }, "Failed to create event");
+    return NextResponse.json({ error: "Failed to create event" }, { status: 500 });
   }
-}
+});
