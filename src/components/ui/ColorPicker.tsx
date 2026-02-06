@@ -272,7 +272,7 @@ export function ColorPicker({ value, onChange, showNone, onNone, isNone }: Color
   const isPreset = PRESET_COLORS.includes(value);
 
   return (
-    <div className="relative">
+    <div>
       {/* Preset swatches */}
       <div className="flex flex-wrap items-center gap-2">
         {showNone && (
@@ -317,107 +317,127 @@ export function ColorPicker({ value, onChange, showNone, onNone, isNone }: Color
           />
         ))}
 
-        {/* Custom color toggle */}
-        <button
-          type="button"
-          onClick={() => setShowCustom(!showCustom)}
-          className={cn(
-            "h-8 w-8 rounded-lg border-2 transition-all flex items-center justify-center cursor-pointer",
-            showCustom || (!isNone && !isPreset)
-              ? "border-[var(--color-text)] scale-110 ring-2 ring-offset-1 ring-[var(--color-text)]/20"
-              : "border-[var(--color-border)] hover:scale-105"
-          )}
-          style={!isNone && !isPreset && value ? { backgroundColor: value } : undefined}
-          title="Свой цвет"
-        >
-          {(isPreset || isNone || !value) && (
-            <svg
-              className="h-4 w-4 text-[var(--color-text-muted)]"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
+        {/* Custom color toggle + popover anchor */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setShowCustom(!showCustom)}
+            className={cn(
+              "h-8 w-8 rounded-lg border-2 transition-all flex items-center justify-center cursor-pointer",
+              showCustom || (!isNone && !isPreset)
+                ? "border-[var(--color-text)] scale-110 ring-2 ring-offset-1 ring-[var(--color-text)]/20"
+                : "border-[var(--color-border)] hover:scale-105"
+            )}
+            style={!isNone && !isPreset && value ? { backgroundColor: value } : undefined}
+            title="Свой цвет"
+          >
+            {(isPreset || isNone || !value) && (
+              <svg
+                className="h-4 w-4 text-[var(--color-text-muted)]"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
+                />
+              </svg>
+            )}
+          </button>
+
+          {/* Custom picker popover — speech bubble above the button */}
+          {showCustom && (
+            <div
+              ref={popoverRef}
+              className="absolute bottom-full right-0 z-50 mb-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-3 space-y-3 shadow-xl"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
+              {/* Saturation-Value canvas */}
+              <div className="relative" style={{ width: SV_W, height: SV_H }}>
+                <canvas
+                  ref={svCanvasRef}
+                  width={SV_W}
+                  height={SV_H}
+                  className="block rounded-lg cursor-crosshair"
+                  style={{ width: SV_W, height: SV_H }}
+                  onPointerDown={onSvPointerDown}
+                  onPointerMove={onSvPointerMove}
+                  onPointerUp={onSvPointerUp}
+                />
+                <div
+                  className="pointer-events-none absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white"
+                  style={{
+                    left: sat * SV_W,
+                    top: (1 - val) * SV_H,
+                    boxShadow: "0 0 0 1px rgba(0,0,0,0.3)",
+                  }}
+                />
+              </div>
+
+              {/* Hue slider */}
+              <div className="relative" style={{ width: HUE_W, height: HUE_H }}>
+                <canvas
+                  ref={hueCanvasRef}
+                  width={HUE_W}
+                  height={HUE_H}
+                  className="block rounded-full cursor-pointer"
+                  style={{ width: HUE_W, height: HUE_H }}
+                  onPointerDown={onHuePointerDown}
+                  onPointerMove={onHuePointerMove}
+                  onPointerUp={onHuePointerUp}
+                />
+                <div
+                  className="pointer-events-none absolute top-1/2 h-5 w-3 -translate-x-1/2 -translate-y-1/2 rounded-sm border-2 border-white"
+                  style={{
+                    left: (hue / 360) * HUE_W,
+                    boxShadow: "0 0 0 1px rgba(0,0,0,0.3)",
+                  }}
+                />
+              </div>
+
+              {/* Hex input + preview */}
+              <div className="flex items-center gap-3">
+                <div
+                  className="h-8 w-8 shrink-0 rounded-lg border border-[var(--color-border)]"
+                  style={{ backgroundColor: value || "#000000" }}
+                />
+                <input
+                  type="text"
+                  value={hexInput}
+                  onChange={(e) => handleHexChange(e.target.value)}
+                  placeholder="#000000"
+                  maxLength={7}
+                  className={cn(
+                    "w-24 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-card)] px-2 py-1 text-sm font-mono",
+                    "text-[var(--color-text)]",
+                    "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]"
+                  )}
+                />
+              </div>
+
+              {/* Speech bubble arrow pointing down to the button */}
+              <div
+                className="absolute -bottom-[10px] right-[10px] h-0 w-0"
+                style={{
+                  borderLeft: "10px solid transparent",
+                  borderRight: "10px solid transparent",
+                  borderTop: "10px solid var(--color-border)",
+                }}
               />
-            </svg>
+              <div
+                className="absolute -bottom-[8px] right-[11px] h-0 w-0"
+                style={{
+                  borderLeft: "9px solid transparent",
+                  borderRight: "9px solid transparent",
+                  borderTop: "9px solid var(--color-bg-card)",
+                }}
+              />
+            </div>
           )}
-        </button>
-      </div>
-
-      {/* Custom picker popover */}
-      {showCustom && (
-        <div
-          ref={popoverRef}
-          className="absolute left-0 top-full z-50 mt-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-3 space-y-3 shadow-xl"
-        >
-          {/* Saturation-Value canvas */}
-          <div className="relative" style={{ width: SV_W, height: SV_H }}>
-            <canvas
-              ref={svCanvasRef}
-              width={SV_W}
-              height={SV_H}
-              className="block rounded-lg cursor-crosshair"
-              style={{ width: SV_W, height: SV_H }}
-              onPointerDown={onSvPointerDown}
-              onPointerMove={onSvPointerMove}
-              onPointerUp={onSvPointerUp}
-            />
-            <div
-              className="pointer-events-none absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white"
-              style={{
-                left: sat * SV_W,
-                top: (1 - val) * SV_H,
-                boxShadow: "0 0 0 1px rgba(0,0,0,0.3)",
-              }}
-            />
-          </div>
-
-          {/* Hue slider */}
-          <div className="relative" style={{ width: HUE_W, height: HUE_H }}>
-            <canvas
-              ref={hueCanvasRef}
-              width={HUE_W}
-              height={HUE_H}
-              className="block rounded-full cursor-pointer"
-              style={{ width: HUE_W, height: HUE_H }}
-              onPointerDown={onHuePointerDown}
-              onPointerMove={onHuePointerMove}
-              onPointerUp={onHuePointerUp}
-            />
-            <div
-              className="pointer-events-none absolute top-1/2 h-5 w-3 -translate-x-1/2 -translate-y-1/2 rounded-sm border-2 border-white"
-              style={{
-                left: (hue / 360) * HUE_W,
-                boxShadow: "0 0 0 1px rgba(0,0,0,0.3)",
-              }}
-            />
-          </div>
-
-          {/* Hex input + preview */}
-          <div className="flex items-center gap-3">
-            <div
-              className="h-8 w-8 shrink-0 rounded-lg border border-[var(--color-border)]"
-              style={{ backgroundColor: value || "#000000" }}
-            />
-            <input
-              type="text"
-              value={hexInput}
-              onChange={(e) => handleHexChange(e.target.value)}
-              placeholder="#000000"
-              maxLength={7}
-              className={cn(
-                "w-24 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-card)] px-2 py-1 text-sm font-mono",
-                "text-[var(--color-text)]",
-                "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]"
-              )}
-            />
-          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
