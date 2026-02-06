@@ -11,10 +11,7 @@ export function Header() {
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     }
@@ -52,9 +49,7 @@ export function Header() {
             <polyline points="9 22 9 12 15 12 15 22" />
           </svg>
         </div>
-        <span className="text-base font-bold text-[var(--color-primary)]">
-          Family Planner
-        </span>
+        <span className="text-base font-bold text-[var(--color-primary)]">Family Planner</span>
       </div>
 
       {/* User dropdown */}
@@ -80,7 +75,7 @@ export function Header() {
               </div>
             )}
             <button
-              onClick={() => signOut()}
+              onClick={() => signOut({ callbackUrl: "/login" })}
               className={cn(
                 "flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium cursor-pointer",
                 "text-[var(--color-error)] hover:bg-[var(--color-border-light)] transition-colors"

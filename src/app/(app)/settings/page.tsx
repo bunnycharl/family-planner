@@ -5,19 +5,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useCategories } from "@/hooks/useCategories";
 import { useTheme } from "@/components/providers/ThemeProvider";
-
-const PRESET_COLORS = [
-  "#ef4444", // red
-  "#f97316", // orange
-  "#eab308", // yellow
-  "#22c55e", // green
-  "#14b8a6", // teal
-  "#3b82f6", // blue
-  "#6366f1", // indigo
-  "#8b5cf6", // violet
-  "#ec4899", // pink
-  "#6b7280", // gray
-];
+import { ColorPicker } from "@/components/ui/ColorPicker";
 
 interface Category {
   id: string;
@@ -91,7 +79,7 @@ export default function SettingsPage() {
 
   // Add form state
   const [newName, setNewName] = useState("");
-  const [newColor, setNewColor] = useState(PRESET_COLORS[0]);
+  const [newColor, setNewColor] = useState("#ef4444");
   const [isAdding, setIsAdding] = useState(false);
 
   // Edit state
@@ -123,7 +111,7 @@ export default function SettingsPage() {
 
       toast.success("Категория создана");
       setNewName("");
-      setNewColor(PRESET_COLORS[0]);
+      setNewColor("#ef4444");
       mutate();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Ошибка создания категории");
@@ -316,24 +304,8 @@ export default function SettingsPage() {
                         autoFocus
                       />
 
-                      {/* Color swatches */}
-                      <div className="flex items-center gap-1.5">
-                        {PRESET_COLORS.map((color) => (
-                          <button
-                            key={color}
-                            type="button"
-                            onClick={() => setEditColor(color)}
-                            className={cn(
-                              "h-7 w-7 rounded-lg border-2 transition-all cursor-pointer",
-                              editColor === color
-                                ? "border-[var(--color-text)] scale-110 ring-2 ring-offset-1 ring-[var(--color-text)]/20"
-                                : "border-transparent hover:scale-105"
-                            )}
-                            style={{ backgroundColor: color }}
-                            aria-label={`Цвет ${color}`}
-                          />
-                        ))}
-                      </div>
+                      {/* Color picker */}
+                      <ColorPicker value={editColor} onChange={setEditColor} />
 
                       <div className="flex items-center gap-2">
                         <button
@@ -435,28 +407,12 @@ export default function SettingsPage() {
               </button>
             </div>
 
-            {/* Color picker row */}
+            {/* Color picker */}
             <div>
               <label className="block text-xs font-medium text-[var(--color-text-muted)] mb-2">
                 Цвет
               </label>
-              <div className="flex flex-wrap items-center gap-2">
-                {PRESET_COLORS.map((color) => (
-                  <button
-                    key={color}
-                    type="button"
-                    onClick={() => setNewColor(color)}
-                    className={cn(
-                      "h-8 w-8 rounded-lg border-2 transition-all cursor-pointer",
-                      newColor === color
-                        ? "border-[var(--color-text)] scale-110 ring-2 ring-offset-1 ring-[var(--color-text)]/20"
-                        : "border-transparent hover:scale-105"
-                    )}
-                    style={{ backgroundColor: color }}
-                    aria-label={`Цвет ${color}`}
-                  />
-                ))}
-              </div>
+              <ColorPicker value={newColor} onChange={setNewColor} />
             </div>
           </form>
         </>

@@ -5,18 +5,7 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useCategories } from "@/hooks/useCategories";
-
-const PRESET_COLORS = [
-  "#ef4444", // red
-  "#f97316", // orange
-  "#eab308", // yellow
-  "#22c55e", // green
-  "#14b8a6", // teal
-  "#3b82f6", // blue
-  "#6366f1", // indigo
-  "#8b5cf6", // violet
-  "#ec4899", // pink
-];
+import { ColorPicker } from "@/components/ui/ColorPicker";
 
 interface CalendarEvent {
   id: string;
@@ -39,13 +28,7 @@ interface EventFormProps {
   onSave: () => void;
 }
 
-export function EventForm({
-  isOpen,
-  onClose,
-  event,
-  defaultDate,
-  onSave,
-}: EventFormProps) {
+export function EventForm({ isOpen, onClose, event, defaultDate, onSave }: EventFormProps) {
   const { categories } = useCategories();
   const isEditing = !!event;
 
@@ -130,15 +113,11 @@ export function EventForm({
         throw new Error(data.error ?? "Failed to save event");
       }
 
-      toast.success(
-        isEditing ? "Событие обновлено" : "Событие создано"
-      );
+      toast.success(isEditing ? "Событие обновлено" : "Событие создано");
       onSave();
       onClose();
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Ошибка сохранения"
-      );
+      toast.error(err instanceof Error ? err.message : "Ошибка сохранения");
     } finally {
       setIsSubmitting(false);
     }
@@ -170,17 +149,14 @@ export function EventForm({
 
   if (!isOpen) return null;
 
-  const selectedCategory = categories.find(
-    (c: { id: string }) => c.id === categoryId
-  ) as { id: string; name: string; color: string } | undefined;
+  const selectedCategory = categories.find((c: { id: string }) => c.id === categoryId) as
+    | { id: string; name: string; color: string }
+    | undefined;
 
   return (
     <div className="fixed inset-0 z-[60]">
       {/* Overlay */}
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
       {/* Modal — full screen on mobile, centered card on desktop */}
       <div
@@ -220,7 +196,13 @@ export function EventForm({
               onClick={onClose}
               className="flex h-9 w-9 items-center justify-center rounded-xl text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-text)] transition-all cursor-pointer"
             >
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -318,9 +300,7 @@ export function EventForm({
                           className="inline-block h-3 w-3 shrink-0 rounded-full"
                           style={{ backgroundColor: selectedCategory.color }}
                         />
-                        <span className="text-[var(--color-text)]">
-                          {selectedCategory.name}
-                        </span>
+                        <span className="text-[var(--color-text)]">{selectedCategory.name}</span>
                       </>
                     ) : (
                       <span className="text-[var(--color-text-muted)]">Без категории</span>
@@ -362,30 +342,28 @@ export function EventForm({
                       <span className="inline-block h-3 w-3 shrink-0 rounded-full bg-[var(--color-text-muted)]" />
                       Без категории
                     </button>
-                    {categories.map(
-                      (cat: { id: string; name: string; color: string }) => (
-                        <button
-                          key={cat.id}
-                          type="button"
-                          onClick={() => {
-                            setCategoryId(cat.id);
-                            setCategoryOpen(false);
-                          }}
-                          className={cn(
-                            "flex w-full items-center gap-3 px-4 py-3 text-left text-sm transition-colors cursor-pointer",
-                            categoryId === cat.id
-                              ? "bg-[var(--color-primary-50)] text-[var(--color-primary)] font-semibold"
-                              : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)]"
-                          )}
-                        >
-                          <span
-                            className="inline-block h-3 w-3 shrink-0 rounded-full"
-                            style={{ backgroundColor: cat.color }}
-                          />
-                          {cat.name}
-                        </button>
-                      )
-                    )}
+                    {categories.map((cat: { id: string; name: string; color: string }) => (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => {
+                          setCategoryId(cat.id);
+                          setCategoryOpen(false);
+                        }}
+                        className={cn(
+                          "flex w-full items-center gap-3 px-4 py-3 text-left text-sm transition-colors cursor-pointer",
+                          categoryId === cat.id
+                            ? "bg-[var(--color-primary-50)] text-[var(--color-primary)] font-semibold"
+                            : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)]"
+                        )}
+                      >
+                        <span
+                          className="inline-block h-3 w-3 shrink-0 rounded-full"
+                          style={{ backgroundColor: cat.color }}
+                        />
+                        {cat.name}
+                      </button>
+                    ))}
                   </div>
                 )}
               </div>
@@ -433,48 +411,13 @@ export function EventForm({
                   Цвет (флажок)
                 </span>
               </label>
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setColor(null)}
-                  className={cn(
-                    "h-8 w-8 rounded-lg border-2 transition-all flex items-center justify-center cursor-pointer",
-                    color === null
-                      ? "border-[var(--color-text)] scale-110 ring-2 ring-offset-1 ring-[var(--color-text)]/20"
-                      : "border-[var(--color-border)] hover:scale-105"
-                  )}
-                  title="Без цвета"
-                >
-                  <svg
-                    className="h-4 w-4 text-[var(--color-text-muted)]"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2}
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-                {PRESET_COLORS.map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => setColor(c)}
-                    className={cn(
-                      "h-8 w-8 rounded-lg border-2 transition-all cursor-pointer",
-                      color === c
-                        ? "border-[var(--color-text)] scale-110 ring-2 ring-offset-1 ring-[var(--color-text)]/20"
-                        : "border-transparent hover:scale-105"
-                    )}
-                    style={{ backgroundColor: c }}
-                    aria-label={`Цвет ${c}`}
-                  />
-                ))}
-              </div>
+              <ColorPicker
+                value={color ?? "#0d9488"}
+                onChange={(c) => setColor(c)}
+                showNone
+                onNone={() => setColor(null)}
+                isNone={color === null}
+              />
             </div>
 
             {/* Completed checkbox (only when editing) */}
@@ -550,11 +493,7 @@ export function EventForm({
                     "disabled:opacity-50 disabled:cursor-not-allowed"
                   )}
                 >
-                  {isSubmitting
-                    ? "Сохранение..."
-                    : isEditing
-                      ? "Сохранить"
-                      : "Создать"}
+                  {isSubmitting ? "Сохранение..." : isEditing ? "Сохранить" : "Создать"}
                 </button>
               </>
             )}
