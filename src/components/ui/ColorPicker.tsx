@@ -116,6 +116,19 @@ function drawHueSlider(ctx: CanvasRenderingContext2D, width: number, height: num
 export function ColorPicker({ value, onChange, showNone, onNone, isNone }: ColorPickerProps) {
   const [showCustom, setShowCustom] = useState(false);
   const [hexInput, setHexInput] = useState(value);
+  const popoverRef = useRef<HTMLDivElement>(null);
+
+  // Close popover on click outside
+  useEffect(() => {
+    if (!showCustom) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
+        setShowCustom(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showCustom]);
 
   // HSV state — source of truth for the custom picker canvas
   const initHsv = hexToHsv(value || "#0d9488");
@@ -259,7 +272,7 @@ export function ColorPicker({ value, onChange, showNone, onNone, isNone }: Color
   const isPreset = PRESET_COLORS.includes(value);
 
   return (
-    <div className="space-y-2">
+    <div className="relative">
       {/* Preset swatches */}
       <div className="flex flex-wrap items-center gap-2">
         {showNone && (
@@ -335,9 +348,12 @@ export function ColorPicker({ value, onChange, showNone, onNone, isNone }: Color
         </button>
       </div>
 
-      {/* Custom picker panel */}
+      {/* Custom picker popover */}
       {showCustom && (
-        <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-3 space-y-3">
+        <div
+          ref={popoverRef}
+          className="absolute left-0 top-full z-50 mt-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-3 space-y-3 shadow-xl"
+        >
           {/* Saturation-Value canvas */}
           <div className="relative" style={{ width: SV_W, height: SV_H }}>
             <canvas

@@ -18,14 +18,16 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isApiRoute = pathname.startsWith("/api/");
 
-  // Rate limiting for auth endpoints (5 requests per minute)
+  // Rate limiting for auth login attempts only (POST, 5 per minute)
+  // GET /api/auth/session is not rate-limited — it's called on every page load
   if (pathname.startsWith("/api/auth")) {
-    const ip = request.headers.get("x-forwarded-for") ?? "anonymous";
-    const { success } = rateLimit(`auth:${ip}`, 5, 60 * 1000);
-    if (!success) {
-      return addSecurityHeaders(rateLimitResponse());
+    if (request.method === "POST") {
+      const ip = request.headers.get("x-forwarded-for") ?? "anonymous";
+      const { success } = rateLimit(`auth:${ip}`, 5, 60 * 1000);
+      if (!success) {
+        return addSecurityHeaders(rateLimitResponse());
+      }
     }
-    // Let NextAuth handle its own routes
     return addSecurityHeaders(NextResponse.next());
   }
 
