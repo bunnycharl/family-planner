@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import type { BudgetYearData, BulkUpsertInput } from "@/lib/finances/types";
 import {
   computeYearSummary,
@@ -15,7 +16,7 @@ interface PlanningTableViewProps {
 }
 
 export function PlanningTableView({ data, onCellChange }: PlanningTableViewProps) {
-  const summaries = computeYearSummary(data);
+  const summaries = useMemo(() => computeYearSummary(data), [data]);
   const currentMonth = new Date().getMonth() + 1;
 
   return (

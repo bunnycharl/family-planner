@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import type { MonthSummary } from "@/lib/finances/types";
 import { formatMoney } from "@/lib/finances/calculations";
@@ -68,41 +68,45 @@ function renderDrillDown(label: string, summary: MonthSummary, isHero: boolean):
 export function KPICards({ summary, prevSummary, baseCurrency }: KPICardsProps) {
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
 
-  if (!summary) return null;
+  const balancePositive = summary?.balance ? summary.balance >= 0 : true;
 
-  const balancePositive = summary.balance >= 0;
+  const cards = useMemo(() => {
+    if (!summary) return [];
 
-  const cards = [
-    {
-      label: "Остаток",
-      value: summary.balance,
-      bg: balancePositive ? "bg-[var(--c-mint)]" : "bg-[var(--c-coral)]",
-      hero: true,
-      prev: null,
-    },
-    {
-      label: "Доходы",
-      value: summary.totalNetIncome,
-      bg: "bg-[var(--c-mint)]/15",
-      hero: false,
-      prev: prevSummary?.totalNetIncome,
-    },
-    {
-      label: "Расходы",
-      value: summary.totalExpenses,
-      bg: "bg-[var(--c-coral)]/15",
-      hero: false,
-      prev: prevSummary?.totalExpenses,
-    },
-    {
-      label: "Накоплено",
-      value: summary.cumulative,
-      bg: "bg-[var(--c-yellow)]/15",
-      hero: false,
-      prev: null,
-      subtitle: "с начала года",
-    },
-  ];
+    return [
+      {
+        label: "Остаток",
+        value: summary.balance,
+        bg: balancePositive ? "bg-[var(--c-mint)]" : "bg-[var(--c-coral)]",
+        hero: true,
+        prev: null,
+      },
+      {
+        label: "Доходы",
+        value: summary.totalNetIncome,
+        bg: "bg-[var(--c-mint)]/15",
+        hero: false,
+        prev: prevSummary?.totalNetIncome,
+      },
+      {
+        label: "Расходы",
+        value: summary.totalExpenses,
+        bg: "bg-[var(--c-coral)]/15",
+        hero: false,
+        prev: prevSummary?.totalExpenses,
+      },
+      {
+        label: "Накоплено",
+        value: summary.cumulative,
+        bg: "bg-[var(--c-yellow)]/15",
+        hero: false,
+        prev: null,
+        subtitle: "с начала года",
+      },
+    ];
+  }, [summary, prevSummary, balancePositive]);
+
+  if (!summary || cards.length === 0) return null;
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
