@@ -93,8 +93,32 @@ model FinancePerson {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  incomeEntries IncomeEntry[]
-  incomeParams  IncomeParam[]
+  incomeEntries    IncomeEntry[]
+  incomeParams     IncomeParam[]
+  incomeCategories FinanceIncomeCategory[]
+  taxRules         FinanceTaxRule[]
+}
+
+model FinanceIncomeCategory {
+  id       String        @id @default(cuid())
+  personId String
+  person   FinancePerson @relation(fields: [personId], references: [id], onDelete: Cascade)
+  name     String
+  position Int           @default(0)
+
+  @@unique([personId, name])
+  @@index([personId])
+}
+
+model FinanceTaxRule {
+  id       String        @id @default(cuid())
+  personId String
+  person   FinancePerson @relation(fields: [personId], references: [id], onDelete: Cascade)
+  category String
+  rate     Float
+
+  @@unique([personId, category])
+  @@index([personId])
 }
 
 model IncomeEntry {
@@ -153,6 +177,30 @@ model ExpenseEntry {
   @@unique([year, month, group, category])
   @@index([year, month])
   @@index([group])
+}
+
+model ExpenseGroup {
+  id         String                 @id @default(cuid())
+  name       String
+  slug       String                 @unique
+  currency   String                 @default("RUB")
+  position   Int                    @default(0)
+  createdAt  DateTime               @default(now())
+  updatedAt  DateTime               @updatedAt
+  categories ExpenseGroupCategory[]
+
+  @@index([position])
+}
+
+model ExpenseGroupCategory {
+  id       String       @id @default(cuid())
+  groupId  String
+  group    ExpenseGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  name     String
+  position Int          @default(0)
+
+  @@unique([groupId, name])
+  @@index([groupId])
 }
 
 // ─── Roadmap ────────────────────────────────────────────────

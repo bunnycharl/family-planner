@@ -29,6 +29,17 @@ export function computeTax(
   return Math.round(amount * rate);
 }
 
+// Compute tax using dynamic rules from DB
+export function computeTaxDynamic(
+  taxRules: { category: string; rate: number }[],
+  category: string,
+  amount: number
+): number {
+  const rule = taxRules.find((r) => r.category === category);
+  const rate = rule?.rate ?? 0;
+  return Math.round(amount * rate);
+}
+
 export function formatMoney(amount: number): string {
   return new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 0 }).format(amount);
 }

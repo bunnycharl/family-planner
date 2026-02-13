@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { withAuth } from "@/lib/api-utils";
 import { logger } from "@/lib/logger";
-import { computeTax, MONTH_LABELS } from "@/lib/finance-utils";
+import { computeTaxDynamic, MONTH_LABELS } from "@/lib/finance-utils";
 
 interface PersonSummary {
   personId: string;
@@ -14,6 +14,14 @@ interface PersonSummary {
   categories: Record<string, number>;
 }
 
+interface ExpenseGroupSummary {
+  slug: string;
+  name: string;
+  currency: string;
+  amount: number;
+  amountRub: number;
+}
+
 interface MonthSummary {
   month: number;
   label: string;
@@ -21,13 +29,8 @@ interface MonthSummary {
   totalIncome: number;
   totalTax: number;
   totalNetIncome: number;
-  expenses: {
-    moscow: number;
-    spain: number;
-    spainRub: number;
-    onetime: number;
-    total: number;
-  };
+  expenseGroups: ExpenseGroupSummary[];
+  totalExpenses: number;
   eurRub: number;
   netAfterExpenses: number;
   cumulative: number;
@@ -44,15 +47,26 @@ export const GET = withAuth(async (request) => {
   const yearNum = parseInt(year, 10);
 
   try {
-    const [persons, incomeEntries, expenseEntries, exchangeRates] = await Promise.all([
-      prisma.financePerson.findMany(),
-      prisma.incomeEntry.findMany({ where: { year: yearNum } }),
-      prisma.expenseEntry.findMany({ where: { year: yearNum } }),
-      prisma.exchangeRate.findMany({ where: { year: yearNum } }),
-    ]);
+    const [persons, incomeEntries, expenseEntries, exchangeRates, taxRules, expenseGroupsDb] =
+      await Promise.all([
+        prisma.financePerson.findMany(),
+        prisma.incomeEntry.findMany({ where: { year: yearNum } }),
+        prisma.expenseEntry.findMany({ where: { year: yearNum } }),
+        prisma.exchangeRate.findMany({ where: { year: yearNum } }),
+        prisma.financeTaxRule.findMany(),
+        prisma.expenseGroup.findMany({ orderBy: { position: "asc" } }),
+      ]);
 
     // Build lookup maps
     const rateMap = new Map(exchangeRates.map((r) => [r.month, r.eurRub]));
+
+    // Tax rules per person
+    const taxRulesByPerson = new Map<string, { category: string; rate: number }[]>();
+    for (const rule of taxRules) {
+      const existing = taxRulesByPerson.get(rule.personId) ?? [];
+      existing.push({ category: rule.category, rate: rule.rate });
+      taxRulesByPerson.set(rule.personId, existing);
+    }
 
     // Group income entries by month
     const incomeByMonth = new Map<number, typeof incomeEntries>();
@@ -78,10 +92,11 @@ export const GET = withAuth(async (request) => {
       const monthExpenses = expensesByMonth.get(month) ?? [];
       const eurRub = rateMap.get(month) ?? 0;
 
-      // Calculate per-person income
+      // Calculate per-person income using dynamic tax rules
       const personSummaries: PersonSummary[] = [];
       for (const person of persons) {
         const personEntries = monthIncomes.filter((e) => e.personId === person.id);
+        const personTaxRules = taxRulesByPerson.get(person.id) ?? [];
         const categories: Record<string, number> = {};
         let grossIncome = 0;
         let tax = 0;
@@ -89,7 +104,7 @@ export const GET = withAuth(async (request) => {
         for (const entry of personEntries) {
           categories[entry.category] = entry.amount;
           grossIncome += entry.amount;
-          tax += computeTax(person.slug as "nikita" | "darya", entry.category, entry.amount);
+          tax += computeTaxDynamic(personTaxRules, entry.category, entry.amount);
         }
 
         personSummaries.push({
@@ -107,27 +122,26 @@ export const GET = withAuth(async (request) => {
       const totalTax = personSummaries.reduce((sum, p) => sum + p.tax, 0);
       const totalNetIncome = totalIncome - totalTax;
 
-      // Calculate expenses by group
-      let moscowTotal = 0;
-      let spainTotal = 0;
-      let onetimeTotal = 0;
+      // Calculate expenses per group (dynamic from DB)
+      const expenseGroups: ExpenseGroupSummary[] = [];
+      let totalExpenses = 0;
 
-      for (const expense of monthExpenses) {
-        switch (expense.group) {
-          case "moscow":
-            moscowTotal += expense.amount;
-            break;
-          case "spain":
-            spainTotal += expense.amount;
-            break;
-          case "onetime":
-            onetimeTotal += expense.amount;
-            break;
-        }
+      for (const group of expenseGroupsDb) {
+        const groupExpenses = monthExpenses.filter((e) => e.group === group.slug);
+        const amount = groupExpenses.reduce((sum, e) => sum + e.amount, 0);
+        const amountRub = group.currency === "EUR" ? Math.round(amount * eurRub) : amount;
+
+        expenseGroups.push({
+          slug: group.slug,
+          name: group.name,
+          currency: group.currency,
+          amount,
+          amountRub,
+        });
+
+        totalExpenses += amountRub;
       }
 
-      const spainRub = Math.round(spainTotal * eurRub);
-      const totalExpenses = moscowTotal + spainRub + onetimeTotal;
       const netAfterExpenses = totalNetIncome - totalExpenses;
       cumulative += netAfterExpenses;
 
@@ -138,13 +152,8 @@ export const GET = withAuth(async (request) => {
         totalIncome,
         totalTax,
         totalNetIncome,
-        expenses: {
-          moscow: moscowTotal,
-          spain: spainTotal,
-          spainRub,
-          onetime: onetimeTotal,
-          total: totalExpenses,
-        },
+        expenseGroups,
+        totalExpenses,
         eurRub,
         netAfterExpenses,
         cumulative,
@@ -156,16 +165,21 @@ export const GET = withAuth(async (request) => {
       totalIncome: months.reduce((s, m) => s + m.totalIncome, 0),
       totalTax: months.reduce((s, m) => s + m.totalTax, 0),
       totalNetIncome: months.reduce((s, m) => s + m.totalNetIncome, 0),
-      totalExpenses: months.reduce((s, m) => s + m.expenses.total, 0),
+      totalExpenses: months.reduce((s, m) => s + m.totalExpenses, 0),
       netAfterExpenses: months.reduce((s, m) => s + m.netAfterExpenses, 0),
     };
 
     return NextResponse.json({
       year: yearNum,
       persons: persons.map((p) => ({
-        id: p.id,
-        name: p.name,
-        slug: p.slug,
+        personId: p.id,
+        personName: p.name,
+        personSlug: p.slug,
+      })),
+      expenseGroups: expenseGroupsDb.map((g) => ({
+        slug: g.slug,
+        name: g.name,
+        currency: g.currency,
       })),
       months,
       yearlyTotals,
