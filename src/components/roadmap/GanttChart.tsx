@@ -75,9 +75,9 @@ export function GanttChart({
   }, [timeAxis]);
 
   return (
-    <div ref={scrollRef} className="overflow-x-auto rounded-3xl bg-[var(--c-gray)] p-4">
+    <div ref={scrollRef} className="overflow-x-auto rounded-3xl bg-[var(--c-gray)] p-6 shadow-xl">
       {/* Header section */}
-      <div className="flex mb-4">
+      <div className="flex mb-5">
         {/* Empty space for sidebar */}
         <div className="w-[340px] shrink-0" />
         {/* Timeline header */}
@@ -87,7 +87,7 @@ export function GanttChart({
       </div>
 
       {/* Content section */}
-      <div className="flex">
+      <div className="flex rounded-2xl overflow-hidden shadow-lg">
         <GanttSidebar
           phases={phases}
           expandedMap={expandedMap}

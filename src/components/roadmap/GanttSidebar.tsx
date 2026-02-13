@@ -66,17 +66,17 @@ export function GanttSidebar({
         const { visibleTasks, rowHeight } = phaseHeights[phaseIdx];
 
         return (
-          <div key={phase.id}>
+          <div key={phase.id} className="group">
             {/* Phase header */}
-            <div className="flex h-10 items-center border-b-2 border-white/40">
+            <div className="flex h-12 items-center border-b-2 border-white/60 bg-white/30 hover:bg-white/50 transition-all duration-200">
               <button
                 type="button"
                 onClick={() => onTogglePhase(phase.id)}
-                className="flex flex-1 items-center gap-2 px-3 py-2 cursor-pointer hover:bg-white/20 transition-colors"
+                className="flex flex-1 items-center gap-3 px-4 py-3 cursor-pointer"
               >
                 <svg
                   className={cn(
-                    "h-3 w-3 shrink-0 text-[#999] transition-transform",
+                    "h-4 w-4 shrink-0 text-[var(--c-black)] transition-transform duration-200",
                     isExpanded && "rotate-90"
                   )}
                   fill="none"
@@ -86,19 +86,19 @@ export function GanttSidebar({
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
-                {phase.emoji && <span className="text-sm">{phase.emoji}</span>}
-                <span className="truncate text-xs font-bold uppercase text-[var(--c-black)]">
+                {phase.emoji && <span className="text-base">{phase.emoji}</span>}
+                <span className="truncate text-sm font-extrabold uppercase text-[var(--c-black)]">
                   {phase.name}
                 </span>
               </button>
               <button
                 type="button"
                 onClick={() => onEditPhase(phase)}
-                className="mr-2 flex h-6 w-6 items-center justify-center rounded-full text-[#999] opacity-0 transition-all hover:bg-white/40 hover:text-[var(--c-black)] group-hover:opacity-100 cursor-pointer [div:hover>&]:opacity-100"
+                className="mr-3 flex h-7 w-7 items-center justify-center rounded-full text-[#666] opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-white hover:text-[var(--c-black)] cursor-pointer"
                 title="Редактировать фазу"
               >
                 <svg
-                  className="h-3.5 w-3.5"
+                  className="h-4 w-4"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -116,20 +116,23 @@ export function GanttSidebar({
             {/* Task rows — match timeline height */}
             {isExpanded && (
               <div
-                className="relative border-b border-white/20 overflow-hidden"
+                className="relative border-b-2 border-white/40 overflow-hidden bg-white/10"
                 style={{ height: rowHeight }}
               >
                 {visibleTasks.map((task) => (
-                  <div key={task.id} className="flex h-10 items-center">
-                    <div className="w-[180px] shrink-0 px-3">
+                  <div
+                    key={task.id}
+                    className="flex h-10 items-center hover:bg-white/20 transition-colors duration-150"
+                  >
+                    <div className="w-[50px] shrink-0 px-3">
                       <button
                         type="button"
                         onClick={() => onToggleCompletion(task)}
                         className={cn(
-                          "flex h-5 w-5 items-center justify-center rounded-md border-2 transition-all cursor-pointer",
+                          "flex h-5 w-5 items-center justify-center rounded-md border-2 transition-all duration-200 cursor-pointer",
                           task.status === "DONE"
-                            ? "border-[var(--c-mint)] bg-[var(--c-mint)]"
-                            : "border-[#ccc] hover:border-[var(--c-mint)]"
+                            ? "border-[var(--c-mint)] bg-[var(--c-mint)] shadow-sm"
+                            : "border-[#999] hover:border-[var(--c-mint)] hover:shadow-sm"
                         )}
                       >
                         {task.status === "DONE" && (

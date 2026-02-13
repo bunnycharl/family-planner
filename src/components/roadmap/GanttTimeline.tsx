@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { cn } from "@/lib/utils";
 import type { TimeAxisConfig } from "@/lib/roadmap-utils";
 import { computeBarTracks } from "@/lib/roadmap-utils";
 import { GanttBar } from "./GanttBar";
@@ -72,7 +73,12 @@ export function GanttTimeline({
           {timeAxis.columns.map((col) => (
             <div
               key={col.index}
-              className="border-r-2 border-white/60 last:border-r-0"
+              className={cn(
+                "border-r-2 last:border-r-0 transition-colors duration-200",
+                col.isCurrentPeriod
+                  ? "border-[var(--c-lavender)]/40 bg-[var(--c-lavender)]/5"
+                  : "border-white/50"
+              )}
               style={{ width: `${100 / timeAxis.totalColumns}%` }}
             />
           ))}
@@ -84,11 +90,14 @@ export function GanttTimeline({
           return (
             <div key={phase.id}>
               {/* Phase header row */}
-              <div className="h-10 border-b-2 border-white/40" />
+              <div className="h-12 border-b-2 border-white/60 bg-white/10" />
 
               {/* Task bars */}
               {isExpanded && (
-                <div className="relative border-b border-white/20" style={{ height: rowHeight }}>
+                <div
+                  className="relative border-b-2 border-white/40 bg-white/5"
+                  style={{ height: rowHeight }}
+                >
                   {visibleTasks.map((task) => {
                     const startCol = timeAxis.dateToColumn(new Date(task.startDate));
                     const endCol = timeAxis.dateToColumn(new Date(task.endDate));
