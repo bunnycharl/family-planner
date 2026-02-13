@@ -17,7 +17,9 @@ export default function FinancesPage() {
       <div className="sticky top-0 z-20 -mx-4 -mt-4 bg-white px-4 pt-4 pb-4 md:-mx-8 md:-mt-8 md:px-8 md:pt-8 space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h1 className="text-3xl font-extrabold uppercase tracking-tight text-[var(--c-black)]">
-            Финансы
+            <span className="bg-[var(--c-coral)] px-4 py-1 rounded-xl inline-block text-white">
+              Финансы
+            </span>
           </h1>
           <YearSelector year={year} onChange={setYear} />
         </div>

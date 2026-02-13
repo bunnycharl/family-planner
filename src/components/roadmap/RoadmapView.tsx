@@ -40,7 +40,9 @@ export function RoadmapView() {
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-extrabold uppercase tracking-tight text-[var(--c-black)]">
-        Роадмап 2026&ndash;2035
+        <span className="bg-[var(--c-lavender)] px-4 py-1 rounded-xl inline-block text-white">
+          Роадмап 2026&ndash;2035
+        </span>
       </h1>
       <GanttLegend />
       <GanttChart phases={phases} />

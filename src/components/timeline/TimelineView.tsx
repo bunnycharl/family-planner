@@ -165,8 +165,8 @@ export function TimelineView() {
     <div className="relative h-full flex flex-col bg-white">
       {/* Header */}
       <div className="px-4 pt-4 pb-3 md:px-8 md:pt-8 flex items-center justify-between shrink-0 bg-white">
-        <h1 className="text-xl font-extrabold uppercase tracking-tight text-[var(--c-black)]">
-          Таймлайн
+        <h1 className="text-3xl font-extrabold uppercase tracking-tight text-[var(--c-black)]">
+          <span className="bg-[var(--c-yellow)] px-4 py-1 rounded-xl inline-block">Таймлайн</span>
         </h1>
         <div className="flex items-center gap-2">
           {/* View mode toggle */}
