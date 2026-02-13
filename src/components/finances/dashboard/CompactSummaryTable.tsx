@@ -76,6 +76,9 @@ export function CompactSummaryTable({ data, summaries, selectedMonth }: CompactS
       <h3 className="mb-3 text-xs font-bold uppercase tracking-wide text-[var(--c-black)]/40">
         Сводка за год
       </h3>
+      <p className="mb-2 text-[9px] font-medium text-[var(--c-black)]/20 md:hidden">
+        ← Прокрутите для просмотра всех месяцев →
+      </p>
       <table className="w-full border-collapse">
         <thead>
           <tr>

@@ -11,14 +11,15 @@ import {
   ReferenceLine,
 } from "recharts";
 import type { MonthSummary } from "@/lib/finances/types";
-import { MONTH_LABELS, formatMoney } from "@/lib/finances/calculations";
+import { MONTH_LABELS, formatMoney, insightCumulative } from "@/lib/finances/calculations";
 
 interface CumulativeChartProps {
   summaries: MonthSummary[];
   baseCurrency: string;
+  selectedMonth: number;
 }
 
-export function CumulativeChart({ summaries, baseCurrency }: CumulativeChartProps) {
+export function CumulativeChart({ summaries, baseCurrency, selectedMonth }: CumulativeChartProps) {
   const chartData = summaries.map((s, idx) => ({
     name: MONTH_LABELS[idx],
     value: s.cumulative,
@@ -27,7 +28,7 @@ export function CumulativeChart({ summaries, baseCurrency }: CumulativeChartProp
   return (
     <div className="rounded-3xl bg-[var(--c-gray)] p-4 md:p-6">
       <h3 className="mb-4 text-xs font-bold uppercase tracking-wide text-[var(--c-black)]/40">
-        Накопительный остаток
+        {insightCumulative(summaries, selectedMonth, baseCurrency)}
       </h3>
       <ResponsiveContainer width="100%" height={200}>
         <AreaChart data={chartData}>

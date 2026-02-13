@@ -2,14 +2,21 @@
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import type { MonthSummary } from "@/lib/finances/types";
-import { formatMoney } from "@/lib/finances/calculations";
+import { formatMoney, insightDonut } from "@/lib/finances/calculations";
 
 interface ExpenseDonutChartProps {
   summary: MonthSummary | null;
   baseCurrency: string;
 }
 
-const COLORS = ["#ff6b6b", "#a78bfa", "#ffd166", "#45d9b4", "#3b82f6", "#f97316"];
+const COLORS = [
+  "var(--c-coral)",
+  "var(--c-lavender)",
+  "var(--c-yellow)",
+  "var(--c-mint)",
+  "#3b82f6",
+  "#f97316",
+];
 
 export function ExpenseDonutChart({ summary, baseCurrency }: ExpenseDonutChartProps) {
   if (!summary) return null;
@@ -31,10 +38,13 @@ export function ExpenseDonutChart({ summary, baseCurrency }: ExpenseDonutChartPr
     );
   }
 
+  // Find the top group for center label
+  const topGroup = chartData.reduce((a, b) => (a.value > b.value ? a : b));
+
   return (
     <div className="rounded-3xl bg-[var(--c-gray)] p-4 md:p-6">
       <h3 className="mb-4 text-xs font-bold uppercase tracking-wide text-[var(--c-black)]/40">
-        Структура расходов
+        {insightDonut(summary, baseCurrency)}
       </h3>
       <ResponsiveContainer width="100%" height={250}>
         <PieChart>
@@ -46,6 +56,30 @@ export function ExpenseDonutChart({ summary, baseCurrency }: ExpenseDonutChartPr
             outerRadius={90}
             paddingAngle={3}
             dataKey="value"
+            label={({
+              x,
+              y,
+              percent,
+              index,
+            }: {
+              x: number;
+              y: number;
+              percent: number;
+              index: number;
+            }) =>
+              percent >= 0.05 ? (
+                <text
+                  x={x}
+                  y={y}
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  className="text-[9px] font-bold"
+                  fill={COLORS[index % COLORS.length]}
+                >
+                  {Math.round(percent * 100)}%
+                </text>
+              ) : null
+            }
           >
             {chartData.map((_, idx) => (
               <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
@@ -61,7 +95,16 @@ export function ExpenseDonutChart({ summary, baseCurrency }: ExpenseDonutChartPr
           />
           <text
             x="50%"
-            y="50%"
+            y="46%"
+            textAnchor="middle"
+            dominantBaseline="middle"
+            className="text-[10px] fill-[var(--c-black)]/40"
+          >
+            {topGroup.name}
+          </text>
+          <text
+            x="50%"
+            y="55%"
             textAnchor="middle"
             dominantBaseline="middle"
             className="text-sm font-extrabold fill-[var(--c-black)]"

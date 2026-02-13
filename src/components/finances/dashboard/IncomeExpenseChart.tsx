@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   BarChart,
   Bar,
@@ -10,8 +11,9 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
+import { cn } from "@/lib/utils";
 import type { MonthSummary } from "@/lib/finances/types";
-import { MONTH_LABELS, formatMoney } from "@/lib/finances/calculations";
+import { MONTH_LABELS, formatMoney, insightIncomeExpense } from "@/lib/finances/calculations";
 
 interface IncomeExpenseChartProps {
   summaries: MonthSummary[];
@@ -24,18 +26,48 @@ export function IncomeExpenseChart({
   selectedMonth,
   onSelectMonth,
 }: IncomeExpenseChartProps) {
-  const chartData = summaries.map((s, idx) => ({
-    name: MONTH_LABELS[idx],
-    month: idx + 1,
-    income: s.totalNetIncome,
-    expenses: s.totalExpenses,
-  }));
+  const [showComparison, setShowComparison] = useState(false);
+
+  const chartData = summaries.map((s, idx) => {
+    const prev = idx > 0 ? summaries[idx - 1] : null;
+    return {
+      name: MONTH_LABELS[idx],
+      month: idx + 1,
+      income: s.totalNetIncome,
+      expenses: s.totalExpenses,
+      prevIncome: prev ? prev.totalNetIncome : 0,
+      prevExpenses: prev ? prev.totalExpenses : 0,
+    };
+  });
+
+  const insight = insightIncomeExpense(summaries, selectedMonth);
+
+  const tooltipLabelMap: Record<string, string> = {
+    income: "Доход",
+    expenses: "Расходы",
+    prevIncome: "Доход (пред. мес.)",
+    prevExpenses: "Расходы (пред. мес.)",
+  };
 
   return (
     <div className="rounded-3xl bg-[var(--c-gray)] p-4 md:p-6">
-      <h3 className="mb-4 text-xs font-bold uppercase tracking-wide text-[var(--c-black)]/40">
-        Доходы vs Расходы
-      </h3>
+      <div className="mb-4 flex items-center justify-between gap-2">
+        <h3 className="text-xs font-bold uppercase tracking-wide text-[var(--c-black)]/40">
+          {insight}
+        </h3>
+        <button
+          type="button"
+          onClick={() => setShowComparison((v) => !v)}
+          className={cn(
+            "shrink-0 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wide transition-colors",
+            showComparison
+              ? "bg-[var(--c-black)]/10 text-[var(--c-black)]/70"
+              : "bg-[var(--c-black)]/5 text-[var(--c-black)]/30 hover:bg-[var(--c-black)]/8"
+          )}
+        >
+          Сравнение
+        </button>
+      </div>
       <ResponsiveContainer width="100%" height={250}>
         <BarChart
           data={chartData}
@@ -55,7 +87,7 @@ export function IncomeExpenseChart({
             formatter={
               ((value: number, name: string) => [
                 formatMoney(value),
-                name === "income" ? "Доход" : "Расходы",
+                tooltipLabelMap[name] ?? name,
               ]) as never
             }
             labelFormatter={(label) => label}
@@ -65,7 +97,24 @@ export function IncomeExpenseChart({
               boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
             }}
           />
-          <Bar dataKey="income" radius={[4, 4, 0, 0]} maxBarSize={24}>
+
+          {/* Ghost bars for comparison (previous month) - rendered BEFORE real bars */}
+          {showComparison && (
+            <>
+              <Bar dataKey="prevIncome" radius={[4, 4, 0, 0]} maxBarSize={16} opacity={0.2}>
+                {chartData.map((entry) => (
+                  <Cell key={`prev-inc-${entry.month}`} fill="#45d9b4" />
+                ))}
+              </Bar>
+              <Bar dataKey="prevExpenses" radius={[4, 4, 0, 0]} maxBarSize={16} opacity={0.2}>
+                {chartData.map((entry) => (
+                  <Cell key={`prev-exp-${entry.month}`} fill="#ff6b6b" />
+                ))}
+              </Bar>
+            </>
+          )}
+
+          <Bar dataKey="income" radius={[4, 4, 0, 0]} maxBarSize={showComparison ? 16 : 24}>
             {chartData.map((entry) => (
               <Cell
                 key={entry.month}
@@ -74,7 +123,7 @@ export function IncomeExpenseChart({
               />
             ))}
           </Bar>
-          <Bar dataKey="expenses" radius={[4, 4, 0, 0]} maxBarSize={24}>
+          <Bar dataKey="expenses" radius={[4, 4, 0, 0]} maxBarSize={showComparison ? 16 : 24}>
             {chartData.map((entry) => (
               <Cell
                 key={entry.month}

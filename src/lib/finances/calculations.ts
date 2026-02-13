@@ -171,3 +171,82 @@ export function formatMoney(amount: number, currency?: string): string {
   if (currency === "USD") return `${formatted} $`;
   return `${formatted} ${currency}`;
 }
+
+// ─── Insight-функции (data storytelling) ─────────────────────
+
+/**
+ * Инсайт для графика доходов vs расходов.
+ * Сравнивает расходы выбранного месяца с предыдущим.
+ */
+export function insightIncomeExpense(summaries: MonthSummary[], selectedMonth: number): string {
+  const curr = summaries[selectedMonth - 1];
+  if (!curr) return "Доходы vs Расходы";
+
+  if (selectedMonth > 1) {
+    const prev = summaries[selectedMonth - 2];
+    if (prev && prev.totalExpenses > 0) {
+      const pctChange = Math.round(
+        ((curr.totalExpenses - prev.totalExpenses) / Math.abs(prev.totalExpenses)) * 100
+      );
+      if (pctChange > 0) return `Расходы выросли на ${pctChange}% к прошлому месяцу`;
+      if (pctChange < 0) return `Расходы снизились на ${Math.abs(pctChange)}% к прошлому месяцу`;
+      return "Расходы на уровне прошлого месяца";
+    }
+  }
+
+  const nonZero = summaries.filter((s) => s.totalExpenses > 0);
+  if (nonZero.length > 0) {
+    const min = nonZero.reduce((a, b) => (a.totalExpenses < b.totalExpenses ? a : b));
+    return `Самый экономный месяц — ${MONTH_LABELS[min.month - 1]}`;
+  }
+
+  return "Доходы vs Расходы";
+}
+
+/**
+ * Инсайт для кумулятивного графика.
+ */
+export function insightCumulative(
+  summaries: MonthSummary[],
+  selectedMonth: number,
+  baseCurrency?: string
+): string {
+  const curr = summaries[selectedMonth - 1];
+  if (!curr) return "Накопительный остаток";
+
+  if (curr.cumulative > 0) {
+    const positiveMonths = summaries.slice(0, selectedMonth).filter((s) => s.balance > 0).length;
+    return `Накоплено ${formatMoney(curr.cumulative, baseCurrency)} за ${positiveMonths} мес.`;
+  }
+
+  if (curr.cumulative < 0) {
+    return `Дефицит: ${formatMoney(Math.abs(curr.cumulative), baseCurrency)} с начала года`;
+  }
+
+  return "Накопительный остаток";
+}
+
+/**
+ * Инсайт для доната расходов — доминирующая группа.
+ */
+export function insightDonut(summary: MonthSummary | null, baseCurrency?: string): string {
+  if (!summary) return "Структура расходов";
+
+  const groups = summary.expenseGroupSummaries.filter((g) => g.amountInBaseCurrency > 0);
+  if (groups.length === 0) return "Нет расходов за месяц";
+
+  const total = groups.reduce((s, g) => s + g.amountInBaseCurrency, 0);
+  const top = groups.reduce((a, b) => (a.amountInBaseCurrency > b.amountInBaseCurrency ? a : b));
+  const pct = Math.round((top.amountInBaseCurrency / total) * 100);
+
+  void baseCurrency; // used only in signature for consistency
+  return `${top.groupName} — ${pct}% всех расходов`;
+}
+
+/**
+ * Процент расходов от чистого дохода.
+ */
+export function expenseToIncomeRatio(summary: MonthSummary | null): number | null {
+  if (!summary || summary.totalNetIncome <= 0) return null;
+  return Math.round((summary.totalExpenses / summary.totalNetIncome) * 100);
+}
