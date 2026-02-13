@@ -1,19 +1,27 @@
 import { useApiQuery } from "./useApi";
 
-interface RoadmapPhase {
+export interface RoadmapTask {
+  id: string;
+  title: string;
+  description: string | null;
+  status: "TODO" | "IN_PROGRESS" | "DONE";
+  position: number;
+  startDate: string;
+  endDate: string;
+  phaseId: string;
+  showOnRoadmap: boolean;
+  categoryId?: string | null;
+  category: { id: string; name: string; color: string; icon?: string | null } | null;
+  assigneeId?: string | null;
+  assignee?: { id: string; name: string; avatarColor: string } | null;
+}
+
+export interface RoadmapPhase {
   id: string;
   name: string;
-  emoji?: string | null;
-  sortOrder: number;
-  tasks: Array<{
-    id: string;
-    title: string;
-    description?: string | null;
-    status: "TODO" | "IN_PROGRESS" | "DONE";
-    startDate: string;
-    endDate: string;
-    category?: { id: string; name: string; color: string } | null;
-  }>;
+  emoji: string | null;
+  position: number;
+  tasks: RoadmapTask[];
 }
 
 export function useRoadmap() {

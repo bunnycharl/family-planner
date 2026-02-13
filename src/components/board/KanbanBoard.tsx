@@ -5,37 +5,12 @@ import { DragDropContext, type DropResult } from "@hello-pangea/dnd";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { KANBAN_COLUMNS, type TaskStatus } from "@/lib/constants";
-import { useTasks } from "@/hooks/useTasks";
+import { useTasks, type Task } from "@/hooks/useTasks";
 import { useCategories } from "@/hooks/useCategories";
 import { KanbanColumn } from "./KanbanColumn";
 import { TaskForm } from "./TaskForm";
 
 type SortOrder = "none" | "asc" | "desc";
-
-interface Task {
-  id: string;
-  title: string;
-  description?: string | null;
-  status: TaskStatus;
-  position: number;
-  startDate?: string | null;
-  endDate?: string | null;
-  phaseId?: string | null;
-  categoryId?: string | null;
-  assigneeId?: string | null;
-  category?: {
-    name: string;
-    color: string;
-  } | null;
-  createdBy: {
-    name: string;
-    avatarColor: string;
-  };
-  assignee?: {
-    name: string;
-    avatarColor: string;
-  } | null;
-}
 
 export function KanbanBoard() {
   const { tasks, isLoading, mutate } = useTasks();

@@ -2,43 +2,13 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { toast } from "sonner";
-import { useRoadmap } from "@/hooks/useRoadmap";
+import { useRoadmap, type RoadmapPhase, type RoadmapTask } from "@/hooks/useRoadmap";
 import { GanttChart } from "./GanttChart";
 import { GanttLegend } from "./GanttLegend";
 import { RoadmapToolbar } from "./RoadmapToolbar";
 import { RoadmapListView } from "./RoadmapListView";
 import { PhaseFormModal } from "./PhaseFormModal";
 import { TaskForm } from "../board/TaskForm";
-
-interface CategoryInfo {
-  id: string;
-  name: string;
-  color: string;
-  icon?: string | null;
-}
-
-interface RoadmapTask {
-  id: string;
-  title: string;
-  description: string | null;
-  startDate: string;
-  endDate: string;
-  status: "TODO" | "IN_PROGRESS" | "DONE";
-  position: number;
-  phaseId: string;
-  category: CategoryInfo | null;
-  categoryId?: string | null;
-  assigneeId?: string | null;
-  showOnRoadmap?: boolean;
-}
-
-interface RoadmapPhase {
-  id: string;
-  name: string;
-  emoji: string | null;
-  position: number;
-  tasks: RoadmapTask[];
-}
 
 export function RoadmapView() {
   const { phases, isLoading, isError, mutate } = useRoadmap();

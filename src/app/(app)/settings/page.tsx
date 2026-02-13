@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useCategories } from "@/hooks/useCategories";
 import { ColorPicker } from "@/components/ui/ColorPicker";
+import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 
 interface Category {
   id: string;
@@ -14,6 +15,14 @@ interface Category {
 }
 
 export default function SettingsPage() {
+  return (
+    <ErrorBoundary featureName="Настройки">
+      <SettingsContent />
+    </ErrorBoundary>
+  );
+}
+
+function SettingsContent() {
   const { categories, isLoading, mutate } = useCategories();
 
   // Add form state

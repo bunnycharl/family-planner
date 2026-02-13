@@ -30,6 +30,14 @@ const MONTH_NAMES_FULL = [
 ];
 
 export default function FinanceDashboardPage() {
+  return (
+    <ErrorBoundary featureName="Финансовый дашборд">
+      <FinanceDashboardContent />
+    </ErrorBoundary>
+  );
+}
+
+function FinanceDashboardContent() {
   const [year, setYear] = useState(new Date().getFullYear());
   const currentMonth = new Date().getMonth() + 1;
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);

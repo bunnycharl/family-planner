@@ -3,26 +3,7 @@
 import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { computeBarTracks } from "@/lib/roadmap-utils";
-
-interface RoadmapTask {
-  id: string;
-  title: string;
-  description: string | null;
-  category: { id: string; name: string; color: string; icon?: string | null } | null;
-  startDate: string;
-  endDate: string;
-  status: "TODO" | "IN_PROGRESS" | "DONE";
-  position: number;
-  phaseId: string;
-}
-
-interface RoadmapPhase {
-  id: string;
-  name: string;
-  emoji: string | null;
-  position: number;
-  tasks: RoadmapTask[];
-}
+import type { RoadmapPhase, RoadmapTask } from "@/hooks/useRoadmap";
 
 interface GanttSidebarProps {
   phases: RoadmapPhase[];

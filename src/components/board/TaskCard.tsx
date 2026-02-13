@@ -4,33 +4,11 @@ import { Draggable } from "@hello-pangea/dnd";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-
-interface TaskCardTask {
-  id: string;
-  title: string;
-  description?: string | null;
-  status: "TODO" | "IN_PROGRESS" | "DONE";
-  position: number;
-  startDate?: string | null;
-  endDate?: string | null;
-  phaseId?: string | null;
-  category?: {
-    name: string;
-    color: string;
-  } | null;
-  createdBy: {
-    name: string;
-    avatarColor: string;
-  };
-  assignee?: {
-    name: string;
-    avatarColor: string;
-  } | null;
-}
+import type { Task } from "@/hooks/useTasks";
 
 interface TaskCardProps {
-  task: TaskCardTask;
-  onClick: (task: TaskCardTask) => void;
+  task: Task;
+  onClick: (task: Task) => void;
   index: number;
 }
 

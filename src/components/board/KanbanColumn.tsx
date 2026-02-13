@@ -3,29 +3,7 @@
 import { Droppable } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
 import { TaskCard } from "./TaskCard";
-
-interface Task {
-  id: string;
-  title: string;
-  description?: string | null;
-  status: "TODO" | "IN_PROGRESS" | "DONE";
-  position: number;
-  startDate?: string | null;
-  endDate?: string | null;
-  phaseId?: string | null;
-  category?: {
-    name: string;
-    color: string;
-  } | null;
-  createdBy: {
-    name: string;
-    avatarColor: string;
-  };
-  assignee?: {
-    name: string;
-    avatarColor: string;
-  } | null;
-}
+import type { Task } from "@/hooks/useTasks";
 
 interface KanbanColumnProps {
   title: string;

@@ -5,26 +5,7 @@ import { computeTimeAxis, getTodayColumn } from "@/lib/roadmap-utils";
 import { GanttSidebar } from "./GanttSidebar";
 import { GanttTimeline } from "./GanttTimeline";
 import { GanttHeader } from "./GanttHeader";
-
-interface RoadmapTask {
-  id: string;
-  title: string;
-  description: string | null;
-  category: { id: string; name: string; color: string; icon?: string | null } | null;
-  startDate: string;
-  endDate: string;
-  status: "TODO" | "IN_PROGRESS" | "DONE";
-  position: number;
-  phaseId: string;
-}
-
-interface RoadmapPhase {
-  id: string;
-  name: string;
-  emoji: string | null;
-  position: number;
-  tasks: RoadmapTask[];
-}
+import type { RoadmapPhase, RoadmapTask } from "@/hooks/useRoadmap";
 
 interface GanttChartProps {
   phases: RoadmapPhase[];

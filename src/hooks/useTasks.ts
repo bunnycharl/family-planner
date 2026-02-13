@@ -9,15 +9,19 @@ interface UseTasksParams {
   phaseId?: string;
 }
 
-interface Task {
+export interface Task {
   id: string;
   title: string;
   description?: string | null;
   status: "TODO" | "IN_PROGRESS" | "DONE";
+  position: number;
   startDate: string;
   endDate: string;
+  categoryId?: string | null;
   category?: { id: string; name: string; color: string } | null;
-  createdBy?: { id: string; name: string; avatarColor: string } | null;
+  createdById: string;
+  createdBy: { id: string; name: string; avatarColor: string };
+  assigneeId?: string | null;
   assignee?: { id: string; name: string; avatarColor: string } | null;
   showOnRoadmap: boolean;
   phaseId?: string | null;

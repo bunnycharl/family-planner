@@ -3,13 +3,7 @@
 import { useState, useEffect, FormEvent } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-
-interface RoadmapPhase {
-  id: string;
-  name: string;
-  emoji: string | null;
-  position: number;
-}
+import type { RoadmapPhase } from "@/hooks/useRoadmap";
 
 interface PhaseFormModalProps {
   isOpen: boolean;
