@@ -16,11 +16,10 @@ model User {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  createdEvents     Event[]     @relation("EventCreator")
-  modifiedEvents    Event[]     @relation("EventModifier")
-  assignedEvents    Event[]     @relation("EventAssignees")
-  createdTasks      Task[]      @relation("TaskCreator")
-  assignedTasks     Task[]      @relation("TaskAssignee")
+  createdEvents  Event[] @relation("EventCreator")
+  assignedEvents Event[] @relation("EventAssignee")
+  createdTasks   Task[]  @relation("TaskCreator")
+  assignedTasks  Task[]  @relation("TaskAssignee")
 }
 
 model Category {
@@ -30,59 +29,56 @@ model Category {
   icon      String?
   createdAt DateTime @default(now())
 
-  events     Event[]
-  tasks      Task[]
-  milestones Milestone[]
+  events Event[]
+  tasks  Task[]
 }
 
 model Event {
-  id             String    @id @default(cuid())
-  title          String
-  description    String?
-  startDate      DateTime
-  endDate        DateTime?
-  location       String?
-  isRecurring    Boolean   @default(false)
-  recurrenceRule String?
-  isCompleted    Boolean   @default(false)
-  color          String?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  categoryId   String?
-  category     Category? @relation(fields: [categoryId], references: [id])
-  createdById  String
-  createdBy    User      @relation("EventCreator", fields: [createdById], references: [id])
-  modifiedById String?
-  modifiedBy   User?     @relation("EventModifier", fields: [modifiedById], references: [id])
-  assignees    User[]    @relation("EventAssignees")
-
-  @@index([startDate])
-  @@index([categoryId])
-  @@index([createdById])
-}
-
-model Task {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   title       String
   description String?
-  status      String    @default("TODO")
-  priority    String    @default("MEDIUM")
-  position    Int       @default(0)
-  dueDate     DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  date        DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   categoryId  String?
   category    Category? @relation(fields: [categoryId], references: [id])
   createdById String
-  createdBy   User      @relation("TaskCreator", fields: [createdById], references: [id])
+  createdBy   User      @relation("EventCreator", fields: [createdById], references: [id])
   assigneeId  String?
-  assignee    User?     @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  assignee    User?     @relation("EventAssignee", fields: [assigneeId], references: [id])
+
+  @@index([date])
+  @@index([categoryId])
+  @@index([createdById])
+  @@index([assigneeId])
+}
+
+model Task {
+  id          String        @id @default(cuid())
+  title       String
+  description String?
+  status      String        @default("TODO")
+  position    Int           @default(0)
+  startDate   DateTime
+  endDate     DateTime
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  categoryId  String?
+  category    Category?     @relation(fields: [categoryId], references: [id])
+  createdById String
+  createdBy   User          @relation("TaskCreator", fields: [createdById], references: [id])
+  assigneeId  String?
+  assignee    User?         @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  phaseId     String?
+  phase       RoadmapPhase? @relation(fields: [phaseId], references: [id], onDelete: SetNull)
 
   @@index([status])
   @@index([createdById])
   @@index([assigneeId])
+  @@index([phaseId])
+  @@index([endDate])
 }
 
 // ─── Budget / Finances (v2) ────────────────────────────────
@@ -236,28 +232,8 @@ model RoadmapPhase {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  milestones Milestone[]
+  tasks Task[]
 
   @@index([position])
-}
-
-model Milestone {
-  id          String       @id @default(cuid())
-  name        String
-  details     String?
-  startDate   DateTime
-  endDate     DateTime
-  isCompleted Boolean      @default(false)
-  position    Int          @default(0)
-  phaseId     String
-  phase       RoadmapPhase @relation(fields: [phaseId], references: [id], onDelete: Cascade)
-  categoryId  String?
-  category    Category?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-
-  @@index([phaseId])
-  @@index([startDate])
-  @@index([categoryId])
 }
 

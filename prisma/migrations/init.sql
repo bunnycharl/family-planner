@@ -18,38 +18,34 @@ CREATE TABLE IF NOT EXISTS "Event" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "title" TEXT NOT NULL,
     "description" TEXT,
-    "startDate" DATETIME NOT NULL,
-    "endDate" DATETIME,
-    "location" TEXT,
-    "isRecurring" BOOLEAN NOT NULL DEFAULT false,
-    "recurrenceRule" TEXT,
-    "isCompleted" BOOLEAN NOT NULL DEFAULT false,
-    "color" TEXT,
+    "date" DATETIME NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
     "categoryId" TEXT,
     "createdById" TEXT NOT NULL,
-    "modifiedById" TEXT,
+    "assigneeId" TEXT,
     CONSTRAINT "Event_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT "Event_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT "Event_modifiedById_fkey" FOREIGN KEY ("modifiedById") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+    CONSTRAINT "Event_assigneeId_fkey" FOREIGN KEY ("assigneeId") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 CREATE TABLE IF NOT EXISTS "Task" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "title" TEXT NOT NULL,
     "description" TEXT,
     "status" TEXT NOT NULL DEFAULT 'TODO',
-    "priority" TEXT NOT NULL DEFAULT 'MEDIUM',
     "position" INTEGER NOT NULL DEFAULT 0,
-    "dueDate" DATETIME,
+    "startDate" DATETIME NOT NULL,
+    "endDate" DATETIME NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
     "categoryId" TEXT,
     "createdById" TEXT NOT NULL,
     "assigneeId" TEXT,
+    "phaseId" TEXT,
     CONSTRAINT "Task_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT "Task_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT "Task_assigneeId_fkey" FOREIGN KEY ("assigneeId") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+    CONSTRAINT "Task_assigneeId_fkey" FOREIGN KEY ("assigneeId") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "Task_phaseId_fkey" FOREIGN KEY ("phaseId") REFERENCES "RoadmapPhase" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 CREATE TABLE IF NOT EXISTS "BudgetYear" (
     "id" TEXT NOT NULL PRIMARY KEY,
@@ -144,35 +140,17 @@ CREATE TABLE IF NOT EXISTS "RoadmapPhase" (
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );
-CREATE TABLE IF NOT EXISTS "Milestone" (
-    "id" TEXT NOT NULL PRIMARY KEY,
-    "name" TEXT NOT NULL,
-    "details" TEXT,
-    "startDate" DATETIME NOT NULL,
-    "endDate" DATETIME NOT NULL,
-    "isCompleted" BOOLEAN NOT NULL DEFAULT false,
-    "position" INTEGER NOT NULL DEFAULT 0,
-    "phaseId" TEXT NOT NULL,
-    "categoryId" TEXT,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "Milestone_phaseId_fkey" FOREIGN KEY ("phaseId") REFERENCES "RoadmapPhase" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "Milestone_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category" ("id") ON DELETE SET NULL ON UPDATE CASCADE
-);
-CREATE TABLE IF NOT EXISTS "_EventAssignees" (
-    "A" TEXT NOT NULL,
-    "B" TEXT NOT NULL,
-    CONSTRAINT "_EventAssignees_A_fkey" FOREIGN KEY ("A") REFERENCES "Event" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "_EventAssignees_B_fkey" FOREIGN KEY ("B") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
-);
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 CREATE UNIQUE INDEX "Category_name_key" ON "Category"("name");
-CREATE INDEX "Event_startDate_idx" ON "Event"("startDate");
+CREATE INDEX "Event_date_idx" ON "Event"("date");
 CREATE INDEX "Event_categoryId_idx" ON "Event"("categoryId");
 CREATE INDEX "Event_createdById_idx" ON "Event"("createdById");
+CREATE INDEX "Event_assigneeId_idx" ON "Event"("assigneeId");
 CREATE INDEX "Task_status_idx" ON "Task"("status");
 CREATE INDEX "Task_createdById_idx" ON "Task"("createdById");
 CREATE INDEX "Task_assigneeId_idx" ON "Task"("assigneeId");
+CREATE INDEX "Task_phaseId_idx" ON "Task"("phaseId");
+CREATE INDEX "Task_endDate_idx" ON "Task"("endDate");
 CREATE UNIQUE INDEX "BudgetYear_year_key" ON "BudgetYear"("year");
 CREATE INDEX "FamilyMember_budgetYearId_idx" ON "FamilyMember"("budgetYearId");
 CREATE INDEX "BudgetIncomeCategory_familyMemberId_idx" ON "BudgetIncomeCategory"("familyMemberId");
@@ -190,8 +168,3 @@ CREATE UNIQUE INDEX "BudgetExpenseEntry_expenseCategoryId_month_key" ON "BudgetE
 CREATE INDEX "CurrencyRate_budgetYearId_idx" ON "CurrencyRate"("budgetYearId");
 CREATE UNIQUE INDEX "CurrencyRate_budgetYearId_currency_month_key" ON "CurrencyRate"("budgetYearId", "currency", "month");
 CREATE INDEX "RoadmapPhase_position_idx" ON "RoadmapPhase"("position");
-CREATE INDEX "Milestone_phaseId_idx" ON "Milestone"("phaseId");
-CREATE INDEX "Milestone_startDate_idx" ON "Milestone"("startDate");
-CREATE INDEX "Milestone_categoryId_idx" ON "Milestone"("categoryId");
-CREATE UNIQUE INDEX "_EventAssignees_AB_unique" ON "_EventAssignees"("A", "B");
-CREATE INDEX "_EventAssignees_B_index" ON "_EventAssignees"("B");

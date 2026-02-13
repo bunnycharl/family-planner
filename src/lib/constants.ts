@@ -10,18 +10,6 @@ export const TASK_STATUS_LABELS: Record<string, string> = {
   DONE: "Готово",
 };
 
-export const TASK_PRIORITIES = {
-  LOW: "LOW",
-  MEDIUM: "MEDIUM",
-  HIGH: "HIGH",
-} as const;
-
-export const TASK_PRIORITY_LABELS: Record<string, string> = {
-  LOW: "Низкий",
-  MEDIUM: "Средний",
-  HIGH: "Высокий",
-};
-
 export const KANBAN_COLUMNS = [
   { status: TASK_STATUSES.TODO, title: TASK_STATUS_LABELS.TODO, icon: "circle" },
   { status: TASK_STATUSES.IN_PROGRESS, title: TASK_STATUS_LABELS.IN_PROGRESS, icon: "progress" },
@@ -29,4 +17,3 @@ export const KANBAN_COLUMNS = [
 ] as const;
 
 export type TaskStatus = (typeof TASK_STATUSES)[keyof typeof TASK_STATUSES];
-export type TaskPriority = (typeof TASK_PRIORITIES)[keyof typeof TASK_PRIORITIES];

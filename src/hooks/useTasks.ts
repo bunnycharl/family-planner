@@ -5,9 +5,9 @@ interface UseTasksParams {
   status?: string;
   categoryId?: string;
   assigneeId?: string;
-  dueDateStart?: string;
-  dueDateEnd?: string;
-  hasDueDate?: boolean;
+  endDateFrom?: string;
+  endDateTo?: string;
+  phaseId?: string;
 }
 
 export function useTasks(params?: UseTasksParams) {
@@ -15,9 +15,9 @@ export function useTasks(params?: UseTasksParams) {
   if (params?.status) searchParams.set("status", params.status);
   if (params?.categoryId) searchParams.set("categoryId", params.categoryId);
   if (params?.assigneeId) searchParams.set("assigneeId", params.assigneeId);
-  if (params?.dueDateStart) searchParams.set("dueDateStart", params.dueDateStart);
-  if (params?.dueDateEnd) searchParams.set("dueDateEnd", params.dueDateEnd);
-  if (params?.hasDueDate) searchParams.set("hasDueDate", "true");
+  if (params?.endDateFrom) searchParams.set("endDateFrom", params.endDateFrom);
+  if (params?.endDateTo) searchParams.set("endDateTo", params.endDateTo);
+  if (params?.phaseId) searchParams.set("phaseId", params.phaseId);
 
   const query = searchParams.toString();
   const url = `/api/tasks${query ? `?${query}` : ""}`;
