@@ -17,7 +17,11 @@ export function IncomeSheet({ year }: IncomeSheetProps) {
   const { entries, isLoading: entriesLoading, mutate } = useFinanceIncome({ year, personId });
 
   if (personsLoading || entriesLoading) {
-    return <div className="py-12 text-center text-sm text-[#999]">Загрузка...</div>;
+    return (
+      <div className="flex min-h-[300px] items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--c-gray)] border-t-[var(--c-lavender)]" />
+      </div>
+    );
   }
 
   // Build a lookup: category -> month (0-based) -> amount

@@ -40,11 +40,19 @@ export function SummarySheet({ year }: SummarySheetProps) {
   const { summary, isLoading } = useFinanceSummary({ year });
 
   if (isLoading) {
-    return <div className="py-12 text-center text-sm text-[#999]">Загрузка...</div>;
+    return (
+      <div className="flex min-h-[300px] items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--c-gray)] border-t-[var(--c-lavender)]" />
+      </div>
+    );
   }
 
   if (!summary || !summary.months) {
-    return <div className="py-12 text-center text-sm text-[#999]">Нет данных</div>;
+    return (
+      <div className="flex min-h-[300px] items-center justify-center text-sm font-bold uppercase text-[#999]">
+        Нет данных
+      </div>
+    );
   }
 
   const months: MonthSummary[] = summary.months;

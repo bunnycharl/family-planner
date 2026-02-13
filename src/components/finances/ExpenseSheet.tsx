@@ -33,7 +33,11 @@ export function ExpenseSheet({ year }: ExpenseSheetProps) {
   const { rates, isLoading: ratesLoading, mutate: mutateRates } = useExchangeRates({ year });
 
   if (expensesLoading || ratesLoading) {
-    return <div className="py-12 text-center text-sm text-[#999]">Загрузка...</div>;
+    return (
+      <div className="flex min-h-[300px] items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--c-gray)] border-t-[var(--c-lavender)]" />
+      </div>
+    );
   }
 
   // Build expense lookup: group -> category -> month (0-based) -> amount

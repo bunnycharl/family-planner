@@ -33,7 +33,11 @@ export function IncomeParamSheet({ year }: IncomeParamSheetProps) {
   } = useFinanceIncome({ year, personId });
 
   if (personsLoading || paramsLoading || incomeLoading) {
-    return <div className="py-12 text-center text-sm text-[#999]">Загрузка...</div>;
+    return (
+      <div className="flex min-h-[300px] items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--c-gray)] border-t-[var(--c-lavender)]" />
+      </div>
+    );
   }
 
   // Build param lookup: key -> month (0-based) -> value
