@@ -7,8 +7,10 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { label: "Календарь", href: "/calendar" },
   { label: "Таймлайн", href: "/timeline" },
+  { label: "Роадмап", href: "/roadmap" },
   { label: "Канбан", href: "/board" },
   { label: "События", href: "/events" },
+  { label: "Финансы", href: "/finances" },
 ];
 
 export function BottomNav() {
@@ -35,7 +37,7 @@ export function BottomNav() {
                 )}
               >
                 <span
-                  className={cn("text-[10px] font-bold uppercase", isActive && "font-extrabold")}
+                  className={cn("text-[9px] font-bold uppercase", isActive && "font-extrabold")}
                 >
                   {item.label}
                 </span>

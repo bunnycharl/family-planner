@@ -84,3 +84,115 @@ model Task {
   @@index([assigneeId])
 }
 
+// ─── Finances ───────────────────────────────────────────────
+
+model FinancePerson {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  incomeEntries IncomeEntry[]
+  incomeParams  IncomeParam[]
+}
+
+model IncomeEntry {
+  id        String        @id @default(cuid())
+  personId  String
+  person    FinancePerson @relation(fields: [personId], references: [id], onDelete: Cascade)
+  year      Int
+  month     Int
+  category  String
+  amount    Float         @default(0)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@unique([personId, year, month, category])
+  @@index([personId])
+  @@index([year, month])
+}
+
+model IncomeParam {
+  id        String        @id @default(cuid())
+  personId  String
+  person    FinancePerson @relation(fields: [personId], references: [id], onDelete: Cascade)
+  year      Int
+  month     Int
+  key       String
+  value     Float         @default(0)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@unique([personId, year, month, key])
+  @@index([personId])
+  @@index([year, month])
+}
+
+model ExchangeRate {
+  id        String   @id @default(cuid())
+  year      Int
+  month     Int
+  eurRub    Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([year, month])
+}
+
+model ExpenseEntry {
+  id        String   @id @default(cuid())
+  year      Int
+  month     Int
+  group     String
+  category  String
+  amount    Float    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([year, month, group, category])
+  @@index([year, month])
+  @@index([group])
+}
+
+// ─── Roadmap ────────────────────────────────────────────────
+
+model RoadmapPhase {
+  id        String   @id @default(cuid())
+  name      String
+  emoji     String?
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tasks RoadmapTask[]
+
+  @@index([position])
+}
+
+model RoadmapTask {
+  id          String       @id @default(cuid())
+  name        String
+  details     String?
+  taskType    String
+  startDate   DateTime
+  endDate     DateTime
+  isCompleted Boolean      @default(false)
+  position    Int          @default(0)
+  phaseId     String
+  phase       RoadmapPhase @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([phaseId])
+  @@index([startDate])
+}
+
+model RoadmapTaskType {
+  id       String @id @default(cuid())
+  key      String @unique
+  label    String
+  color    String
+  position Int    @default(0)
+}
+

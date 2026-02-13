@@ -8,8 +8,10 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { label: "Календарь", href: "/calendar" },
   { label: "Таймлайн", href: "/timeline" },
+  { label: "Роадмап", href: "/roadmap" },
   { label: "Канбан", href: "/board" },
   { label: "События", href: "/events" },
+  { label: "Финансы", href: "/finances" },
 ];
 
 const settingsItem = { label: "Настройки", href: "/settings" };
