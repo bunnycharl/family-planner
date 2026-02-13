@@ -7,11 +7,11 @@ import { GanttTodayMarker } from "./GanttTodayMarker";
 import { getTodayColumn } from "@/lib/roadmap-utils";
 import type { ZoomLevel } from "@/lib/roadmap-utils";
 
-interface RoadmapTask {
+interface Milestone {
   id: string;
   name: string;
   details: string | null;
-  taskType: string;
+  category: { id: string; name: string; color: string; icon?: string | null } | null;
   startDate: string;
   endDate: string;
   isCompleted: boolean;
@@ -24,13 +24,7 @@ interface RoadmapPhase {
   name: string;
   emoji: string | null;
   position: number;
-  tasks: RoadmapTask[];
-}
-
-interface TaskTypeInfo {
-  key: string;
-  label: string;
-  color: string;
+  milestones: Milestone[];
 }
 
 interface GanttTimelineProps {
@@ -38,8 +32,7 @@ interface GanttTimelineProps {
   timeAxis: TimeAxisConfig;
   zoom: ZoomLevel;
   expandedMap: Record<string, boolean>;
-  taskTypes: TaskTypeInfo[];
-  onTaskClick: (task: RoadmapTask) => void;
+  onMilestoneClick: (milestone: Milestone) => void;
 }
 
 export function GanttTimeline({
@@ -47,12 +40,9 @@ export function GanttTimeline({
   timeAxis,
   zoom,
   expandedMap,
-  taskTypes,
-  onTaskClick,
+  onMilestoneClick,
 }: GanttTimelineProps) {
   const todayCol = getTodayColumn(timeAxis);
-
-  const taskTypeMap = new Map(taskTypes.map((t) => [t.key, t]));
 
   // Build flat list of rows for timeline
   const sortedPhases = [...phases].sort((a, b) => a.position - b.position);
@@ -62,7 +52,7 @@ export function GanttTimeline({
       {/* Header */}
       <GanttHeader columns={timeAxis.columns} yearSpans={timeAxis.yearSpans} zoom={zoom} />
 
-      {/* Task rows */}
+      {/* Milestone rows */}
       <div className="relative">
         {/* Today marker */}
         <GanttTodayMarker columnIndex={todayCol} totalColumns={timeAxis.totalColumns} />
@@ -80,31 +70,30 @@ export function GanttTimeline({
 
         {sortedPhases.map((phase) => {
           const isExpanded = expandedMap[phase.id] ?? true;
-          const sortedTasks = [...phase.tasks].sort((a, b) => a.position - b.position);
+          const sortedMilestones = [...phase.milestones].sort((a, b) => a.position - b.position);
 
           return (
             <div key={phase.id}>
               {/* Phase header row — empty in timeline (sidebar shows the name) */}
               <div className="h-10 border-b-2 border-white/40" />
 
-              {/* Task rows */}
+              {/* Milestone rows */}
               {isExpanded &&
-                sortedTasks.map((task) => {
-                  const startCol = timeAxis.dateToColumn(new Date(task.startDate));
-                  const endCol = timeAxis.dateToColumn(new Date(task.endDate));
-                  const typeInfo = taskTypeMap.get(task.taskType);
-                  const color = typeInfo?.color ?? "#999";
+                sortedMilestones.map((milestone) => {
+                  const startCol = timeAxis.dateToColumn(new Date(milestone.startDate));
+                  const endCol = timeAxis.dateToColumn(new Date(milestone.endDate));
+                  const color = milestone.category?.color ?? "#999";
 
                   return (
-                    <div key={task.id} className="relative h-10 border-b border-white/20">
+                    <div key={milestone.id} className="relative h-10 border-b border-white/20">
                       <GanttBar
                         startCol={startCol}
                         endCol={endCol}
                         totalColumns={timeAxis.totalColumns}
                         color={color}
-                        label={task.name}
-                        isCompleted={task.isCompleted}
-                        onClick={() => onTaskClick(task)}
+                        label={milestone.name}
+                        isCompleted={milestone.isCompleted}
+                        onClick={() => onMilestoneClick(milestone)}
                       />
                     </div>
                   );

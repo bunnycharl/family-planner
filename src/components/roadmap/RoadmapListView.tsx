@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { RoadmapTaskItem } from "./RoadmapTaskItem";
+import { MilestoneItem } from "./MilestoneItem";
 
-interface RoadmapTask {
+interface Milestone {
   id: string;
   name: string;
   details: string | null;
-  taskType: string;
+  category: { id: string; name: string; color: string; icon?: string | null } | null;
   startDate: string;
   endDate: string;
   isCompleted: boolean;
@@ -21,27 +21,19 @@ interface RoadmapPhase {
   name: string;
   emoji: string | null;
   position: number;
-  tasks: RoadmapTask[];
-}
-
-interface TaskTypeInfo {
-  key: string;
-  label: string;
-  color: string;
+  milestones: Milestone[];
 }
 
 interface RoadmapListViewProps {
   phases: RoadmapPhase[];
-  taskTypes: TaskTypeInfo[];
-  onTaskClick: (task: RoadmapTask) => void;
-  onToggleCompletion: (task: RoadmapTask) => void;
+  onMilestoneClick: (milestone: Milestone) => void;
+  onToggleCompletion: (milestone: Milestone) => void;
   onEditPhase: (phase: RoadmapPhase) => void;
 }
 
 export function RoadmapListView({
   phases,
-  taskTypes,
-  onTaskClick,
+  onMilestoneClick,
   onToggleCompletion,
   onEditPhase,
 }: RoadmapListViewProps) {
@@ -63,8 +55,8 @@ export function RoadmapListView({
     <div className="space-y-3">
       {sortedPhases.map((phase) => {
         const isExpanded = expandedMap[phase.id] ?? true;
-        const sortedTasks = [...phase.tasks].sort((a, b) => a.position - b.position);
-        const completedCount = phase.tasks.filter((t) => t.isCompleted).length;
+        const sortedMilestones = [...phase.milestones].sort((a, b) => a.position - b.position);
+        const completedCount = phase.milestones.filter((m) => m.isCompleted).length;
 
         return (
           <div key={phase.id} className="rounded-3xl bg-[var(--c-gray)] overflow-hidden">
@@ -92,7 +84,7 @@ export function RoadmapListView({
                   {phase.name}
                 </span>
                 <span className="text-[10px] font-bold text-[#999] ml-auto">
-                  {completedCount}/{phase.tasks.length}
+                  {completedCount}/{phase.milestones.length}
                 </span>
               </button>
               <button
@@ -116,24 +108,23 @@ export function RoadmapListView({
               </button>
             </div>
 
-            {/* Tasks */}
-            {isExpanded && sortedTasks.length > 0 && (
+            {/* Milestones */}
+            {isExpanded && sortedMilestones.length > 0 && (
               <div className="border-t border-white/30">
-                {sortedTasks.map((task) => (
-                  <RoadmapTaskItem
-                    key={task.id}
-                    task={task}
-                    taskTypes={taskTypes}
+                {sortedMilestones.map((milestone) => (
+                  <MilestoneItem
+                    key={milestone.id}
+                    milestone={milestone}
                     onToggleCompletion={onToggleCompletion}
-                    onClick={onTaskClick}
+                    onClick={onMilestoneClick}
                   />
                 ))}
               </div>
             )}
 
-            {isExpanded && sortedTasks.length === 0 && (
+            {isExpanded && sortedMilestones.length === 0 && (
               <div className="border-t border-white/30 px-4 py-4 text-center text-xs font-bold text-[#999] uppercase">
-                Нет задач
+                Нет вех
               </div>
             )}
           </div>

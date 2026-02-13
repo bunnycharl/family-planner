@@ -6,11 +6,11 @@ import type { ZoomLevel } from "@/lib/roadmap-utils";
 import { GanttSidebar } from "./GanttSidebar";
 import { GanttTimeline } from "./GanttTimeline";
 
-interface RoadmapTask {
+interface Milestone {
   id: string;
   name: string;
   details: string | null;
-  taskType: string;
+  category: { id: string; name: string; color: string; icon?: string | null } | null;
   startDate: string;
   endDate: string;
   isCompleted: boolean;
@@ -23,29 +23,21 @@ interface RoadmapPhase {
   name: string;
   emoji: string | null;
   position: number;
-  tasks: RoadmapTask[];
-}
-
-interface TaskTypeInfo {
-  key: string;
-  label: string;
-  color: string;
+  milestones: Milestone[];
 }
 
 interface GanttChartProps {
   phases: RoadmapPhase[];
   zoom: ZoomLevel;
-  taskTypes: TaskTypeInfo[];
-  onTaskClick: (task: RoadmapTask) => void;
+  onMilestoneClick: (milestone: Milestone) => void;
   onEditPhase: (phase: RoadmapPhase) => void;
-  onToggleCompletion: (task: RoadmapTask) => void;
+  onToggleCompletion: (milestone: Milestone) => void;
 }
 
 export function GanttChart({
   phases,
   zoom,
-  taskTypes,
-  onTaskClick,
+  onMilestoneClick,
   onEditPhase,
   onToggleCompletion,
 }: GanttChartProps) {
@@ -64,11 +56,11 @@ export function GanttChart({
     setExpandedMap((prev) => ({ ...prev, [phaseId]: !prev[phaseId] }));
   };
 
-  // Collect all tasks for time axis computation
-  const allTasks = useMemo(() => phases.flatMap((p) => p.tasks), [phases]);
+  // Collect all milestones for time axis computation
+  const allMilestones = useMemo(() => phases.flatMap((p) => p.milestones), [phases]);
 
   // Compute time axis
-  const timeAxis = useMemo(() => computeTimeAxis(allTasks, zoom), [allTasks, zoom]);
+  const timeAxis = useMemo(() => computeTimeAxis(allMilestones, zoom), [allMilestones, zoom]);
 
   // Auto-scroll to today on mount
   useEffect(() => {
@@ -101,8 +93,7 @@ export function GanttChart({
           timeAxis={timeAxis}
           zoom={zoom}
           expandedMap={expandedMap}
-          taskTypes={taskTypes}
-          onTaskClick={onTaskClick}
+          onMilestoneClick={onMilestoneClick}
         />
       </div>
     </div>

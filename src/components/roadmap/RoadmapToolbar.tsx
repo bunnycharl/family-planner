@@ -7,7 +7,7 @@ interface RoadmapToolbarProps {
   zoom: ZoomLevel;
   onZoomChange: (zoom: ZoomLevel) => void;
   onAddPhase: () => void;
-  onAddTask: () => void;
+  onAddMilestone: () => void;
   hasPhases: boolean;
   isMobile: boolean;
 }
@@ -22,7 +22,7 @@ export function RoadmapToolbar({
   zoom,
   onZoomChange,
   onAddPhase,
-  onAddTask,
+  onAddMilestone,
   hasPhases,
   isMobile,
 }: RoadmapToolbarProps) {
@@ -71,7 +71,7 @@ export function RoadmapToolbar({
 
       <button
         type="button"
-        onClick={onAddTask}
+        onClick={onAddMilestone}
         disabled={!hasPhases}
         className={cn(
           "flex items-center gap-2 rounded-full border-2 border-[var(--c-black)] px-4 py-2 text-xs font-bold uppercase transition-all cursor-pointer",
@@ -88,7 +88,7 @@ export function RoadmapToolbar({
         >
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
         </svg>
-        Задача
+        Веха
       </button>
     </div>
   );
