@@ -9,7 +9,7 @@ import { TaskForm } from "../board/TaskForm";
 import { QuickAddMenu, type QuickAddOption } from "../ui/QuickAddMenu";
 import { cn } from "@/lib/utils";
 
-const TOTAL_YEARS = 5;
+const TOTAL_YEARS = 10;
 type ViewMode = "vertical" | "horizontal";
 
 const MONTH_COLORS = [
@@ -197,59 +197,54 @@ export function TimelineView() {
         <h1 className="text-3xl font-extrabold uppercase tracking-tight text-[var(--c-black)]">
           <span className="bg-[var(--c-yellow)] px-4 py-1 rounded-xl inline-block">Таймлайн</span>
         </h1>
-        <div className="flex items-center gap-2">
-          {/* View mode toggle */}
-          <div className="flex rounded-full bg-[var(--c-gray)] p-1">
-            <button
-              type="button"
-              onClick={() => setViewMode("vertical")}
-              className={cn(
-                "flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold uppercase transition-all cursor-pointer",
-                viewMode === "vertical"
-                  ? "bg-[var(--c-black)] text-white"
-                  : "text-[var(--c-black)] hover:bg-white"
-              )}
+        {/* View mode toggle */}
+        <div className="flex rounded-full bg-[var(--c-gray)] p-1">
+          <button
+            type="button"
+            onClick={() => setViewMode("vertical")}
+            className={cn(
+              "flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold uppercase transition-all cursor-pointer",
+              viewMode === "vertical"
+                ? "bg-[var(--c-black)] text-white"
+                : "text-[var(--c-black)] hover:bg-white"
+            )}
+          >
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
             >
-              <svg
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-              <span className="hidden sm:inline">Список</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode("horizontal")}
-              className={cn(
-                "flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold uppercase transition-all cursor-pointer",
-                viewMode === "horizontal"
-                  ? "bg-[var(--c-black)] text-white"
-                  : "text-[var(--c-black)] hover:bg-white"
-              )}
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <span className="hidden sm:inline">Список</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode("horizontal")}
+            className={cn(
+              "flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold uppercase transition-all cursor-pointer",
+              viewMode === "horizontal"
+                ? "bg-[var(--c-black)] text-white"
+                : "text-[var(--c-black)] hover:bg-white"
+            )}
+          >
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
             >
-              <svg
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"
-                />
-              </svg>
-              <span className="hidden sm:inline">Линия</span>
-            </button>
-          </div>
-          <span className="bg-[var(--c-black)] text-white rounded-full px-3 py-1.5 text-xs font-bold uppercase">
-            {startYear} &ndash; {endYear}
-          </span>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"
+              />
+            </svg>
+            <span className="hidden sm:inline">Линия</span>
+          </button>
         </div>
       </div>
 
