@@ -89,6 +89,43 @@ export interface CurrencyRateData {
   rate: number;
 }
 
+// ─── Transaction types ──────────────────────────────────────
+
+export interface TransactionCategoryData {
+  id: string;
+  budgetYearId: string;
+  name: string;
+  color: string;
+  sortOrder: number;
+  expenseCategoryId: string | null;
+}
+
+export interface TransactionData {
+  id: string;
+  categoryId: string;
+  category: TransactionCategoryData;
+  amount: number;
+  date: string;
+  description: string | null;
+  createdAt: string;
+}
+
+export interface TransactionsListResponse {
+  transactions: TransactionData[];
+  total: number;
+  totalAmount: number;
+}
+
+export interface PlanVsFactItem {
+  budgetCategoryId: string;
+  budgetCategoryName: string;
+  budgetGroupName: string;
+  plannedAmount: number;
+  actualAmount: number;
+  difference: number;
+  percentUsed: number;
+}
+
 // ─── Bulk upsert input (for auto-save) ─────────────────────
 
 export interface BulkUpsertInput {

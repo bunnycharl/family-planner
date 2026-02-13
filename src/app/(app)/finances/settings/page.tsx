@@ -10,14 +10,16 @@ import { MembersSettings } from "@/components/finances/settings/MembersSettings"
 import { IncomeCategoriesSettings } from "@/components/finances/settings/IncomeCategoriesSettings";
 import { TaxRatesSettings } from "@/components/finances/settings/TaxRatesSettings";
 import { ExpenseGroupsSettings } from "@/components/finances/settings/ExpenseGroupsSettings";
+import { TransactionCategoriesSettings } from "@/components/finances/settings/TransactionCategoriesSettings";
 
-type SettingsSection = "members" | "income" | "tax" | "expenses";
+type SettingsSection = "members" | "income" | "tax" | "expenses" | "transactions";
 
 const SECTIONS: { key: SettingsSection; label: string }[] = [
   { key: "members", label: "Члены семьи" },
   { key: "income", label: "Категории доходов" },
   { key: "tax", label: "Налоговые ставки" },
   { key: "expenses", label: "Группы расходов" },
+  { key: "transactions", label: "Категории расходов" },
 ];
 
 export default function FinanceSettingsPage() {
@@ -104,6 +106,9 @@ export default function FinanceSettingsPage() {
       {section === "income" && <IncomeCategoriesSettings data={data} mutations={mutations} />}
       {section === "tax" && <TaxRatesSettings data={data} mutations={mutations} />}
       {section === "expenses" && <ExpenseGroupsSettings data={data} mutations={mutations} />}
+      {section === "transactions" && (
+        <TransactionCategoriesSettings year={year} budgetData={data} />
+      )}
     </div>
   );
 }

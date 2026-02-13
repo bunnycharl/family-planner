@@ -10,6 +10,7 @@ import { IncomeExpenseChart } from "@/components/finances/dashboard/IncomeExpens
 import { ExpenseDonutChart } from "@/components/finances/dashboard/ExpenseDonutChart";
 import { CumulativeChart } from "@/components/finances/dashboard/CumulativeChart";
 import { BudgetProgressBars } from "@/components/finances/dashboard/BudgetProgressBars";
+import { PlanVsFactBars } from "@/components/finances/dashboard/PlanVsFactBars";
 import { CompactSummaryTable } from "@/components/finances/dashboard/CompactSummaryTable";
 
 export default function FinanceDashboardPage() {
@@ -98,10 +99,18 @@ export default function FinanceDashboardPage() {
           <BudgetProgressBars summary={monthSummary} baseCurrency={data.baseCurrency} />
         </div>
 
+        {/* Plan vs Fact — 1/3 */}
+        <div
+          className="col-span-1 md:col-span-1 lg:col-span-1 animate-fade-in-up"
+          style={{ animationDelay: "360ms" }}
+        >
+          <PlanVsFactBars year={year} month={selectedMonth} baseCurrency={data.baseCurrency} />
+        </div>
+
         {/* Summary table — full width */}
         <div
           className="col-span-1 md:col-span-2 lg:col-span-3 animate-fade-in-up"
-          style={{ animationDelay: "400ms" }}
+          style={{ animationDelay: "440ms" }}
         >
           <CompactSummaryTable data={data} summaries={summaries} selectedMonth={selectedMonth} />
         </div>

@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 
 const FINANCE_TABS = [
   { href: "/finances", label: "Обзор", color: "var(--c-mint)", exact: true },
+  { href: "/finances/transactions", label: "Расходы", color: "var(--c-coral)", exact: false },
   { href: "/finances/planning", label: "Планирование", color: "var(--c-lavender)", exact: false },
   { href: "/finances/settings", label: "Настройки", color: "var(--c-black)", exact: false },
 ];
