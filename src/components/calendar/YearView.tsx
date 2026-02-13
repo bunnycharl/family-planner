@@ -11,7 +11,6 @@ import {
   eachDayOfInterval,
   format,
   isSameMonth,
-  isSameDay,
   isToday,
   parseISO,
 } from "date-fns";
@@ -27,12 +26,26 @@ interface YearViewProps {
 
 const DAY_NAMES_SHORT = ["П", "В", "С", "Ч", "П", "С", "В"];
 
+const MONTH_COLORS = [
+  "var(--c-coral)",
+  "var(--c-mint)",
+  "var(--c-lavender)",
+  "var(--c-yellow)",
+  "var(--c-coral)",
+  "var(--c-mint)",
+  "var(--c-lavender)",
+  "var(--c-yellow)",
+  "var(--c-coral)",
+  "var(--c-mint)",
+  "var(--c-lavender)",
+  "var(--c-yellow)",
+];
+
 export function YearView({ currentDate, events, onMonthClick }: YearViewProps) {
   const yearStart = startOfYear(currentDate);
   const yearEnd = endOfYear(currentDate);
   const months = eachMonthOfInterval({ start: yearStart, end: yearEnd });
 
-  // Pre-compute a set of date strings that have events for fast lookup
   const eventDateSet = new Set<string>();
   const eventColorMap = new Map<string, string>();
 
@@ -44,24 +57,31 @@ export function YearView({ currentDate, events, onMonthClick }: YearViewProps) {
     }
   });
 
+  const now = new Date();
+
   return (
     <div className="grid grid-cols-2 gap-4 p-4 sm:grid-cols-3 lg:grid-cols-4">
-      {months.map((month) => {
+      {months.map((month, monthIdx) => {
         const mStart = startOfMonth(month);
         const mEnd = endOfMonth(month);
         const calStart = startOfWeek(mStart, { weekStartsOn: 1 });
         const calEnd = endOfWeek(mEnd, { weekStartsOn: 1 });
         const days = eachDayOfInterval({ start: calStart, end: calEnd });
+        const isCurrentMonth = isSameMonth(month, now);
 
         return (
           <button
             key={month.toISOString()}
             type="button"
             onClick={() => onMonthClick(month)}
-            className="rounded-lg border p-2 text-left transition-colors hover:bg-gray-50 hover:border-indigo-300"
+            className={cn(
+              "rounded-3xl p-3 text-left transition-transform hover:-translate-y-1 cursor-pointer",
+              isCurrentMonth ? "text-white" : "bg-[var(--c-gray)] text-[var(--c-black)]"
+            )}
+            style={isCurrentMonth ? { backgroundColor: MONTH_COLORS[monthIdx] } : undefined}
           >
             {/* Month name */}
-            <div className="mb-1 text-sm font-semibold capitalize text-gray-900">
+            <div className="mb-2 text-sm font-extrabold uppercase">
               {format(month, "LLLL", { locale: ru })}
             </div>
 
@@ -70,13 +90,15 @@ export function YearView({ currentDate, events, onMonthClick }: YearViewProps) {
               {DAY_NAMES_SHORT.map((name, i) => (
                 <div
                   key={i}
-                  className="text-center text-[9px] text-gray-400 leading-4"
+                  className={cn(
+                    "text-center text-[9px] font-bold leading-4",
+                    isCurrentMonth ? "text-white/60" : "text-[#999]"
+                  )}
                 >
                   {name}
                 </div>
               ))}
 
-              {/* Day cells */}
               {days.map((day) => {
                 const inMonth = isSameMonth(day, month);
                 const today = isToday(day);
@@ -91,10 +113,11 @@ export function YearView({ currentDate, events, onMonthClick }: YearViewProps) {
                   >
                     <span
                       className={cn(
-                        "flex h-5 w-5 items-center justify-center rounded-full text-[9px] leading-none",
+                        "flex h-5 w-5 items-center justify-center rounded-full text-[9px] leading-none font-bold",
                         !inMonth && "text-transparent",
-                        inMonth && "text-gray-700",
-                        today && inMonth && "bg-indigo-100 font-bold text-indigo-700"
+                        inMonth && !isCurrentMonth && "text-[var(--c-black)]",
+                        inMonth && isCurrentMonth && "text-white",
+                        today && inMonth && "bg-[var(--c-black)] text-white"
                       )}
                     >
                       {format(day, "d")}
@@ -102,7 +125,7 @@ export function YearView({ currentDate, events, onMonthClick }: YearViewProps) {
                     {hasEvent && inMonth && (
                       <span
                         className="absolute bottom-0 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full"
-                        style={{ backgroundColor: dotColor ?? "#6366f1" }}
+                        style={{ backgroundColor: isCurrentMonth ? "#fff" : (dotColor ?? "#000") }}
                       />
                     )}
                   </div>

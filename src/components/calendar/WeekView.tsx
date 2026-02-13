@@ -31,12 +31,7 @@ interface WeekViewProps {
   onEventClick: (event: CalendarEvent) => void;
 }
 
-export function WeekView({
-  currentDate,
-  events,
-  onDateClick,
-  onEventClick,
-}: WeekViewProps) {
+export function WeekView({ currentDate, events, onDateClick, onEventClick }: WeekViewProps) {
   const [isMobile, setIsMobile] = useState(false);
   const [mobileOffset, setMobileOffset] = useState(0);
   const touchRef = useRef<{
@@ -56,6 +51,7 @@ export function WeekView({
 
   // Reset offset when currentDate changes (e.g. via header navigation)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- synchronous reset is intentional here
     setMobileOffset(0);
   }, [currentDate]);
 
@@ -83,10 +79,7 @@ export function WeekView({
       setMobileOffset((prev) => {
         const idx = allDays.findIndex((d) => isSameDay(d, currentDate));
         const center = idx >= 0 ? idx : 0;
-        const baseStart = Math.max(
-          0,
-          Math.min(center - 1, allDays.length - 3)
-        );
+        const baseStart = Math.max(0, Math.min(center - 1, allDays.length - 3));
         const current = baseStart + prev;
 
         if (direction === "left" && current < allDays.length - 3) {
@@ -115,11 +108,7 @@ export function WeekView({
     const diffX = touch.clientX - touchRef.current.startX;
     const diffY = touch.clientY - touchRef.current.startY;
 
-    if (
-      !touchRef.current.swiping &&
-      Math.abs(diffX) > 10 &&
-      Math.abs(diffX) > Math.abs(diffY)
-    ) {
+    if (!touchRef.current.swiping && Math.abs(diffX) > 10 && Math.abs(diffX) > Math.abs(diffY)) {
       touchRef.current.swiping = true;
     }
   }, []);
@@ -143,10 +132,7 @@ export function WeekView({
   function getEventsForDay(day: Date): CalendarEvent[] {
     return events
       .filter((event) => isSameDay(parseISO(event.startDate), day))
-      .sort(
-        (a, b) =>
-          new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
-      );
+      .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
   }
 
   const mobileStartIdx = isMobile ? getMobileStartIdx() : 0;
@@ -158,21 +144,13 @@ export function WeekView({
         onTouchMove={isMobile ? handleTouchMove : undefined}
         onTouchEnd={isMobile ? handleTouchEnd : undefined}
       >
-        <div
-          className={cn(
-            "grid min-w-0",
-            isMobile ? "grid-cols-3" : "grid-cols-7"
-          )}
-        >
+        <div className={cn("grid min-w-0", isMobile ? "grid-cols-3" : "grid-cols-7")}>
           {visibleDays.map((day) => {
             const dayEvents = getEventsForDay(day);
             const today = isToday(day);
 
             return (
-              <div
-                key={day.toISOString()}
-                className="border-r last:border-r-0"
-              >
+              <div key={day.toISOString()} className="border-r last:border-r-0">
                 {/* Day header */}
                 <button
                   type="button"
@@ -188,8 +166,7 @@ export function WeekView({
                   <div
                     className={cn(
                       "mx-auto mt-0.5 flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold",
-                      today &&
-                        "ring-2 ring-indigo-500 bg-indigo-100 text-indigo-700"
+                      today && "ring-2 ring-indigo-500 bg-indigo-100 text-indigo-700"
                     )}
                   >
                     {format(day, "d")}
@@ -199,16 +176,11 @@ export function WeekView({
                 {/* Events list */}
                 <div className="min-h-[200px] space-y-1 p-1">
                   {dayEvents.length === 0 && (
-                    <p className="py-4 text-center text-xs text-gray-300">
-                      &mdash;
-                    </p>
+                    <p className="py-4 text-center text-xs text-gray-300">&mdash;</p>
                   )}
                   {dayEvents.map((event) => (
                     <div key={event.id} className="mb-1">
-                      <EventChip
-                        event={event}
-                        onClick={() => onEventClick(event)}
-                      />
+                      <EventChip event={event} onClick={() => onEventClick(event)} />
                     </div>
                   ))}
                 </div>
@@ -226,9 +198,7 @@ export function WeekView({
               key={i}
               className={cn(
                 "h-1.5 rounded-full transition-all",
-                i === mobileStartIdx
-                  ? "w-4 bg-indigo-500"
-                  : "w-1.5 bg-gray-300"
+                i === mobileStartIdx ? "w-4 bg-indigo-500" : "w-1.5 bg-gray-300"
               )}
             />
           ))}

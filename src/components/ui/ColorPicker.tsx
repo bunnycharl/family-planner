@@ -131,7 +131,7 @@ export function ColorPicker({ value, onChange, showNone, onNone, isNone }: Color
   }, [showCustom]);
 
   // HSV state — source of truth for the custom picker canvas
-  const initHsv = hexToHsv(value || "#0d9488");
+  const initHsv = hexToHsv(value || "#000000");
   const [hue, setHue] = useState(() => initHsv[0]);
   const [sat, setSat] = useState(() => initHsv[1]);
   const [val, setVal] = useState(() => initHsv[2]);
@@ -282,13 +282,13 @@ export function ColorPicker({ value, onChange, showNone, onNone, isNone }: Color
             className={cn(
               "h-8 w-8 rounded-lg border-2 transition-all flex items-center justify-center cursor-pointer",
               isNone
-                ? "border-[var(--color-text)] scale-110 ring-2 ring-offset-1 ring-[var(--color-text)]/20"
-                : "border-[var(--color-border)] hover:scale-105"
+                ? "border-[var(--c-black)] scale-110"
+                : "border-[var(--c-black)]/20 hover:scale-105"
             )}
             title="Без цвета"
           >
             <svg
-              className="h-4 w-4 text-[var(--color-text-muted)]"
+              className="h-4 w-4 text-[#999]"
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth={2}
@@ -309,7 +309,7 @@ export function ColorPicker({ value, onChange, showNone, onNone, isNone }: Color
             className={cn(
               "h-8 w-8 rounded-lg border-2 transition-all cursor-pointer",
               !isNone && value === c
-                ? "border-[var(--color-text)] scale-110 ring-2 ring-offset-1 ring-[var(--color-text)]/20"
+                ? "border-[var(--c-black)] scale-110"
                 : "border-transparent hover:scale-105"
             )}
             style={{ backgroundColor: c }}
@@ -325,15 +325,15 @@ export function ColorPicker({ value, onChange, showNone, onNone, isNone }: Color
             className={cn(
               "h-8 w-8 rounded-lg border-2 transition-all flex items-center justify-center cursor-pointer",
               showCustom || (!isNone && !isPreset)
-                ? "border-[var(--color-text)] scale-110 ring-2 ring-offset-1 ring-[var(--color-text)]/20"
-                : "border-[var(--color-border)] hover:scale-105"
+                ? "border-[var(--c-black)] scale-110"
+                : "border-[var(--c-black)]/20 hover:scale-105"
             )}
             style={!isNone && !isPreset && value ? { backgroundColor: value } : undefined}
             title="Свой цвет"
           >
             {(isPreset || isNone || !value) && (
               <svg
-                className="h-4 w-4 text-[var(--color-text-muted)]"
+                className="h-4 w-4 text-[#999]"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth={2}
@@ -352,7 +352,7 @@ export function ColorPicker({ value, onChange, showNone, onNone, isNone }: Color
           {showCustom && (
             <div
               ref={popoverRef}
-              className="absolute bottom-full right-0 z-50 mb-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-3 space-y-3 shadow-xl"
+              className="absolute bottom-full right-0 z-50 mb-3 rounded-2xl bg-white p-3 space-y-3 shadow-xl border-2 border-[var(--c-black)]"
             >
               {/* Saturation-Value canvas */}
               <div className="relative" style={{ width: SV_W, height: SV_H }}>
@@ -400,7 +400,7 @@ export function ColorPicker({ value, onChange, showNone, onNone, isNone }: Color
               {/* Hex input + preview */}
               <div className="flex items-center gap-3">
                 <div
-                  className="h-8 w-8 shrink-0 rounded-lg border border-[var(--color-border)]"
+                  className="h-8 w-8 shrink-0 rounded-lg border-2 border-[var(--c-black)]/20"
                   style={{ backgroundColor: value || "#000000" }}
                 />
                 <input
@@ -409,11 +409,7 @@ export function ColorPicker({ value, onChange, showNone, onNone, isNone }: Color
                   onChange={(e) => handleHexChange(e.target.value)}
                   placeholder="#000000"
                   maxLength={7}
-                  className={cn(
-                    "w-24 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-card)] px-2 py-1 text-sm font-mono",
-                    "text-[var(--color-text)]",
-                    "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]"
-                  )}
+                  className="w-24 rounded-xl border-2 border-[var(--c-black)] bg-white px-2 py-1 text-sm font-mono text-[var(--c-black)] focus:outline-none focus:ring-2 focus:ring-[var(--c-lavender)]/30"
                 />
               </div>
 
@@ -423,7 +419,7 @@ export function ColorPicker({ value, onChange, showNone, onNone, isNone }: Color
                 style={{
                   borderLeft: "10px solid transparent",
                   borderRight: "10px solid transparent",
-                  borderTop: "10px solid var(--color-border)",
+                  borderTop: "10px solid var(--c-black)",
                 }}
               />
               <div
@@ -431,7 +427,7 @@ export function ColorPicker({ value, onChange, showNone, onNone, isNone }: Color
                 style={{
                   borderLeft: "9px solid transparent",
                   borderRight: "9px solid transparent",
-                  borderTop: "9px solid var(--color-bg-card)",
+                  borderTop: "9px solid white",
                 }}
               />
             </div>

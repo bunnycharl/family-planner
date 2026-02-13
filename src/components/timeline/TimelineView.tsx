@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState, useCallback } from "react";
-import { format, differenceInMonths, getDaysInMonth } from "date-fns";
+import { format, getDaysInMonth } from "date-fns";
 import { ru } from "date-fns/locale";
 import { useEvents } from "@/hooks/useEvents";
 import { EventForm } from "../calendar/EventForm";
@@ -11,6 +11,21 @@ import { cn } from "@/lib/utils";
 
 const TOTAL_YEARS = 5;
 type ViewMode = "vertical" | "horizontal";
+
+const MONTH_COLORS = [
+  "var(--c-coral)",
+  "var(--c-mint)",
+  "var(--c-lavender)",
+  "var(--c-yellow)",
+  "var(--c-coral)",
+  "var(--c-mint)",
+  "var(--c-lavender)",
+  "var(--c-yellow)",
+  "var(--c-coral)",
+  "var(--c-mint)",
+  "var(--c-lavender)",
+  "var(--c-yellow)",
+];
 
 interface TimelineEvent {
   id: string;
@@ -143,30 +158,36 @@ export function TimelineView() {
 
   // Sort events within each month by date
   allMonths.forEach((month) => {
-    month.events.sort((a, b) =>
-      new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
-    );
+    month.events.sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
   });
 
   return (
-    <div className="relative h-full flex flex-col bg-[var(--color-bg)]">
+    <div className="relative h-full flex flex-col bg-white">
       {/* Header */}
-      <div className="px-4 pt-4 pb-3 flex items-center justify-between shrink-0 bg-[var(--color-bg-card)] border-b border-[var(--color-border)]">
-        <h1 className="text-xl font-bold text-[var(--color-text)]">Таймлайн</h1>
+      <div className="px-4 pt-4 pb-3 flex items-center justify-between shrink-0 bg-white">
+        <h1 className="text-xl font-extrabold uppercase tracking-tight text-[var(--c-black)]">
+          Таймлайн
+        </h1>
         <div className="flex items-center gap-2">
           {/* View mode toggle */}
-          <div className="flex rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg)] p-0.5">
+          <div className="flex rounded-full bg-[var(--c-gray)] p-1">
             <button
               type="button"
               onClick={() => setViewMode("vertical")}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer",
+                "flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold uppercase transition-all cursor-pointer",
                 viewMode === "vertical"
-                  ? "bg-[var(--color-primary)] text-white"
-                  : "text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
+                  ? "bg-[var(--c-black)] text-white"
+                  : "text-[var(--c-black)] hover:bg-white"
               )}
             >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
               <span className="hidden sm:inline">Список</span>
@@ -175,19 +196,29 @@ export function TimelineView() {
               type="button"
               onClick={() => setViewMode("horizontal")}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer",
+                "flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold uppercase transition-all cursor-pointer",
                 viewMode === "horizontal"
-                  ? "bg-[var(--color-primary)] text-white"
-                  : "text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
+                  ? "bg-[var(--c-black)] text-white"
+                  : "text-[var(--c-black)] hover:bg-white"
               )}
             >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"
+                />
               </svg>
               <span className="hidden sm:inline">Линия</span>
             </button>
           </div>
-          <span className="text-sm font-medium text-[var(--color-text-muted)] bg-[var(--color-bg)] px-3 py-1.5 rounded-lg">
+          <span className="bg-[var(--c-black)] text-white rounded-full px-3 py-1.5 text-xs font-bold uppercase">
             {startYear} &ndash; {endYear}
           </span>
         </div>
@@ -196,8 +227,8 @@ export function TimelineView() {
       {/* Loading state */}
       {isLoading && (
         <div className="px-4 py-12 flex flex-col items-center justify-center gap-3">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--color-border)] border-t-[var(--color-primary)]" />
-          <span className="text-sm text-[var(--color-text-muted)]">Загрузка...</span>
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--c-gray)] border-t-[var(--c-lavender)]" />
+          <span className="text-sm font-bold uppercase text-[#999]">Загрузка...</span>
         </div>
       )}
 
@@ -209,39 +240,42 @@ export function TimelineView() {
           onTouchEnd={handleTouchEnd}
         >
           {/* Year navigation */}
-          <div className="flex items-center justify-center gap-4 py-4 bg-[var(--color-bg-card)] border-b border-[var(--color-border)]">
+          <div className="flex items-center justify-center gap-4 py-4 bg-white">
             <button
               type="button"
               onClick={goToPrevYear}
               disabled={!canGoPrev}
               className={cn(
-                "p-2 rounded-xl transition-all cursor-pointer",
+                "h-10 w-10 rounded-full flex items-center justify-center transition-all cursor-pointer",
                 canGoPrev
-                  ? "hover:bg-[var(--color-bg)] text-[var(--color-text)]"
-                  : "text-[var(--color-text-muted)] opacity-30 cursor-not-allowed"
+                  ? "bg-[var(--c-black)] text-white hover:scale-105"
+                  : "bg-[var(--c-gray)] text-[#ccc] cursor-not-allowed"
               )}
             >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
             </button>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 rounded-full bg-[var(--c-gray)] p-1">
               {Array.from({ length: TOTAL_YEARS }, (_, i) => {
                 const year = startYear + i;
                 const isSelected = year === selectedYear;
-                const isCurrent = year === currentYear;
                 return (
                   <button
                     key={year}
                     type="button"
                     onClick={() => setSelectedYear(year)}
                     className={cn(
-                      "px-3 py-1.5 rounded-lg text-sm font-bold transition-all cursor-pointer",
+                      "px-4 py-2 rounded-full text-sm font-bold uppercase transition-all cursor-pointer",
                       isSelected
-                        ? "bg-[var(--color-primary)] text-white shadow-md"
-                        : isCurrent
-                          ? "bg-[var(--color-primary-50)] text-[var(--color-primary)]"
-                          : "text-[var(--color-text-muted)] hover:bg-[var(--color-bg)]"
+                        ? "bg-[var(--c-black)] text-white"
+                        : "text-[var(--c-black)] hover:bg-white"
                     )}
                   >
                     {year}
@@ -254,23 +288,26 @@ export function TimelineView() {
               onClick={goToNextYear}
               disabled={!canGoNext}
               className={cn(
-                "p-2 rounded-xl transition-all cursor-pointer",
+                "h-10 w-10 rounded-full flex items-center justify-center transition-all cursor-pointer",
                 canGoNext
-                  ? "hover:bg-[var(--color-bg)] text-[var(--color-text)]"
-                  : "text-[var(--color-text-muted)] opacity-30 cursor-not-allowed"
+                  ? "bg-[var(--c-black)] text-white hover:scale-105"
+                  : "bg-[var(--c-gray)] text-[#ccc] cursor-not-allowed"
               )}
             >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>
             </button>
           </div>
 
           {/* Timeline content */}
-          <div
-            ref={horizontalScrollRef}
-            className="flex-1 overflow-y-auto px-4 py-6"
-          >
+          <div ref={horizontalScrollRef} className="flex-1 overflow-y-auto px-4 py-6">
             {/* Month columns grid */}
             <div className="grid grid-cols-12 gap-1 sm:gap-2 min-h-[400px]">
               {Array.from({ length: 12 }, (_, monthIdx) => {
@@ -284,7 +321,8 @@ export function TimelineView() {
                 });
 
                 // Calculate today position within month
-                const isCurrentMonthWithToday = isCurrentMonth && selectedYear === today.getFullYear();
+                const isCurrentMonthWithToday =
+                  isCurrentMonth && selectedYear === today.getFullYear();
                 const todayPosition = isCurrentMonthWithToday
                   ? ((today.getDate() - 1) / getDaysInMonth(today)) * 100
                   : null;
@@ -293,34 +331,38 @@ export function TimelineView() {
                   <div
                     key={monthIdx}
                     className={cn(
-                      "flex flex-col rounded-xl border-2 transition-all min-h-[350px]",
+                      "flex flex-col rounded-2xl transition-all min-h-[350px] overflow-hidden",
                       isCurrentMonth
-                        ? "border-[var(--color-primary)] bg-[var(--color-primary-50)]/50"
+                        ? "ring-2 ring-[var(--c-black)]"
                         : isPastMonth
-                          ? "border-[var(--color-border)] bg-[var(--color-bg)] opacity-60"
-                          : "border-[var(--color-border)] bg-[var(--color-bg-card)]"
+                          ? "opacity-50"
+                          : "",
+                      "bg-[var(--c-gray)]"
                     )}
                   >
                     {/* Month header */}
                     <div
-                      className={cn(
-                        "py-2 px-1 text-center border-b",
-                        isCurrentMonth
-                          ? "bg-[var(--color-primary)] text-white border-[var(--color-primary)]"
-                          : "bg-[var(--color-bg)] border-[var(--color-border)]"
-                      )}
+                      className="py-2 px-1 text-center"
+                      style={{
+                        backgroundColor: isCurrentMonth ? MONTH_COLORS[monthIdx] : undefined,
+                      }}
                     >
-                      <div className="text-xs sm:text-sm font-bold capitalize">
+                      <div
+                        className={cn(
+                          "text-xs sm:text-sm font-bold uppercase",
+                          isCurrentMonth ? "text-white" : "text-[var(--c-black)]"
+                        )}
+                      >
                         {format(monthDate, "LLL", { locale: ru })}
                       </div>
                     </div>
 
                     {/* Timeline bar within month */}
-                    <div className="relative h-2 mx-1 mt-2 bg-[var(--color-border)] rounded-full">
+                    <div className="relative h-2 mx-1 mt-2 bg-white/50 rounded-full">
                       {/* Today marker */}
                       {todayPosition !== null && (
                         <div
-                          className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-[var(--color-primary)] rounded-full border-2 border-white shadow-md z-10"
+                          className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-[var(--c-black)] rounded-full border-2 border-white z-10"
                           style={{ left: `${todayPosition}%`, marginLeft: "-6px" }}
                           title="Сегодня"
                         />
@@ -328,8 +370,9 @@ export function TimelineView() {
                       {/* Event markers on mini timeline */}
                       {monthEvents.map((evt) => {
                         const evtDate = new Date(evt.startDate);
-                        const dayPosition = ((evtDate.getDate() - 1) / getDaysInMonth(evtDate)) * 100;
-                        const displayColor = evt.color || evt.category?.color || "#0D9488";
+                        const dayPosition =
+                          ((evtDate.getDate() - 1) / getDaysInMonth(evtDate)) * 100;
+                        const displayColor = evt.color || evt.category?.color || "var(--c-coral)";
                         return (
                           <div
                             key={evt.id}
@@ -349,7 +392,7 @@ export function TimelineView() {
                       {monthEvents.length > 0 ? (
                         monthEvents.map((evt) => {
                           const evtDate = new Date(evt.startDate);
-                          const displayColor = evt.color || evt.category?.color || "#0D9488";
+                          const displayColor = evt.color || evt.category?.color || "var(--c-coral)";
                           const isPast = evtDate < today;
                           return (
                             <button
@@ -357,20 +400,19 @@ export function TimelineView() {
                               type="button"
                               onClick={() => handleEventClick(evt)}
                               className={cn(
-                                "w-full text-left p-1.5 sm:p-2 rounded-lg border-l-3 transition-all cursor-pointer",
-                                "hover:shadow-md bg-[var(--color-bg-card)]",
+                                "w-full text-left p-1.5 sm:p-2 rounded-xl transition-all cursor-pointer",
+                                "hover:scale-[1.02] bg-white",
                                 isPast && "opacity-50"
                               )}
-                              style={{ borderLeftColor: displayColor, borderLeftWidth: "3px" }}
                             >
                               <div className="flex items-start gap-1">
                                 <span
-                                  className="shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-md flex items-center justify-center text-[10px] sm:text-xs font-bold text-white"
+                                  className="shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold text-white"
                                   style={{ backgroundColor: displayColor }}
                                 >
                                   {evtDate.getDate()}
                                 </span>
-                                <span className="text-[10px] sm:text-xs font-medium text-[var(--color-text)] line-clamp-2 leading-tight">
+                                <span className="text-[10px] sm:text-xs font-bold text-[var(--c-black)] line-clamp-2 leading-tight uppercase">
                                   {evt.title}
                                 </span>
                               </div>
@@ -379,7 +421,7 @@ export function TimelineView() {
                         })
                       ) : (
                         <div className="h-full flex items-center justify-center">
-                          <span className="text-[10px] text-[var(--color-text-muted)] italic">—</span>
+                          <span className="text-[10px] text-[#ccc] font-bold">—</span>
                         </div>
                       )}
                     </div>
@@ -393,224 +435,228 @@ export function TimelineView() {
 
       {/* Vertical scrollable timeline */}
       {viewMode === "vertical" && (
-      <div className="flex-1 overflow-y-auto pb-24">
-        {/* Year sections */}
-        {Array.from({ length: TOTAL_YEARS }, (_, yearIdx) => {
-          const year = startYear + yearIdx;
-          const yearMonths = allMonths.filter(
-            (m) => m.key.startsWith(String(year))
-          );
-          const isCurrentYear = year === today.getFullYear();
-          const isPastYear = year < today.getFullYear();
+        <div className="flex-1 overflow-y-auto pb-24">
+          {/* Year sections */}
+          {Array.from({ length: TOTAL_YEARS }, (_, yearIdx) => {
+            const year = startYear + yearIdx;
+            const yearMonths = allMonths.filter((m) => m.key.startsWith(String(year)));
+            const isCurrentYear = year === today.getFullYear();
+            const isPastYear = year < today.getFullYear();
 
-          return (
-            <div key={year} className={cn("mb-2", isPastYear && "opacity-60")}>
-              {/* Year header */}
-              <div
-                className={cn(
-                  "sticky top-0 z-20 px-4 py-3 border-b backdrop-blur-sm",
-                  isCurrentYear
-                    ? "bg-[var(--color-primary-50)]/90 border-[var(--color-primary)]/20"
-                    : isPastYear
-                      ? "bg-[var(--color-bg)]/90 border-[var(--color-border)]"
-                      : "bg-[var(--color-bg-card)]/90 border-[var(--color-border)]"
-                )}
-              >
-                <h2
+            return (
+              <div key={year} className={cn("mb-2", isPastYear && "opacity-60")}>
+                {/* Year header */}
+                <div
                   className={cn(
-                    "text-lg font-bold",
-                    isCurrentYear
-                      ? "text-[var(--color-primary)]"
-                      : isPastYear
-                        ? "text-[var(--color-text-muted)]"
-                        : "text-[var(--color-text)]"
+                    "sticky top-0 z-20 px-4 py-3",
+                    isCurrentYear ? "bg-[var(--c-yellow)]" : "bg-[var(--c-gray)]"
                   )}
                 >
-                  {year}
-                  {isCurrentYear && (
-                    <span className="ml-2 text-sm font-normal text-[var(--color-primary-light)]">
-                      — текущий год
-                    </span>
-                  )}
-                </h2>
-              </div>
+                  <h2
+                    className={cn(
+                      "text-lg font-extrabold uppercase tracking-tight",
+                      "text-[var(--c-black)]"
+                    )}
+                  >
+                    {year}
+                    {isCurrentYear && (
+                      <span className="ml-2 text-sm font-bold text-[var(--c-black)]/60">
+                        — текущий год
+                      </span>
+                    )}
+                  </h2>
+                </div>
 
-              {/* Months grid */}
-              <div className="px-4 py-4 space-y-6">
-                {yearMonths.map(({ key: monthKey, events: monthEvents, isCurrentMonth }) => {
-                  const monthDate = new Date(monthKey + "-01");
-                  const monthName = format(monthDate, "LLLL", { locale: ru });
-                  const isPast = monthDate < new Date(today.getFullYear(), today.getMonth(), 1);
+                {/* Months grid */}
+                <div className="px-4 py-4 space-y-4">
+                  {yearMonths.map(
+                    ({ key: monthKey, events: monthEvents, isCurrentMonth }, monthIdx) => {
+                      const monthDate = new Date(monthKey + "-01");
+                      const monthName = format(monthDate, "LLLL", { locale: ru });
+                      const isPast = monthDate < new Date(today.getFullYear(), today.getMonth(), 1);
 
-                  return (
-                    <div
-                      key={monthKey}
-                      ref={isCurrentMonth ? todayRef : undefined}
-                      className={cn(
-                        "rounded-2xl p-4 transition-all",
-                        isPast && "opacity-50",
-                        isCurrentMonth
-                          ? "bg-[var(--color-primary-50)] ring-2 ring-[var(--color-primary)]/30"
-                          : "bg-[var(--color-bg-card)] border border-[var(--color-border)]"
-                      )}
-                    >
-                      {/* Month header */}
-                      <div className="flex items-center gap-3 mb-4">
+                      return (
                         <div
+                          key={monthKey}
+                          ref={isCurrentMonth ? todayRef : undefined}
                           className={cn(
-                            "flex h-11 w-11 items-center justify-center rounded-xl font-bold text-lg",
+                            "rounded-3xl p-5 transition-all",
+                            isPast && "opacity-50",
                             isCurrentMonth
-                              ? "bg-[var(--color-primary)] text-white shadow-sm"
-                              : "bg-[var(--color-bg)] text-[var(--color-text-secondary)]"
+                              ? "text-white"
+                              : "bg-[var(--c-gray)] text-[var(--c-black)]"
                           )}
+                          style={
+                            isCurrentMonth
+                              ? { backgroundColor: MONTH_COLORS[monthIdx % 12] }
+                              : undefined
+                          }
                         >
-                          {format(monthDate, "M", { locale: ru })}
-                        </div>
-                        <div>
-                          <h3
-                            className={cn(
-                              "font-semibold capitalize",
-                              isCurrentMonth ? "text-[var(--color-primary)]" : "text-[var(--color-text)]"
-                            )}
-                          >
-                            {monthName}
-                          </h3>
-                          {isCurrentMonth && (
-                            <span className="text-xs text-[var(--color-primary-light)]">
-                              Текущий месяц
-                            </span>
+                          {/* Month header */}
+                          <div className="flex items-center gap-3 mb-4">
+                            <div
+                              className={cn(
+                                "flex h-11 w-11 items-center justify-center rounded-full font-bold text-lg",
+                                isCurrentMonth
+                                  ? "bg-white/20 text-white"
+                                  : "bg-white text-[var(--c-black)]"
+                              )}
+                            >
+                              {format(monthDate, "M", { locale: ru })}
+                            </div>
+                            <div>
+                              <h3 className="font-extrabold uppercase tracking-tight capitalize">
+                                {monthName}
+                              </h3>
+                              {isCurrentMonth && (
+                                <span className="text-xs font-bold text-white/70 uppercase">
+                                  Текущий месяц
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Events */}
+                          {monthEvents.length > 0 ? (
+                            <div className="space-y-2">
+                              {monthEvents.map((evt) => {
+                                const hasColor = !!evt.color;
+                                const displayColor =
+                                  evt.color || evt.category?.color || "var(--c-coral)";
+
+                                return (
+                                  <button
+                                    key={evt.id}
+                                    type="button"
+                                    onClick={() => handleEventClick(evt)}
+                                    className={cn(
+                                      "w-full text-left p-3 rounded-2xl transition-all cursor-pointer",
+                                      "hover:-translate-y-0.5",
+                                      isCurrentMonth
+                                        ? "bg-white/20 hover:bg-white/30"
+                                        : "bg-white hover:bg-white/80",
+                                      evt.isCompleted && "opacity-60"
+                                    )}
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <span
+                                        className={cn(
+                                          "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
+                                          evt.isCompleted &&
+                                            "ring-2 ring-[var(--c-success)] ring-offset-1"
+                                        )}
+                                        style={{ backgroundColor: displayColor }}
+                                      >
+                                        {evt.isCompleted ? (
+                                          <svg
+                                            className="h-4 w-4 text-white"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            strokeWidth={3}
+                                            stroke="currentColor"
+                                          >
+                                            <path
+                                              strokeLinecap="round"
+                                              strokeLinejoin="round"
+                                              d="M4.5 12.75l6 6 9-13.5"
+                                            />
+                                          </svg>
+                                        ) : hasColor ? (
+                                          <svg
+                                            className="h-4 w-4 text-white"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            strokeWidth={2}
+                                            stroke="currentColor"
+                                          >
+                                            <path
+                                              strokeLinecap="round"
+                                              strokeLinejoin="round"
+                                              d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2z"
+                                            />
+                                          </svg>
+                                        ) : (
+                                          <svg
+                                            className="h-4 w-4 text-white"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            strokeWidth={2}
+                                            stroke="currentColor"
+                                          >
+                                            <rect x="3" y="4" width="18" height="18" rx="2" />
+                                            <line x1="3" y1="10" x2="21" y2="10" />
+                                          </svg>
+                                        )}
+                                      </span>
+                                      <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2">
+                                          <span
+                                            className={cn(
+                                              "font-bold uppercase text-sm",
+                                              isCurrentMonth
+                                                ? "text-white"
+                                                : "text-[var(--c-black)]"
+                                            )}
+                                          >
+                                            {evt.title}
+                                          </span>
+                                          {evt.category && (
+                                            <span className="bg-[var(--c-black)] text-white text-[10px] px-2 py-0.5 rounded-full font-bold uppercase">
+                                              {evt.category.name}
+                                            </span>
+                                          )}
+                                        </div>
+                                        {evt.description && (
+                                          <p
+                                            className={cn(
+                                              "text-xs truncate mt-0.5",
+                                              isCurrentMonth ? "text-white/60" : "text-[#999]"
+                                            )}
+                                          >
+                                            {evt.description}
+                                          </p>
+                                        )}
+                                      </div>
+                                      <span
+                                        className={cn(
+                                          "text-sm font-bold rounded-full px-3 py-1",
+                                          isCurrentMonth
+                                            ? "bg-white/20 text-white"
+                                            : "bg-white text-[var(--c-black)]"
+                                        )}
+                                      >
+                                        {format(new Date(evt.startDate), "d", {
+                                          locale: ru,
+                                        })}
+                                      </span>
+                                    </div>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <p
+                              className={cn(
+                                "text-sm font-bold uppercase",
+                                isCurrentMonth ? "text-white/40" : "text-[#ccc]"
+                              )}
+                            >
+                              Нет событий
+                            </p>
                           )}
                         </div>
-                      </div>
-
-                      {/* Events */}
-                      {monthEvents.length > 0 ? (
-                        <div className="space-y-2">
-                          {monthEvents.map((evt) => {
-                            // Event with color = milestone-like (flag icon)
-                            // Event without color = regular event (calendar icon)
-                            const hasColor = !!evt.color;
-                            const displayColor = evt.color || evt.category?.color || "#0D9488";
-
-                            return (
-                              <button
-                                key={evt.id}
-                                type="button"
-                                onClick={() => handleEventClick(evt)}
-                                className={cn(
-                                  "w-full text-left p-3 rounded-xl bg-[var(--color-bg-card)] border transition-all cursor-pointer",
-                                  "hover:shadow-md hover:border-[var(--color-primary)]/30",
-                                  evt.isCompleted
-                                    ? "opacity-60 border-[var(--color-border)]"
-                                    : "border-l-4 border-[var(--color-border)] shadow-sm"
-                                )}
-                                style={{
-                                  borderLeftColor: evt.isCompleted
-                                    ? undefined
-                                    : displayColor,
-                                }}
-                              >
-                                <div className="flex items-center gap-3">
-                                  <span
-                                    className={cn(
-                                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl",
-                                      evt.isCompleted && "ring-2 ring-[var(--color-success)] ring-offset-1"
-                                    )}
-                                    style={{ backgroundColor: displayColor }}
-                                  >
-                                    {evt.isCompleted ? (
-                                      <svg
-                                        className="h-4 w-4 text-white"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        strokeWidth={3}
-                                        stroke="currentColor"
-                                      >
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          d="M4.5 12.75l6 6 9-13.5"
-                                        />
-                                      </svg>
-                                    ) : hasColor ? (
-                                      // Flag icon for events with custom color
-                                      <svg
-                                        className="h-4 w-4 text-white"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        strokeWidth={2}
-                                        stroke="currentColor"
-                                      >
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2z"
-                                        />
-                                      </svg>
-                                    ) : (
-                                      // Calendar icon for regular events
-                                      <svg
-                                        className="h-4 w-4 text-white"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        strokeWidth={2}
-                                        stroke="currentColor"
-                                      >
-                                        <rect x="3" y="4" width="18" height="18" rx="2" />
-                                        <line x1="3" y1="10" x2="21" y2="10" />
-                                      </svg>
-                                    )}
-                                  </span>
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2">
-                                      <span className="font-medium text-[var(--color-text)]">
-                                        {evt.title}
-                                      </span>
-                                      {evt.category && (
-                                        <span
-                                          className="text-[10px] px-1.5 py-0.5 rounded-md font-semibold text-white"
-                                          style={{ backgroundColor: evt.category.color }}
-                                        >
-                                          {evt.category.name}
-                                        </span>
-                                      )}
-                                    </div>
-                                    {evt.description && (
-                                      <p className="text-xs text-[var(--color-text-muted)] truncate mt-0.5">
-                                        {evt.description}
-                                      </p>
-                                    )}
-                                  </div>
-                                  <span className="text-sm font-bold text-[var(--color-text-secondary)] bg-[var(--color-bg)] px-2 py-1 rounded-lg">
-                                    {format(new Date(evt.startDate), "d", {
-                                      locale: ru,
-                                    })}
-                                  </span>
-                                </div>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      ) : (
-                        <p className="text-sm text-[var(--color-text-muted)] italic">
-                          Нет событий
-                        </p>
-                      )}
-                    </div>
-                  );
-                })}
+                      );
+                    }
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
       )}
 
       {/* Quick add menu */}
-      <QuickAddMenu
-        options={["event", "task"]}
-        onSelect={handleQuickAdd}
-      />
+      <QuickAddMenu options={["event", "task"]} onSelect={handleQuickAdd} />
 
       {/* Event form modal */}
       <EventForm

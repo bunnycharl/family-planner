@@ -29,31 +29,35 @@ interface EventCardEvent {
 interface EventCardProps {
   event: EventCardEvent;
   onClick?: (event: EventCardEvent) => void;
+  colorIndex?: number;
 }
+
+const CARD_COLORS = ["var(--c-coral)", "var(--c-mint)", "var(--c-lavender)", "var(--c-yellow)"];
 
 function formatEventDate(event: EventCardEvent): string {
   const start = new Date(event.startDate);
 
   if (event.endDate) {
     const end = new Date(event.endDate);
-    const sameDay =
-      format(start, "yyyy-MM-dd") === format(end, "yyyy-MM-dd");
+    const sameDay = format(start, "yyyy-MM-dd") === format(end, "yyyy-MM-dd");
 
     if (!sameDay) {
-      return `${format(start, "d MMM", { locale: ru })} \u2013 ${format(end, "d MMM yyyy", { locale: ru })}`;
+      return `${format(start, "d MMM", { locale: ru })} – ${format(end, "d MMM yyyy", { locale: ru })}`;
     }
   }
 
   return format(start, "d MMM yyyy", { locale: ru });
 }
 
-export function EventCard({ event, onClick }: EventCardProps) {
+export function EventCard({ event, onClick, colorIndex = 0 }: EventCardProps) {
   const initials = event.createdBy.name
     .split(" ")
     .map((n) => n[0])
     .join("")
     .toUpperCase()
     .slice(0, 2);
+
+  const bgColor = event.category?.color ?? CARD_COLORS[colorIndex % CARD_COLORS.length];
 
   return (
     <div
@@ -67,24 +71,18 @@ export function EventCard({ event, onClick }: EventCardProps) {
         }
       }}
       className={cn(
-        "bg-[var(--color-bg-card)] rounded-2xl p-4 border border-[var(--color-border)]",
-        "cursor-pointer transition-all hover:shadow-lg hover:border-[var(--color-primary)]/30",
-        "hover:translate-y-[-2px]"
+        "rounded-3xl p-5 cursor-pointer transition-all",
+        "hover:-translate-y-1 active:scale-[0.98]"
       )}
+      style={{ backgroundColor: bgColor }}
     >
-      {/* Header with category color bar */}
-      <div
-        className="h-1 w-12 rounded-full mb-3"
-        style={{ backgroundColor: event.category?.color ?? "#0D9488" }}
-      />
-
       {/* Title */}
-      <h3 className="font-semibold text-[var(--color-text)] line-clamp-1 mb-1">
+      <h3 className="font-extrabold text-white text-lg uppercase tracking-tight line-clamp-1 mb-2">
         {event.title}
       </h3>
 
-      {/* Date/time */}
-      <div className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)] mb-3">
+      {/* Date */}
+      <div className="flex items-center gap-2 text-sm text-white/80 font-bold mb-3">
         <svg
           className="h-4 w-4"
           fill="none"
@@ -99,21 +97,18 @@ export function EventCard({ event, onClick }: EventCardProps) {
       </div>
 
       {/* Bottom row */}
-      <div className="flex items-center justify-between gap-2 pt-3 border-t border-[var(--color-border-light)]">
+      <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0 flex-wrap">
           {/* Category badge */}
           {event.category && (
-            <span
-              className="inline-flex shrink-0 rounded-lg px-2.5 py-1 text-xs font-semibold text-white"
-              style={{ backgroundColor: event.category.color }}
-            >
+            <span className="bg-[var(--c-black)] text-white rounded-full px-3 py-1 text-[10px] font-bold uppercase">
               {event.category.name}
             </span>
           )}
 
           {/* Location */}
           {event.location && (
-            <span className="flex items-center gap-1 text-xs text-[var(--color-text-muted)] truncate min-w-0">
+            <span className="flex items-center gap-1 text-xs text-white/70 font-bold truncate min-w-0">
               <svg
                 className="h-3.5 w-3.5 shrink-0"
                 fill="none"
@@ -139,7 +134,7 @@ export function EventCard({ event, onClick }: EventCardProps) {
 
         {/* Creator avatar */}
         <div
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white shadow-sm"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white border-2 border-white/30"
           style={{ backgroundColor: event.createdBy.avatarColor }}
           title={event.createdBy.name}
         >

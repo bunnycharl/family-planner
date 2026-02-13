@@ -21,28 +21,20 @@ interface FilterBarProps {
   categories: Category[];
 }
 
-export function FilterBar({
-  filters,
-  onFiltersChange,
-  categories,
-}: FilterBarProps) {
+export function FilterBar({ filters, onFiltersChange, categories }: FilterBarProps) {
   const hasActiveFilters = filters.categoryId || filters.start || filters.end;
   const [categoryOpen, setCategoryOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setCategoryOpen(false);
       }
     }
     if (categoryOpen) {
       document.addEventListener("mousedown", handleClickOutside);
-      return () =>
-        document.removeEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [categoryOpen]);
 
@@ -50,14 +42,12 @@ export function FilterBar({
     onFiltersChange({});
   }
 
-  const selectedCategory = categories.find(
-    (c) => c.id === filters.categoryId
-  );
+  const selectedCategory = categories.find((c) => c.id === filters.categoryId);
 
   return (
-    <div className="space-y-3 p-4 bg-[var(--color-bg-card)] rounded-2xl border border-[var(--color-border)]">
+    <div className="space-y-3 p-4 bg-[var(--c-gray)] rounded-3xl">
       {/* Header */}
-      <div className="flex items-center gap-2 text-sm font-semibold text-[var(--color-text)]">
+      <div className="flex items-center gap-2 text-sm font-bold uppercase text-[var(--c-black)]">
         <svg
           className="h-4 w-4"
           fill="none"
@@ -76,17 +66,15 @@ export function FilterBar({
 
       {/* Category picker */}
       <div className="flex flex-col gap-1.5">
-        <span className="text-xs font-medium text-[var(--color-text-muted)]">
-          Категория
-        </span>
+        <span className="text-xs font-bold uppercase tracking-wide text-[#999]">Категория</span>
         <div className="relative" ref={dropdownRef}>
           <button
             type="button"
             onClick={() => setCategoryOpen(!categoryOpen)}
             className={cn(
-              "flex w-full items-center justify-between rounded-xl border-2 border-[var(--color-border)] px-3 py-2.5 text-sm",
-              "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]",
-              "bg-[var(--color-bg)] text-left transition-all cursor-pointer"
+              "flex w-full items-center justify-between rounded-2xl border-2 border-[var(--c-black)] px-4 py-3 text-sm font-medium",
+              "focus:outline-none focus:ring-2 focus:ring-[var(--c-black)]/20 focus:border-[var(--c-black)]",
+              "bg-white text-left transition-all cursor-pointer"
             )}
           >
             <span className="flex items-center gap-2 truncate">
@@ -96,15 +84,15 @@ export function FilterBar({
                     className="inline-block h-3 w-3 shrink-0 rounded-full"
                     style={{ backgroundColor: selectedCategory.color }}
                   />
-                  <span className="text-[var(--color-text)]">{selectedCategory.name}</span>
+                  <span className="text-[var(--c-black)] font-bold">{selectedCategory.name}</span>
                 </>
               ) : (
-                <span className="text-[var(--color-text-muted)]">Все категории</span>
+                <span className="text-[#999]">Все категории</span>
               )}
             </span>
             <svg
               className={cn(
-                "h-4 w-4 shrink-0 text-[var(--color-text-muted)] transition-transform",
+                "h-4 w-4 shrink-0 text-[#999] transition-transform",
                 categoryOpen && "rotate-180"
               )}
               fill="none"
@@ -121,7 +109,7 @@ export function FilterBar({
           </button>
 
           {categoryOpen && (
-            <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-64 overflow-y-auto rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg-card)] shadow-lg">
+            <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-64 overflow-y-auto rounded-3xl bg-white shadow-xl">
               {/* "All" option */}
               <button
                 type="button"
@@ -130,17 +118,17 @@ export function FilterBar({
                   setCategoryOpen(false);
                 }}
                 className={cn(
-                  "flex w-full items-center gap-3 px-4 py-3 text-left text-sm transition-colors cursor-pointer",
+                  "flex w-full items-center gap-3 px-5 py-3 text-left text-sm font-bold uppercase transition-colors cursor-pointer first:rounded-t-3xl",
                   !filters.categoryId
-                    ? "bg-[var(--color-primary-50)] text-[var(--color-primary)] font-semibold"
-                    : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)]"
+                    ? "bg-[var(--c-yellow)] text-[var(--c-black)]"
+                    : "text-[var(--c-black)] hover:bg-[var(--c-gray)]"
                 )}
               >
-                <span className="inline-block h-3 w-3 shrink-0 rounded-full bg-[var(--color-text-muted)]" />
+                <span className="inline-block h-3 w-3 shrink-0 rounded-full bg-[#999]" />
                 Все категории
               </button>
 
-              {categories.map((cat) => (
+              {categories.map((cat, idx) => (
                 <button
                   key={cat.id}
                   type="button"
@@ -149,10 +137,11 @@ export function FilterBar({
                     setCategoryOpen(false);
                   }}
                   className={cn(
-                    "flex w-full items-center gap-3 px-4 py-3 text-left text-sm transition-colors cursor-pointer",
+                    "flex w-full items-center gap-3 px-5 py-3 text-left text-sm font-bold uppercase transition-colors cursor-pointer",
+                    idx === categories.length - 1 && "last:rounded-b-3xl",
                     filters.categoryId === cat.id
-                      ? "bg-[var(--color-primary-50)] text-[var(--color-primary)] font-semibold"
-                      : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)]"
+                      ? "bg-[var(--c-yellow)] text-[var(--c-black)]"
+                      : "text-[var(--c-black)] hover:bg-[var(--c-gray)]"
                   )}
                 >
                   <span
@@ -172,7 +161,7 @@ export function FilterBar({
         <div className="flex flex-col gap-1.5">
           <label
             htmlFor="filter-start"
-            className="text-xs font-medium text-[var(--color-text-muted)]"
+            className="text-xs font-bold uppercase tracking-wide text-[#999]"
           >
             С
           </label>
@@ -187,9 +176,9 @@ export function FilterBar({
               })
             }
             className={cn(
-              "w-full rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm",
-              "text-[var(--color-text)]",
-              "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]",
+              "w-full rounded-2xl border-2 border-[var(--c-black)] bg-white px-4 py-3 text-sm font-medium",
+              "text-[var(--c-black)]",
+              "focus:outline-none focus:ring-2 focus:ring-[var(--c-black)]/20 focus:border-[var(--c-black)]",
               "[&::-webkit-date-and-time-value]:text-left"
             )}
           />
@@ -198,7 +187,7 @@ export function FilterBar({
         <div className="flex flex-col gap-1.5">
           <label
             htmlFor="filter-end"
-            className="text-xs font-medium text-[var(--color-text-muted)]"
+            className="text-xs font-bold uppercase tracking-wide text-[#999]"
           >
             По
           </label>
@@ -213,9 +202,9 @@ export function FilterBar({
               })
             }
             className={cn(
-              "w-full rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm",
-              "text-[var(--color-text)]",
-              "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]",
+              "w-full rounded-2xl border-2 border-[var(--c-black)] bg-white px-4 py-3 text-sm font-medium",
+              "text-[var(--c-black)]",
+              "focus:outline-none focus:ring-2 focus:ring-[var(--c-black)]/20 focus:border-[var(--c-black)]",
               "[&::-webkit-date-and-time-value]:text-left"
             )}
           />
@@ -228,10 +217,10 @@ export function FilterBar({
           type="button"
           onClick={handleClear}
           className={cn(
-            "w-full rounded-xl px-4 py-2.5 text-sm font-semibold",
-            "text-[var(--color-text-secondary)] bg-[var(--color-bg)]",
-            "border-2 border-[var(--color-border)]",
-            "hover:border-[var(--color-error)] hover:text-[var(--color-error)] hover:bg-[var(--color-error)]/5",
+            "w-full rounded-full px-4 py-3 text-sm font-bold uppercase",
+            "text-[var(--c-coral)] bg-white",
+            "border-2 border-[var(--c-coral)]",
+            "hover:bg-[var(--c-coral)] hover:text-white",
             "transition-all cursor-pointer"
           )}
         >

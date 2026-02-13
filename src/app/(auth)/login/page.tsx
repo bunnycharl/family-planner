@@ -38,37 +38,25 @@ export default function LoginPage() {
 
   return (
     <div className="w-full max-w-md relative z-10">
-      <div className="bg-[var(--color-bg-card)] rounded-2xl shadow-xl border border-[var(--color-border)] p-8">
-        {/* Logo and title */}
+      <div className="bg-[var(--c-gray)] rounded-3xl p-8">
+        {/* Logo and title — sticker style */}
         <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--color-primary)] shadow-lg">
-              <svg
-                width="32"
-                height="32"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="white"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-                <polyline points="9 22 9 12 15 12 15 22" />
-              </svg>
-            </div>
+          <div className="flex justify-center gap-2 mb-4">
+            <span className="bg-[var(--c-black)] text-white rounded-xl px-4 py-2 text-2xl font-extrabold uppercase">
+              Family
+            </span>
+            <span className="bg-[var(--c-black)] text-white rounded-xl px-4 py-2 text-2xl font-extrabold uppercase">
+              Planner
+            </span>
           </div>
-          <h1 className="text-2xl font-bold text-[var(--color-text)]">
-            Family Planner
-          </h1>
-          <p className="text-[var(--color-text-secondary)] mt-2">
+          <p className="text-sm font-bold uppercase text-[#999] tracking-wide">
             Войдите в свой аккаунт
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
-            <div className="flex items-center gap-2 bg-[var(--color-error)]/10 text-[var(--color-error)] text-sm rounded-xl p-4">
+            <div className="flex items-center gap-2 bg-[var(--c-coral)]/10 text-[var(--c-coral)] text-sm font-bold rounded-full px-5 py-3">
               <svg
                 width="18"
                 height="18"
@@ -88,7 +76,7 @@ export default function LoginPage() {
           <div>
             <label
               htmlFor="login"
-              className="block text-sm font-medium text-[var(--color-text)] mb-2"
+              className="block text-xs font-bold uppercase tracking-wide text-[#999] mb-2"
             >
               Логин
             </label>
@@ -101,10 +89,10 @@ export default function LoginPage() {
               placeholder="Введите логин"
               autoComplete="username"
               className={cn(
-                "w-full rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-3",
-                "text-[var(--color-text)] placeholder:text-[var(--color-text-muted)]",
-                "focus:border-[var(--color-primary)] focus:ring-4 focus:ring-[var(--color-primary)]/10",
-                "outline-none transition-all"
+                "w-full rounded-2xl border-2 border-[var(--c-black)] bg-white px-4 py-3",
+                "text-[var(--c-black)] placeholder:text-[#bbb] font-medium",
+                "focus:outline-none focus:ring-2 focus:ring-[var(--c-black)]/20 focus:border-[var(--c-black)]",
+                "transition-all"
               )}
             />
           </div>
@@ -112,7 +100,7 @@ export default function LoginPage() {
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-[var(--color-text)] mb-2"
+              className="block text-xs font-bold uppercase tracking-wide text-[#999] mb-2"
             >
               Пароль
             </label>
@@ -125,10 +113,10 @@ export default function LoginPage() {
               placeholder="Введите пароль"
               autoComplete="current-password"
               className={cn(
-                "w-full rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-3",
-                "text-[var(--color-text)] placeholder:text-[var(--color-text-muted)]",
-                "focus:border-[var(--color-primary)] focus:ring-4 focus:ring-[var(--color-primary)]/10",
-                "outline-none transition-all"
+                "w-full rounded-2xl border-2 border-[var(--c-black)] bg-white px-4 py-3",
+                "text-[var(--c-black)] placeholder:text-[#bbb] font-medium",
+                "focus:outline-none focus:ring-2 focus:ring-[var(--c-black)]/20 focus:border-[var(--c-black)]",
+                "transition-all"
               )}
             />
           </div>
@@ -137,20 +125,16 @@ export default function LoginPage() {
             type="submit"
             disabled={loading}
             className={cn(
-              "w-full bg-[var(--color-primary)] text-white font-semibold rounded-xl px-4 py-3.5",
-              "hover:bg-[var(--color-primary-dark)] active:scale-[0.98]",
-              "focus:ring-4 focus:ring-[var(--color-primary)]/20 focus:outline-none",
+              "w-full bg-[var(--c-black)] text-white font-bold uppercase rounded-full px-4 py-4",
+              "hover:opacity-90 active:scale-[0.98]",
+              "focus:ring-4 focus:ring-[var(--c-black)]/20 focus:outline-none",
               "transition-all disabled:opacity-50 disabled:cursor-not-allowed",
-              "flex items-center justify-center gap-2 cursor-pointer"
+              "flex items-center justify-center gap-2 cursor-pointer text-sm tracking-wide"
             )}
           >
             {loading ? (
               <>
-                <svg
-                  className="animate-spin h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
+                <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
                   <circle
                     className="opacity-25"
                     cx="12"
@@ -175,7 +159,7 @@ export default function LoginPage() {
       </div>
 
       {/* Footer */}
-      <p className="text-center text-sm text-[var(--color-text-muted)] mt-6">
+      <p className="text-center text-xs font-bold uppercase text-[#999] mt-6 tracking-wide">
         Семейный планировщик для организации событий и задач
       </p>
     </div>

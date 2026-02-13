@@ -58,25 +58,20 @@ export default function EventsPage() {
   return (
     <div className="p-4 md:p-6 space-y-4">
       {/* Page title */}
-      <h1 className="text-2xl font-bold text-gray-900">События</h1>
+      <h1 className="text-3xl font-extrabold uppercase tracking-tight text-[var(--c-black)]">
+        <span className="bg-[var(--c-mint)] px-4 py-1 rounded-xl inline-block">События</span>
+      </h1>
 
       {/* Filter bar */}
-      <FilterBar
-        filters={filters}
-        onFiltersChange={setFilters}
-        categories={categories}
-      />
+      <FilterBar filters={filters} onFiltersChange={setFilters} categories={categories} />
 
       {/* Loading state */}
       {isLoading ? (
         <div className="flex items-center justify-center py-16">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-indigo-600" />
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--c-gray)] border-t-[var(--c-lavender)]" />
         </div>
       ) : (
-        <EventList
-          events={events}
-          onEventClick={handleEventClick}
-        />
+        <EventList events={events} onEventClick={handleEventClick} />
       )}
 
       {/* Quick add menu */}

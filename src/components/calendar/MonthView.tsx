@@ -24,20 +24,13 @@ interface MonthViewProps {
 }
 
 const DAY_NAMES = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
-
 const MAX_VISIBLE_EVENTS = 2;
 
-export function MonthView({
-  currentDate,
-  events,
-  onDateClick,
-  onEventClick,
-}: MonthViewProps) {
+export function MonthView({ currentDate, events, onDateClick, onEventClick }: MonthViewProps) {
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
   const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 });
   const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
-
   const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
 
   function getEventsForDay(day: Date): CalendarItem[] {
@@ -55,10 +48,8 @@ export function MonthView({
           <div
             key={name}
             className={cn(
-              "py-3 text-center text-xs font-semibold uppercase tracking-wider",
-              idx >= 5
-                ? "text-[var(--color-accent)]"
-                : "text-[var(--color-text-muted)]"
+              "py-3 text-center text-xs font-bold uppercase tracking-wider",
+              idx >= 5 ? "text-[var(--c-coral)]" : "text-[#999]"
             )}
           >
             {name}
@@ -79,19 +70,19 @@ export function MonthView({
               key={day.toISOString()}
               onClick={() => onDateClick(day)}
               className={cn(
-                "min-h-[80px] cursor-pointer rounded-xl p-2 transition-all sm:min-h-[100px]",
-                "hover:bg-[var(--color-primary-50)] hover:ring-1 hover:ring-[var(--color-primary)]/20",
-                !inCurrentMonth && "opacity-40",
-                inCurrentMonth && "bg-[var(--color-bg-card)]",
-                today && "ring-2 ring-[var(--color-primary)] bg-[var(--color-primary-50)]"
+                "min-h-[80px] cursor-pointer rounded-2xl p-2 transition-all sm:min-h-[100px]",
+                "hover:bg-[var(--c-gray)]",
+                !inCurrentMonth && "opacity-30",
+                inCurrentMonth && "bg-white",
+                today && "bg-[var(--c-yellow)]"
               )}
             >
               <div
                 className={cn(
-                  "mb-1 flex h-7 w-7 items-center justify-center rounded-lg text-sm font-semibold",
-                  today && "bg-[var(--color-primary)] text-white",
-                  !today && inCurrentMonth && "text-[var(--color-text)]",
-                  !inCurrentMonth && "text-[var(--color-text-muted)]"
+                  "mb-1 flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold",
+                  today && "bg-[var(--c-black)] text-white",
+                  !today && inCurrentMonth && "text-[var(--c-black)]",
+                  !inCurrentMonth && "text-[#ccc]"
                 )}
               >
                 {format(day, "d")}
@@ -99,16 +90,10 @@ export function MonthView({
 
               <div className="space-y-1">
                 {dayEvents.slice(0, MAX_VISIBLE_EVENTS).map((event) => (
-                  <EventChip
-                    key={event.id}
-                    event={event}
-                    onClick={() => onEventClick(event)}
-                  />
+                  <EventChip key={event.id} event={event} onClick={() => onEventClick(event)} />
                 ))}
                 {extraCount > 0 && (
-                  <div className="px-1 text-xs font-medium text-[var(--color-primary)]">
-                    +{extraCount} ещё
-                  </div>
+                  <div className="px-1 text-xs font-bold text-[var(--c-black)]">+{extraCount}</div>
                 )}
               </div>
             </div>

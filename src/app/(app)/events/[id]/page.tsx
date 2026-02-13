@@ -74,7 +74,7 @@ export default function EventDetailPage() {
       const sameDay = format(start, "yyyy-MM-dd") === format(end, "yyyy-MM-dd");
 
       if (!sameDay) {
-        return `${format(start, "d MMMM yyyy", { locale: ru })} \u2013 ${format(end, "d MMMM yyyy", { locale: ru })}`;
+        return `${format(start, "d MMMM yyyy", { locale: ru })} – ${format(end, "d MMMM yyyy", { locale: ru })}`;
       }
     }
 
@@ -84,7 +84,7 @@ export default function EventDetailPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[var(--color-border)] border-t-[var(--color-primary)]" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[var(--c-gray)] border-t-[var(--c-lavender)]" />
       </div>
     );
   }
@@ -92,11 +92,11 @@ export default function EventDetailPage() {
   if (!event) {
     return (
       <div className="p-4 md:p-6 text-center py-24">
-        <p className="text-[var(--color-text-muted)]">Событие не найдено</p>
+        <p className="text-sm font-bold uppercase text-[#999]">Событие не найдено</p>
         <button
           type="button"
           onClick={() => router.push("/events")}
-          className="mt-4 text-sm text-[var(--color-primary)] hover:underline"
+          className="mt-4 text-sm font-bold uppercase text-[var(--c-black)] hover:underline cursor-pointer"
         >
           Вернуться к списку
         </button>
@@ -117,7 +117,7 @@ export default function EventDetailPage() {
       <button
         type="button"
         onClick={() => router.push("/events")}
-        className="flex items-center gap-1 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"
+        className="flex items-center gap-1 text-sm font-bold uppercase text-[#999] hover:text-[var(--c-black)] transition-colors cursor-pointer"
       >
         <svg
           className="h-4 w-4"
@@ -133,31 +133,27 @@ export default function EventDetailPage() {
 
       {/* Header card */}
       <div
-        className="bg-[var(--color-bg-card)] rounded-lg shadow-sm border border-[var(--color-border)] border-l-4 p-6"
-        style={{ borderLeftColor: event.category?.color ?? "#9ca3af" }}
+        className="rounded-3xl p-6"
+        style={{ backgroundColor: event.category?.color ?? "var(--c-coral)" }}
       >
         {/* Title + actions */}
         <div className="flex items-start justify-between gap-4">
-          <h1 className="text-xl font-bold text-[var(--color-text)]">{event.title}</h1>
+          <h1 className="text-2xl font-extrabold uppercase tracking-tight text-white">
+            {event.title}
+          </h1>
 
           <div className="flex items-center gap-2 shrink-0">
             <button
               type="button"
               onClick={() => setIsFormOpen(true)}
-              className={cn(
-                "rounded-md px-3 py-1.5 text-sm font-medium",
-                "text-[var(--color-primary)] bg-[var(--color-primary)]/10 hover:bg-[var(--color-primary)]/20 transition-colors"
-              )}
+              className="rounded-full px-4 py-2 text-xs font-bold uppercase text-white bg-white/20 hover:bg-white/30 transition-all cursor-pointer"
             >
               Редактировать
             </button>
             <button
               type="button"
               onClick={() => setShowDeleteConfirm(true)}
-              className={cn(
-                "rounded-md px-3 py-1.5 text-sm font-medium",
-                "text-[var(--color-error)] bg-[var(--color-error)]/10 hover:bg-[var(--color-error)]/20 transition-colors"
-              )}
+              className="rounded-full px-4 py-2 text-xs font-bold uppercase text-white bg-white/20 hover:bg-[var(--c-coral)] transition-all cursor-pointer"
             >
               Удалить
             </button>
@@ -167,19 +163,16 @@ export default function EventDetailPage() {
         {/* Category badge */}
         {event.category && (
           <div className="mt-3">
-            <span
-              className="inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium text-white"
-              style={{ backgroundColor: event.category.color }}
-            >
+            <span className="bg-[var(--c-black)] text-white rounded-full px-3 py-1 text-[10px] font-bold uppercase">
               {event.category.name}
             </span>
           </div>
         )}
 
         {/* Date */}
-        <div className="mt-4 flex items-center gap-2 text-sm text-[var(--color-text-secondary)]">
+        <div className="mt-4 flex items-center gap-2 text-sm text-white/80 font-bold">
           <svg
-            className="h-4 w-4 text-[var(--color-text-muted)]"
+            className="h-4 w-4"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={1.5}
@@ -196,9 +189,9 @@ export default function EventDetailPage() {
 
         {/* Location */}
         {event.location && (
-          <div className="mt-2 flex items-center gap-2 text-sm text-[var(--color-text-secondary)]">
+          <div className="mt-2 flex items-center gap-2 text-sm text-white/80 font-bold">
             <svg
-              className="h-4 w-4 text-[var(--color-text-muted)]"
+              className="h-4 w-4"
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth={1.5}
@@ -218,84 +211,80 @@ export default function EventDetailPage() {
             {event.location}
           </div>
         )}
+      </div>
 
-        {/* Description */}
-        {event.description && (
-          <div className="mt-4 pt-4 border-t border-[var(--color-border)]">
-            <h2 className="text-sm font-medium text-[var(--color-text)] mb-1">Описание</h2>
-            <p className="text-sm text-[var(--color-text-secondary)] whitespace-pre-wrap">
-              {event.description}
-            </p>
+      {/* Description */}
+      {event.description && (
+        <div className="bg-[var(--c-gray)] rounded-3xl p-5">
+          <h2 className="text-xs font-bold uppercase text-[#999] mb-2">Описание</h2>
+          <p className="text-sm text-[var(--c-black)] whitespace-pre-wrap">{event.description}</p>
+        </div>
+      )}
+
+      {/* Creator */}
+      <div className="bg-[var(--c-gray)] rounded-3xl p-5">
+        <h2 className="text-xs font-bold uppercase text-[#999] mb-3">Создатель</h2>
+        <div className="flex items-center gap-2">
+          <div
+            className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white"
+            style={{ backgroundColor: event.createdBy.avatarColor }}
+          >
+            {creatorInitials}
           </div>
-        )}
+          <span className="text-sm font-bold text-[var(--c-black)]">{event.createdBy.name}</span>
+        </div>
+      </div>
 
-        {/* Creator */}
-        <div className="mt-4 pt-4 border-t border-[var(--color-border)]">
-          <h2 className="text-sm font-medium text-[var(--color-text)] mb-2">Создатель</h2>
-          <div className="flex items-center gap-2">
-            <div
-              className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-medium text-white"
-              style={{ backgroundColor: event.createdBy.avatarColor }}
-            >
-              {creatorInitials}
-            </div>
-            <span className="text-sm text-[var(--color-text-secondary)]">
-              {event.createdBy.name}
-            </span>
+      {/* Assignees */}
+      {event.assignees.length > 0 && (
+        <div className="bg-[var(--c-gray)] rounded-3xl p-5">
+          <h2 className="text-xs font-bold uppercase text-[#999] mb-3">Участники</h2>
+          <div className="flex flex-wrap gap-2">
+            {event.assignees.map((assignee) => {
+              const initials = assignee.name
+                .split(" ")
+                .map((n) => n[0])
+                .join("")
+                .toUpperCase()
+                .slice(0, 2);
+
+              return (
+                <div
+                  key={assignee.id}
+                  className="flex items-center gap-2 rounded-full bg-white px-3 py-1.5"
+                >
+                  <div
+                    className="flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold text-white"
+                    style={{ backgroundColor: assignee.avatarColor }}
+                  >
+                    {initials}
+                  </div>
+                  <span className="text-sm font-bold text-[var(--c-black)]">{assignee.name}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
-
-        {/* Assignees */}
-        {event.assignees.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-[var(--color-border)]">
-            <h2 className="text-sm font-medium text-[var(--color-text)] mb-2">Участники</h2>
-            <div className="flex flex-wrap gap-2">
-              {event.assignees.map((assignee) => {
-                const initials = assignee.name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")
-                  .toUpperCase()
-                  .slice(0, 2);
-
-                return (
-                  <div
-                    key={assignee.id}
-                    className="flex items-center gap-2 rounded-full bg-[var(--color-border-light)] px-3 py-1"
-                  >
-                    <div
-                      className="flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-medium text-white"
-                      style={{ backgroundColor: assignee.avatarColor }}
-                    >
-                      {initials}
-                    </div>
-                    <span className="text-sm text-[var(--color-text)]">{assignee.name}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-      </div>
+      )}
 
       {/* Delete confirmation dialog */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div
-            className="absolute inset-0 bg-black/40"
+            className="absolute inset-0 bg-black/50"
             onClick={() => setShowDeleteConfirm(false)}
           />
-          <div className="relative z-10 w-full max-w-sm rounded-lg bg-[var(--color-bg-card)] p-6 shadow-xl mx-4 border border-[var(--color-border)]">
-            <h3 className="text-lg font-semibold text-[var(--color-text)]">Удалить событие?</h3>
-            <p className="mt-2 text-sm text-[var(--color-text-muted)]">
+          <div className="relative z-10 w-full max-w-sm rounded-3xl bg-white p-6 shadow-xl mx-4">
+            <h3 className="text-lg font-bold uppercase text-[var(--c-black)]">Удалить событие?</h3>
+            <p className="mt-2 text-sm text-[#666]">
               Это действие нельзя отменить. Событие &laquo;{event.title}&raquo; будет удалено
               навсегда.
             </p>
-            <div className="mt-4 flex items-center justify-end gap-2">
+            <div className="mt-4 flex items-center justify-end gap-3">
               <button
                 type="button"
                 onClick={() => setShowDeleteConfirm(false)}
-                className="rounded-md px-4 py-2 text-sm font-medium text-[var(--color-text)] bg-[var(--color-bg-card)] border border-[var(--color-border)] hover:bg-[var(--color-border-light)]"
+                className="rounded-full border-2 border-[var(--c-black)] px-5 py-2.5 text-sm font-bold uppercase text-[var(--c-black)] hover:bg-[var(--c-black)]/5 transition-all cursor-pointer"
               >
                 Отмена
               </button>
@@ -304,7 +293,7 @@ export default function EventDetailPage() {
                 onClick={handleDelete}
                 disabled={isDeleting}
                 className={cn(
-                  "rounded-md px-4 py-2 text-sm font-medium text-white bg-[var(--color-error)] hover:opacity-90",
+                  "rounded-full px-5 py-2.5 text-sm font-bold uppercase text-white bg-[var(--c-coral)] hover:opacity-80 transition-all cursor-pointer",
                   "disabled:opacity-50 disabled:cursor-not-allowed"
                 )}
               >

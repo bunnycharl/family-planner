@@ -34,9 +34,9 @@ interface TaskCardProps {
 }
 
 const PRIORITY_STYLES: Record<string, { bg: string; text: string; label: string }> = {
-  HIGH: { bg: "bg-red-100", text: "text-red-700", label: "Высокий" },
-  MEDIUM: { bg: "bg-amber-100", text: "text-amber-700", label: "Средний" },
-  LOW: { bg: "bg-emerald-100", text: "text-emerald-700", label: "Низкий" },
+  HIGH: { bg: "bg-[var(--c-coral)]", text: "text-white", label: "Высокий" },
+  MEDIUM: { bg: "bg-[var(--c-yellow)]", text: "text-[var(--c-black)]", label: "Средний" },
+  LOW: { bg: "bg-[var(--c-mint)]", text: "text-[var(--c-black)]", label: "Низкий" },
 };
 
 export function TaskCard({ task, onClick, index }: TaskCardProps) {
@@ -60,16 +60,16 @@ export function TaskCard({ task, onClick, index }: TaskCardProps) {
           {...provided.dragHandleProps}
           onClick={() => onClick(task)}
           className={cn(
-            "rounded-xl bg-[var(--color-bg-card)] p-4 shadow-sm border border-[var(--color-border)]",
-            "cursor-grab transition-all hover:shadow-md hover:border-[var(--color-primary)]/30",
-            snapshot.isDragging && "shadow-xl ring-2 ring-[var(--color-primary)] rotate-2 scale-105"
+            "rounded-3xl bg-white p-4",
+            "cursor-grab transition-all hover:-translate-y-1",
+            snapshot.isDragging && "shadow-xl ring-2 ring-[var(--c-lavender)] rotate-2 scale-105"
           )}
         >
           {/* Priority badge */}
           <div className="mb-2 flex items-center gap-2">
             <span
               className={cn(
-                "inline-flex items-center rounded-lg px-2 py-1 text-[10px] font-bold uppercase tracking-wide",
+                "inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase",
                 priorityStyle.bg,
                 priorityStyle.text
               )}
@@ -79,23 +79,21 @@ export function TaskCard({ task, onClick, index }: TaskCardProps) {
           </div>
 
           {/* Title */}
-          <h4 className="text-sm font-semibold text-[var(--color-text)] line-clamp-2 mb-2">
+          <h4 className="text-sm font-bold text-[var(--c-black)] line-clamp-2 mb-2">
             {task.title}
           </h4>
 
           {/* Description preview */}
           {task.description && (
-            <p className="text-xs text-[var(--color-text-muted)] line-clamp-2 mb-3">
-              {task.description}
-            </p>
+            <p className="text-xs text-[#999] line-clamp-2 mb-3">{task.description}</p>
           )}
 
           {/* Bottom row: meta info */}
-          <div className="flex items-center justify-between pt-2 border-t border-[var(--color-border-light)]">
+          <div className="flex items-center justify-between pt-2">
             <div className="flex items-center gap-2 flex-wrap">
               {/* Due date */}
               {task.dueDate && (
-                <span className="inline-flex items-center gap-1 text-xs text-[var(--color-text-secondary)]">
+                <span className="inline-flex items-center gap-1 text-xs font-bold text-[#666]">
                   <svg
                     className="h-3.5 w-3.5"
                     fill="none"
@@ -111,10 +109,7 @@ export function TaskCard({ task, onClick, index }: TaskCardProps) {
 
               {/* Category badge */}
               {task.category && (
-                <span
-                  className="inline-flex rounded-lg px-2 py-0.5 text-[10px] font-semibold text-white"
-                  style={{ backgroundColor: task.category.color }}
-                >
+                <span className="bg-[var(--c-black)] text-white rounded-full px-2 py-0.5 text-[10px] font-bold uppercase">
                   {task.category.name}
                 </span>
               )}
@@ -123,7 +118,7 @@ export function TaskCard({ task, onClick, index }: TaskCardProps) {
             {/* Assignee avatar */}
             {initials && task.assignee && (
               <div
-                className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white shadow-sm"
+                className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white"
                 style={{ backgroundColor: task.assignee.avatarColor }}
                 title={task.assignee.name}
               >

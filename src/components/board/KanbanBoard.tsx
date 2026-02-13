@@ -81,7 +81,6 @@ export function KanbanBoard() {
 
       // Apply sorting
       if (sortByDate === "asc") {
-        // Ближайшие сначала (asc) - задачи без даты в конце
         columnTasks = [...columnTasks].sort((a, b) => {
           if (!a.dueDate && !b.dueDate) return a.position - b.position;
           if (!a.dueDate) return 1;
@@ -89,7 +88,6 @@ export function KanbanBoard() {
           return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
         });
       } else if (sortByDate === "desc") {
-        // Дальние сначала (desc)
         columnTasks = [...columnTasks].sort((a, b) => {
           if (!a.dueDate && !b.dueDate) return a.position - b.position;
           if (!a.dueDate) return 1;
@@ -97,7 +95,6 @@ export function KanbanBoard() {
           return new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime();
         });
       } else {
-        // Default: sort by position
         columnTasks = [...columnTasks].sort((a, b) => a.position - b.position);
       }
 
@@ -148,7 +145,6 @@ export function KanbanBoard() {
         return t;
       });
 
-      // Reorder tasks in the destination column
       const destColumnTasks = updatedTasks
         .filter((t) => t.status === newStatus && t.id !== draggableId)
         .sort((a, b) => a.position - b.position);
@@ -163,7 +159,6 @@ export function KanbanBoard() {
         position: i,
       }));
 
-      // If source column is different, also reorder source column
       const sourceStatus = source.droppableId as "TODO" | "IN_PROGRESS" | "DONE";
       let finalTasks: Task[];
 
@@ -212,7 +207,7 @@ export function KanbanBoard() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--color-border)] border-t-[var(--color-primary)]" />
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--c-gray)] border-t-[var(--c-lavender)]" />
       </div>
     );
   }
@@ -227,14 +222,14 @@ export function KanbanBoard() {
             type="button"
             onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
             className={cn(
-              "flex items-center gap-2 rounded-xl border-2 px-3 py-2 text-sm transition-all cursor-pointer",
+              "flex items-center gap-2 rounded-full border-2 px-4 py-2 text-sm font-bold uppercase transition-all cursor-pointer",
               categoryFilter
-                ? "border-[var(--color-primary)] bg-[var(--color-primary-50)]"
-                : "border-[var(--color-border)] bg-[var(--color-bg-card)]"
+                ? "border-[var(--c-black)] bg-[var(--c-yellow)]"
+                : "border-[var(--c-black)] bg-white"
             )}
           >
             <svg
-              className="h-4 w-4 text-[var(--color-text-muted)]"
+              className="h-4 w-4 text-[var(--c-black)]"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -252,14 +247,14 @@ export function KanbanBoard() {
                   className="h-2.5 w-2.5 rounded-full"
                   style={{ backgroundColor: selectedCategory.color }}
                 />
-                <span className="text-[var(--color-text)]">{selectedCategory.name}</span>
+                <span className="text-[var(--c-black)]">{selectedCategory.name}</span>
               </span>
             ) : (
-              <span className="text-[var(--color-text-muted)]">Категория</span>
+              <span className="text-[var(--c-black)]">Категория</span>
             )}
             <svg
               className={cn(
-                "h-4 w-4 text-[var(--color-text-muted)] transition-transform",
+                "h-4 w-4 text-[var(--c-black)] transition-transform",
                 categoryDropdownOpen && "rotate-180"
               )}
               fill="none"
@@ -276,7 +271,7 @@ export function KanbanBoard() {
           </button>
 
           {categoryDropdownOpen && (
-            <div className="absolute left-0 top-full z-50 mt-2 min-w-[180px] rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg-card)] shadow-lg">
+            <div className="absolute left-0 top-full z-50 mt-2 min-w-[180px] rounded-2xl border-2 border-[var(--c-black)] bg-white shadow-lg">
               <button
                 type="button"
                 onClick={() => {
@@ -284,15 +279,15 @@ export function KanbanBoard() {
                   setCategoryDropdownOpen(false);
                 }}
                 className={cn(
-                  "flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm transition-colors cursor-pointer",
+                  "flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-bold transition-colors cursor-pointer rounded-t-2xl",
                   !categoryFilter
-                    ? "bg-[var(--color-primary-50)] text-[var(--color-primary)] font-semibold"
-                    : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)]"
+                    ? "bg-[var(--c-yellow)] text-[var(--c-black)]"
+                    : "text-[#666] hover:bg-[var(--c-gray)]"
                 )}
               >
                 Все категории
               </button>
-              {categories.map((cat: { id: string; name: string; color: string }) => (
+              {categories.map((cat: { id: string; name: string; color: string }, idx: number) => (
                 <button
                   key={cat.id}
                   type="button"
@@ -301,10 +296,11 @@ export function KanbanBoard() {
                     setCategoryDropdownOpen(false);
                   }}
                   className={cn(
-                    "flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm transition-colors cursor-pointer",
+                    "flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-bold transition-colors cursor-pointer",
                     categoryFilter === cat.id
-                      ? "bg-[var(--color-primary-50)] text-[var(--color-primary)] font-semibold"
-                      : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)]"
+                      ? "bg-[var(--c-yellow)] text-[var(--c-black)]"
+                      : "text-[#666] hover:bg-[var(--c-gray)]",
+                    idx === categories.length - 1 && "rounded-b-2xl"
                   )}
                 >
                   <span className="h-3 w-3 rounded-full" style={{ backgroundColor: cat.color }} />
@@ -324,14 +320,14 @@ export function KanbanBoard() {
             else setSortByDate("none");
           }}
           className={cn(
-            "flex items-center gap-2 rounded-xl border-2 px-3 py-2 text-sm transition-all cursor-pointer",
+            "flex items-center gap-2 rounded-full border-2 px-4 py-2 text-sm font-bold uppercase transition-all cursor-pointer",
             sortByDate !== "none"
-              ? "border-[var(--color-primary)] bg-[var(--color-primary-50)]"
-              : "border-[var(--color-border)] bg-[var(--color-bg-card)]"
+              ? "border-[var(--c-black)] bg-[var(--c-yellow)]"
+              : "border-[var(--c-black)] bg-white"
           )}
         >
           <svg
-            className="h-4 w-4 text-[var(--color-text-muted)]"
+            className="h-4 w-4 text-[var(--c-black)]"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -343,21 +339,14 @@ export function KanbanBoard() {
               d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
             />
           </svg>
-          <span
-            className={
-              sortByDate !== "none" ? "text-[var(--color-text)]" : "text-[var(--color-text-muted)]"
-            }
-          >
+          <span className="text-[var(--c-black)]">
             {sortByDate === "none" && "По дате"}
             {sortByDate === "asc" && "Ближайшие"}
             {sortByDate === "desc" && "Дальние"}
           </span>
           {sortByDate !== "none" && (
             <svg
-              className={cn(
-                "h-4 w-4 text-[var(--color-primary)]",
-                sortByDate === "desc" && "rotate-180"
-              )}
+              className={cn("h-4 w-4 text-[var(--c-black)]", sortByDate === "desc" && "rotate-180")}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -376,7 +365,7 @@ export function KanbanBoard() {
               setCategoryFilter(null);
               setSortByDate("none");
             }}
-            className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-error)] hover:bg-[var(--color-error)]/10 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold uppercase text-[var(--c-coral)] hover:bg-[var(--c-coral)]/10 transition-all cursor-pointer"
           >
             <svg
               className="h-4 w-4"

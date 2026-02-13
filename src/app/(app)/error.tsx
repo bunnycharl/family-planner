@@ -10,9 +10,9 @@ export default function AppError({
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center px-4">
       <div className="text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-error)]/10">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--c-coral)]">
           <svg
-            className="h-8 w-8 text-[var(--color-error)]"
+            className="h-8 w-8 text-white"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -25,16 +25,14 @@ export default function AppError({
             />
           </svg>
         </div>
-        <h2 className="mb-2 text-xl font-semibold text-[var(--color-text)]">Произошла ошибка</h2>
-        <p className="mb-6 text-[var(--color-text-secondary)]">
+        <h2 className="mb-2 text-xl font-bold uppercase text-[var(--c-black)]">Произошла ошибка</h2>
+        <p className="mb-6 text-sm text-[#666]">
           Не удалось загрузить страницу. Попробуйте ещё раз.
         </p>
-        {error.digest && (
-          <p className="mb-4 text-xs text-[var(--color-text-muted)]">Код: {error.digest}</p>
-        )}
+        {error.digest && <p className="mb-4 text-xs text-[#999]">Код: {error.digest}</p>}
         <button
           onClick={reset}
-          className="rounded-xl bg-[var(--color-primary)] px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-[var(--color-primary-dark)] cursor-pointer"
+          className="rounded-full bg-[var(--c-black)] px-6 py-3 text-sm font-bold uppercase text-white transition-all hover:opacity-80 cursor-pointer"
         >
           Попробовать снова
         </button>

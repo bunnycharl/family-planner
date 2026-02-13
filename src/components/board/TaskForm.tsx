@@ -39,7 +39,6 @@ const PRIORITY_OPTIONS = [
   { value: "HIGH", label: "Высокий" },
 ] as const;
 
-
 // Reusable custom dropdown
 function CustomSelect({
   label,
@@ -73,18 +72,12 @@ function CustomSelect({
 
   return (
     <div>
-      <span className="mb-1.5 block text-xs font-medium text-[var(--color-text-muted)]">
-        {label}
-      </span>
+      <span className="mb-1.5 block text-xs font-bold uppercase text-[#999]">{label}</span>
       <div className="relative" ref={ref}>
         <button
           type="button"
           onClick={() => setOpen(!open)}
-          className={cn(
-            "flex w-full items-center justify-between rounded-xl border-2 border-[var(--color-border)] px-4 py-2.5 text-sm",
-            "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]",
-            "bg-[var(--color-bg)] text-left transition-all cursor-pointer"
-          )}
+          className="flex w-full items-center justify-between rounded-2xl border-2 border-[var(--c-black)] px-4 py-2.5 text-sm bg-white text-left transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--c-lavender)]/30"
         >
           <span className="flex items-center gap-2 truncate">
             {selected ? (
@@ -95,34 +88,27 @@ function CustomSelect({
                     style={{ backgroundColor: selected.color }}
                   />
                 )}
-                <span className="text-[var(--color-text)]">{selected.label}</span>
+                <span className="text-[var(--c-black)]">{selected.label}</span>
               </>
             ) : (
-              <span className="text-[var(--color-text-muted)]">
-                {placeholder || "Выбрать..."}
-              </span>
+              <span className="text-[#999]">{placeholder || "Выбрать..."}</span>
             )}
           </span>
           <svg
             className={cn(
-              "h-4 w-4 shrink-0 text-[var(--color-text-muted)] transition-transform",
+              "h-4 w-4 shrink-0 text-[#999] transition-transform",
               open && "rotate-180"
             )}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
         </button>
 
         {open && (
-          <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-56 overflow-y-auto rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg-card)] shadow-lg">
+          <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-56 overflow-y-auto rounded-2xl border-2 border-[var(--c-black)] bg-white shadow-lg">
             {options.map((opt) => (
               <button
                 key={opt.value}
@@ -134,8 +120,8 @@ function CustomSelect({
                 className={cn(
                   "flex w-full items-center gap-3 px-4 py-3 text-left text-sm transition-colors cursor-pointer",
                   value === opt.value
-                    ? "bg-[var(--color-primary-50)] text-[var(--color-primary)] font-semibold"
-                    : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)]"
+                    ? "bg-[var(--c-yellow)] text-[var(--c-black)] font-bold"
+                    : "text-[#666] hover:bg-[var(--c-gray)]"
                 )}
               >
                 {opt.color && (
@@ -154,13 +140,7 @@ function CustomSelect({
   );
 }
 
-export function TaskForm({
-  isOpen,
-  onClose,
-  task,
-  defaultStatus,
-  onSave,
-}: TaskFormProps) {
+export function TaskForm({ isOpen, onClose, task, defaultStatus, onSave }: TaskFormProps) {
   const { categories } = useCategories();
   const { data: users = [] } = useSWR<{ id: string; name: string }[]>("/api/users", fetcher);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -169,10 +149,8 @@ export function TaskForm({
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [status, setStatus] =
-    useState<"TODO" | "IN_PROGRESS" | "DONE">("TODO");
-  const [priority, setPriority] =
-    useState<"LOW" | "MEDIUM" | "HIGH">("MEDIUM");
+  const [status, setStatus] = useState<"TODO" | "IN_PROGRESS" | "DONE">("TODO");
+  const [priority, setPriority] = useState<"LOW" | "MEDIUM" | "HIGH">("MEDIUM");
   const [dueDate, setDueDate] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [assigneeId, setAssigneeId] = useState("");
@@ -184,11 +162,7 @@ export function TaskForm({
         setDescription(task.description ?? "");
         setStatus(task.status);
         setPriority(task.priority);
-        setDueDate(
-          task.dueDate
-            ? new Date(task.dueDate).toISOString().split("T")[0]
-            : ""
-        );
+        setDueDate(task.dueDate ? new Date(task.dueDate).toISOString().split("T")[0] : "");
         setCategoryId(task.categoryId ?? "");
         setAssigneeId(task.assigneeId ?? "");
       } else {
@@ -277,13 +251,11 @@ export function TaskForm({
 
   const categoryOptions = [
     { value: "", label: "Без категории", color: "#9ca3af" },
-    ...categories.map(
-      (cat: { id: string; name: string; color: string }) => ({
-        value: cat.id,
-        label: cat.name,
-        color: cat.color,
-      })
-    ),
+    ...categories.map((cat: { id: string; name: string; color: string }) => ({
+      value: cat.id,
+      label: cat.name,
+      color: cat.color,
+    })),
   ];
 
   const assigneeOptions = [
@@ -294,21 +266,21 @@ export function TaskForm({
   return (
     <div className="fixed inset-0 z-[60]">
       {/* Overlay */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
 
       {/* Modal — full screen on mobile */}
       <div
         className={cn(
-          "absolute inset-0 z-10 bg-[var(--color-bg-card)] flex flex-col",
+          "absolute inset-0 z-10 bg-white flex flex-col",
           "md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2",
-          "md:max-w-lg md:w-full md:rounded-2xl md:shadow-xl md:max-h-[90vh] md:border md:border-[var(--color-border)]"
+          "md:max-w-lg md:w-full md:rounded-3xl md:shadow-xl md:max-h-[90vh]"
         )}
       >
         <form onSubmit={handleSubmit} className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-[var(--color-border)] px-4 py-3 shrink-0">
+          <div className="flex items-center justify-between px-4 py-3 shrink-0">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-primary)]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--c-mint)]">
                 <svg
                   width="20"
                   height="20"
@@ -323,16 +295,22 @@ export function TaskForm({
                   <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
                 </svg>
               </div>
-              <h2 className="text-lg font-bold text-[var(--color-text)]">
-                {isEditing ? "Редактировать задачу" : "Новая задача"}
+              <h2 className="text-lg font-extrabold uppercase text-[var(--c-black)]">
+                {isEditing ? "Редактировать" : "Новая задача"}
               </h2>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="flex h-9 w-9 items-center justify-center rounded-xl text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-text)] transition-all cursor-pointer"
+              className="flex h-9 w-9 items-center justify-center rounded-full text-[#999] hover:bg-[var(--c-gray)] hover:text-[var(--c-black)] transition-all cursor-pointer"
             >
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -342,8 +320,8 @@ export function TaskForm({
           <div className="flex-1 overflow-y-auto p-4 space-y-5">
             {/* Title */}
             <div>
-              <label className="block text-xs font-medium text-[var(--color-text-muted)] mb-1.5">
-                Название <span className="text-[var(--color-error)]">*</span>
+              <label className="block text-xs font-bold uppercase text-[#999] mb-1.5">
+                Название <span className="text-[var(--c-coral)]">*</span>
               </label>
               <input
                 type="text"
@@ -351,17 +329,13 @@ export function TaskForm({
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Название задачи"
                 required
-                className={cn(
-                  "w-full rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2.5 text-sm",
-                  "text-[var(--color-text)] placeholder:text-[var(--color-text-muted)]",
-                  "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]"
-                )}
+                className="w-full rounded-2xl border-2 border-[var(--c-black)] bg-white px-4 py-2.5 text-sm text-[var(--c-black)] placeholder:text-[#999] focus:outline-none focus:ring-2 focus:ring-[var(--c-lavender)]/30"
               />
             </div>
 
             {/* Description */}
             <div>
-              <label className="block text-xs font-medium text-[var(--color-text-muted)] mb-1.5">
+              <label className="block text-xs font-bold uppercase text-[#999] mb-1.5">
                 Описание
               </label>
               <textarea
@@ -369,11 +343,7 @@ export function TaskForm({
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Описание задачи"
                 rows={3}
-                className={cn(
-                  "w-full resize-none rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2.5 text-sm",
-                  "text-[var(--color-text)] placeholder:text-[var(--color-text-muted)]",
-                  "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]"
-                )}
+                className="w-full resize-none rounded-2xl border-2 border-[var(--c-black)] bg-white px-4 py-2.5 text-sm text-[var(--c-black)] placeholder:text-[#999] focus:outline-none focus:ring-2 focus:ring-[var(--c-lavender)]/30"
               />
             </div>
 
@@ -386,9 +356,7 @@ export function TaskForm({
                   value: o.value,
                   label: o.label,
                 }))}
-                onChange={(v) =>
-                  setStatus(v as "TODO" | "IN_PROGRESS" | "DONE")
-                }
+                onChange={(v) => setStatus(v as "TODO" | "IN_PROGRESS" | "DONE")}
               />
               <CustomSelect
                 label="Приоритет"
@@ -403,19 +371,12 @@ export function TaskForm({
 
             {/* Due Date */}
             <div>
-              <label className="block text-xs font-medium text-[var(--color-text-muted)] mb-1.5">
-                Срок
-              </label>
+              <label className="block text-xs font-bold uppercase text-[#999] mb-1.5">Срок</label>
               <input
                 type="date"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                className={cn(
-                  "w-full rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2.5 text-sm",
-                  "text-[var(--color-text)]",
-                  "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]",
-                  "[&::-webkit-date-and-time-value]:text-left"
-                )}
+                className="w-full rounded-2xl border-2 border-[var(--c-black)] bg-white px-4 py-2.5 text-sm text-[var(--c-black)] focus:outline-none focus:ring-2 focus:ring-[var(--c-lavender)]/30 [&::-webkit-date-and-time-value]:text-left"
               />
             </div>
 
@@ -439,25 +400,25 @@ export function TaskForm({
           </div>
 
           {/* Footer — always visible */}
-          <div className="flex gap-3 p-4 pb-6 border-t border-[var(--color-border)] shrink-0 bg-[var(--color-bg-card)] md:pb-4">
+          <div className="flex gap-3 p-4 pb-6 shrink-0 bg-white md:pb-4">
             {isEditing && !showDeleteConfirm && (
               <button
                 type="button"
                 onClick={() => setShowDeleteConfirm(true)}
-                className="rounded-xl px-4 py-2.5 text-sm font-semibold text-[var(--color-error)] bg-[var(--color-bg-card)] border-2 border-[var(--color-error)]/30 hover:bg-[var(--color-error)]/10 transition-all cursor-pointer"
+                className="rounded-full px-4 py-2.5 text-sm font-bold uppercase text-[var(--c-coral)] border-2 border-[var(--c-coral)] hover:bg-[var(--c-coral)]/10 transition-all cursor-pointer"
               >
                 Удалить
               </button>
             )}
             {showDeleteConfirm ? (
               <>
-                <span className="flex-1 flex items-center text-sm font-medium text-[var(--color-error)]">
+                <span className="flex-1 flex items-center text-sm font-bold uppercase text-[var(--c-coral)]">
                   Удалить задачу?
                 </span>
                 <button
                   type="button"
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="rounded-xl px-4 py-2.5 text-sm font-semibold text-[var(--color-text-secondary)] bg-[var(--color-bg)] border-2 border-[var(--color-border)] hover:bg-[var(--color-border-light)] transition-all cursor-pointer"
+                  className="rounded-full border-2 border-[var(--c-black)] px-5 py-2.5 text-sm font-bold uppercase text-[var(--c-black)] hover:bg-[var(--c-gray)] transition-all cursor-pointer"
                 >
                   Отмена
                 </button>
@@ -466,8 +427,8 @@ export function TaskForm({
                   onClick={handleDelete}
                   disabled={isDeleting}
                   className={cn(
-                    "rounded-xl px-4 py-2.5 text-sm font-semibold text-white",
-                    "bg-[var(--color-error)] hover:bg-red-700 transition-all cursor-pointer",
+                    "rounded-full px-5 py-2.5 text-sm font-bold uppercase text-white",
+                    "bg-[var(--c-coral)] hover:opacity-80 transition-all cursor-pointer",
                     "disabled:cursor-not-allowed disabled:opacity-50"
                   )}
                 >
@@ -480,7 +441,7 @@ export function TaskForm({
                   type="button"
                   onClick={onClose}
                   className={cn(
-                    "rounded-xl px-4 py-2.5 text-sm font-semibold text-[var(--color-text-secondary)] bg-[var(--color-bg)] border-2 border-[var(--color-border)] hover:bg-[var(--color-border-light)] transition-all cursor-pointer",
+                    "rounded-full border-2 border-[var(--c-black)] px-5 py-2.5 text-sm font-bold uppercase text-[var(--c-black)] hover:bg-[var(--c-gray)] transition-all cursor-pointer",
                     !isEditing && "flex-1"
                   )}
                 >
@@ -490,16 +451,12 @@ export function TaskForm({
                   type="submit"
                   disabled={isSubmitting}
                   className={cn(
-                    "flex-1 rounded-xl px-5 py-2.5 text-sm font-semibold text-white",
-                    "bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] transition-all cursor-pointer",
+                    "flex-1 rounded-full px-6 py-2.5 text-sm font-bold uppercase text-white",
+                    "bg-[var(--c-black)] hover:opacity-80 transition-all cursor-pointer",
                     "disabled:cursor-not-allowed disabled:opacity-50"
                   )}
                 >
-                  {isSubmitting
-                    ? "Сохранение..."
-                    : isEditing
-                      ? "Сохранить"
-                      : "Создать"}
+                  {isSubmitting ? "Сохранение..." : isEditing ? "Сохранить" : "Создать"}
                 </button>
               </>
             )}

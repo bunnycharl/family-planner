@@ -28,57 +28,45 @@ export function Header() {
         .slice(0, 2)
     : "?";
 
-  const avatarColor = session?.user?.avatarColor || "#0D9488";
+  const avatarColor = session?.user?.avatarColor || "#FF6B6B";
 
   return (
-    <header className="flex h-14 items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-bg-card)]/95 backdrop-blur-sm px-4 md:hidden">
-      {/* Logo */}
-      <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--color-primary)]">
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="white"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-            <polyline points="9 22 9 12 15 12 15 22" />
-          </svg>
-        </div>
-        <span className="text-base font-bold text-[var(--color-primary)]">Family Planner</span>
+    <header className="flex h-14 items-center justify-between bg-white px-4 md:hidden">
+      {/* Brand — sticker style */}
+      <div className="flex items-center gap-1">
+        <span className="bg-[var(--c-black)] text-white px-3 py-1 rounded-lg text-sm font-extrabold uppercase">
+          Family
+        </span>
+        <span className="bg-[var(--c-black)] text-white px-3 py-1 rounded-lg text-sm font-extrabold uppercase">
+          Planner
+        </span>
       </div>
 
       {/* User dropdown */}
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white shadow-sm transition-transform active:scale-95 cursor-pointer"
+          className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold text-white transition-transform active:scale-95 cursor-pointer"
           style={{ backgroundColor: avatarColor }}
         >
           {initials}
         </button>
 
         {isOpen && (
-          <div className="absolute right-0 top-12 z-50 w-52 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] py-2 shadow-lg">
+          <div className="absolute right-0 top-12 z-50 w-52 rounded-3xl bg-white py-2 shadow-xl">
             {session?.user?.name && (
-              <div className="border-b border-[var(--color-border)] px-4 py-3">
-                <p className="text-sm font-semibold text-[var(--color-text)]">
+              <div className="px-4 py-3 border-b border-[var(--c-gray)]">
+                <p className="text-sm font-bold uppercase text-[var(--c-black)]">
                   {session.user.name}
                 </p>
-                <p className="text-xs text-[var(--color-text-muted)]">
-                  {session.user.email || "Пользователь"}
-                </p>
+                <p className="text-xs text-[#999]">{session.user.email || "Пользователь"}</p>
               </div>
             )}
             <button
               onClick={() => signOut({ callbackUrl: "/login" })}
               className={cn(
-                "flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium cursor-pointer",
-                "text-[var(--color-error)] hover:bg-[var(--color-border-light)] transition-colors"
+                "flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-bold uppercase cursor-pointer",
+                "text-[var(--c-coral)] hover:bg-[var(--c-gray)] transition-colors"
               )}
             >
               <svg

@@ -1,136 +1,61 @@
 @import "tailwindcss";
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap");
 
 :root {
-  /* Primary palette - Teal focus */
-  --color-primary: #0d9488;
-  --color-primary-light: #14b8a6;
-  --color-primary-dark: #0f766e;
-  --color-primary-50: #f0fdfa;
-  --color-primary-100: #ccfbf1;
+  /* Accent palette — family-friendly bold */
+  --c-coral: #ff6b6b;
+  --c-mint: #45d9b4;
+  --c-lavender: #a78bfa;
+  --c-yellow: #ffd166;
+  --c-black: #000000;
+  --c-white: #ffffff;
+  --c-gray: #f4f4f4;
 
-  /* Secondary - Action orange */
-  --color-accent: #f97316;
-  --color-accent-light: #fb923c;
-  --color-accent-dark: #ea580c;
+  /* Semantic */
+  --c-error: #ef4444;
+  --c-success: #10b981;
 
-  /* Neutrals */
-  --color-bg: #f8fafc;
-  --color-bg-card: #ffffff;
-  --color-text: #134e4a;
-  --color-text-secondary: #5f7572;
-  --color-text-muted: #94a3b8;
-  --color-border: #e2e8f0;
-  --color-border-light: #f1f5f9;
+  /* Font */
+  --font-main: "Helvetica Neue", "Arial", sans-serif;
 
-  /* Semantic colors */
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
+  /* Radii */
+  --r-pill: 999px;
+  --r-card: 24px;
+  --r-sticker: 12px;
 
-  /* Kanban status columns */
-  --color-status-todo-bg: #f1f5f9;
-  --color-status-todo-border: #e2e8f0;
-  --color-status-todo-text: #475569;
-  --color-status-todo-badge: #cbd5e1;
-  --color-status-progress-bg: #fffbeb;
-  --color-status-progress-border: #fde68a;
-  --color-status-progress-text: #b45309;
-  --color-status-progress-badge: #fcd34d;
-  --color-status-done-bg: #ecfdf5;
-  --color-status-done-border: #a7f3d0;
-  --color-status-done-text: #047857;
-  --color-status-done-badge: #6ee7b7;
+  /* Spacing */
+  --s-gap: 24px;
 
-  --background: #f8fafc;
-  --foreground: #134e4a;
+  /* Legacy compat — map old tokens to new */
+  --background: #ffffff;
+  --foreground: #000000;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
-
-  /* Custom colors for Tailwind */
-  --color-primary-50: var(--color-primary-50);
-  --color-primary-100: var(--color-primary-100);
-  --color-primary-500: var(--color-primary);
-  --color-primary-600: var(--color-primary);
-  --color-primary-700: var(--color-primary-dark);
-
-  --color-accent-500: var(--color-accent);
-  --color-accent-600: var(--color-accent-dark);
+  --font-sans: "Helvetica Neue", "Arial", sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0f1419;
-    --foreground: #e7ecea;
-    --color-bg: #0f1419;
-    --color-bg-card: #1a2127;
-    --color-text: #e7ecea;
-    --color-text-secondary: #94a3b8;
-    --color-text-muted: #64748b;
-    --color-border: #2d3b45;
-    --color-border-light: #1e2a32;
-    --color-primary-50: #134e4a;
-    --color-primary-100: #115e59;
-
-    /* Kanban status columns - dark */
-    --color-status-todo-bg: #1e2a32;
-    --color-status-todo-border: #2d3b45;
-    --color-status-todo-text: #94a3b8;
-    --color-status-todo-badge: #3b4d5a;
-    --color-status-progress-bg: #1f1a0f;
-    --color-status-progress-border: #4d3a0a;
-    --color-status-progress-text: #fbbf24;
-    --color-status-progress-badge: #6b4f0a;
-    --color-status-done-bg: #0f1f17;
-    --color-status-done-border: #134e32;
-    --color-status-done-text: #34d399;
-    --color-status-done-badge: #166534;
-  }
-}
-
-.dark {
-  --background: #0f1419;
-  --foreground: #e7ecea;
-  --color-bg: #0f1419;
-  --color-bg-card: #1a2127;
-  --color-text: #e7ecea;
-  --color-text-secondary: #94a3b8;
-  --color-text-muted: #64748b;
-  --color-border: #2d3b45;
-  --color-border-light: #1e2a32;
-  --color-primary-50: #134e4a;
-  --color-primary-100: #115e59;
-
-  /* Kanban status columns - dark */
-  --color-status-todo-bg: #1e2a32;
-  --color-status-todo-border: #2d3b45;
-  --color-status-todo-text: #94a3b8;
-  --color-status-todo-badge: #3b4d5a;
-  --color-status-progress-bg: #1f1a0f;
-  --color-status-progress-border: #4d3a0a;
-  --color-status-progress-text: #fbbf24;
-  --color-status-progress-badge: #6b4f0a;
-  --color-status-done-bg: #0f1f17;
-  --color-status-done-border: #134e32;
-  --color-status-done-text: #34d399;
-  --color-status-done-badge: #166534;
+* {
+  box-sizing: border-box;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family:
-    "Plus Jakarta Sans",
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    sans-serif;
+  background-color: var(--c-white);
+  color: var(--c-black);
+  font-family: var(--font-main);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Bold typography */
+h1,
+h2,
+h3 {
+  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
 }
 
 /* Smooth transitions for interactive elements */
@@ -142,6 +67,14 @@ textarea {
   transition: all 0.2s ease;
 }
 
+/* Hide scrollbars but allow scrolling */
+.hide-scrollbar {
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
@@ -149,23 +82,46 @@ textarea {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-border-light);
+  background: var(--c-gray);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-text-muted);
+  background: #ccc;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-secondary);
+  background: #999;
 }
 
 /* Focus styles */
 :focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 2px solid var(--c-black);
   outline-offset: 2px;
+}
+
+/* Sticker label utility */
+.sticker-label {
+  background-color: var(--c-black);
+  color: var(--c-white);
+  padding: 4px 14px;
+  border-radius: var(--r-pill);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* Card hover effect */
+.card-hover {
+  transition: transform 0.2s ease;
+  cursor: pointer;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
 }
 
 /* iOS Safari date input fix */
@@ -176,7 +132,7 @@ input[type="datetime-local"] {
   -moz-appearance: none;
   appearance: none;
   min-height: 44px;
-  background-color: var(--color-bg);
+  background-color: var(--c-white);
 }
 
 /* Ensure date inputs have proper border-radius on iOS */
@@ -184,8 +140,8 @@ input[type="datetime-local"] {
   input[type="date"],
   input[type="time"],
   input[type="datetime-local"] {
-    border-radius: 0.75rem !important;
-    -webkit-border-radius: 0.75rem !important;
+    border-radius: 1rem !important;
+    -webkit-border-radius: 1rem !important;
   }
 }
 

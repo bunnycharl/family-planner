@@ -7,7 +7,7 @@ const KanbanBoard = dynamic(
   {
     loading: () => (
       <div className="flex items-center justify-center py-20">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--color-border)] border-t-[var(--color-primary)]" />
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--c-gray)] border-t-[var(--c-lavender)]" />
       </div>
     ),
   }
@@ -16,7 +16,9 @@ const KanbanBoard = dynamic(
 export default function BoardPage() {
   return (
     <div className="flex flex-col gap-4 p-4 md:p-6">
-      <h1 className="text-2xl font-bold text-gray-900">Канбан</h1>
+      <h1 className="text-3xl font-extrabold uppercase tracking-tight text-[var(--c-black)]">
+        <span className="bg-[var(--c-yellow)] px-4 py-1 rounded-xl inline-block">Канбан</span>
+      </h1>
       <KanbanBoard />
     </div>
   );

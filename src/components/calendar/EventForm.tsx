@@ -156,21 +156,21 @@ export function EventForm({ isOpen, onClose, event, defaultDate, onSave }: Event
   return (
     <div className="fixed inset-0 z-[60]">
       {/* Overlay */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
 
       {/* Modal — full screen on mobile, centered card on desktop */}
       <div
         className={cn(
-          "absolute inset-0 z-10 bg-[var(--color-bg-card)] flex flex-col",
+          "absolute inset-0 z-10 bg-white flex flex-col",
           "md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2",
-          "md:max-w-lg md:w-full md:rounded-2xl md:shadow-xl md:max-h-[90vh] md:border md:border-[var(--color-border)]"
+          "md:max-w-lg md:w-full md:rounded-3xl md:shadow-xl md:max-h-[90vh]"
         )}
       >
         <form onSubmit={handleSubmit} className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-[var(--color-border)] shrink-0">
+          <div className="flex items-center justify-between p-4 shrink-0">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-primary)]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--c-lavender)]">
                 <svg
                   width="20"
                   height="20"
@@ -187,14 +187,14 @@ export function EventForm({ isOpen, onClose, event, defaultDate, onSave }: Event
                   <line x1="8" y1="2" x2="8" y2="6" />
                 </svg>
               </div>
-              <h2 className="text-lg font-bold text-[var(--color-text)]">
-                {isEditing ? "Редактировать событие" : "Новое событие"}
+              <h2 className="text-lg font-extrabold uppercase text-[var(--c-black)]">
+                {isEditing ? "Редактировать" : "Новое событие"}
               </h2>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="flex h-9 w-9 items-center justify-center rounded-xl text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-text)] transition-all cursor-pointer"
+              className="flex h-9 w-9 items-center justify-center rounded-full text-[#999] hover:bg-[var(--c-gray)] hover:text-[var(--c-black)] transition-all cursor-pointer"
             >
               <svg
                 className="h-5 w-5"
@@ -214,9 +214,9 @@ export function EventForm({ isOpen, onClose, event, defaultDate, onSave }: Event
             <div>
               <label
                 htmlFor="event-title"
-                className="block text-xs font-medium text-[var(--color-text-muted)] mb-1.5"
+                className="block text-xs font-bold uppercase text-[#999] mb-1.5"
               >
-                Название <span className="text-[var(--color-error)]">*</span>
+                Название <span className="text-[var(--c-coral)]">*</span>
               </label>
               <input
                 id="event-title"
@@ -225,11 +225,7 @@ export function EventForm({ isOpen, onClose, event, defaultDate, onSave }: Event
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Название события"
-                className={cn(
-                  "w-full rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2.5 text-sm",
-                  "text-[var(--color-text)] placeholder:text-[var(--color-text-muted)]",
-                  "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]"
-                )}
+                className="w-full rounded-2xl border-2 border-[var(--c-black)] bg-white px-4 py-2.5 text-sm text-[var(--c-black)] placeholder:text-[#999] focus:outline-none focus:ring-2 focus:ring-[var(--c-lavender)]/30"
               />
             </div>
 
@@ -237,7 +233,7 @@ export function EventForm({ isOpen, onClose, event, defaultDate, onSave }: Event
             <div>
               <label
                 htmlFor="event-description"
-                className="block text-xs font-medium text-[var(--color-text-muted)] mb-1.5"
+                className="block text-xs font-bold uppercase text-[#999] mb-1.5"
               >
                 Описание
               </label>
@@ -247,11 +243,7 @@ export function EventForm({ isOpen, onClose, event, defaultDate, onSave }: Event
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Описание события"
-                className={cn(
-                  "w-full rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2.5 text-sm resize-none",
-                  "text-[var(--color-text)] placeholder:text-[var(--color-text-muted)]",
-                  "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]"
-                )}
+                className="w-full rounded-2xl border-2 border-[var(--c-black)] bg-white px-4 py-2.5 text-sm resize-none text-[var(--c-black)] placeholder:text-[#999] focus:outline-none focus:ring-2 focus:ring-[var(--c-lavender)]/30"
               />
             </div>
 
@@ -259,7 +251,7 @@ export function EventForm({ isOpen, onClose, event, defaultDate, onSave }: Event
             <div>
               <label
                 htmlFor="event-start"
-                className="block text-xs font-medium text-[var(--color-text-muted)] mb-1.5"
+                className="block text-xs font-bold uppercase text-[#999] mb-1.5"
               >
                 Дата
               </label>
@@ -269,29 +261,20 @@ export function EventForm({ isOpen, onClose, event, defaultDate, onSave }: Event
                 required
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className={cn(
-                  "w-full rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2.5 text-sm",
-                  "text-[var(--color-text)]",
-                  "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]",
-                  "[&::-webkit-date-and-time-value]:text-left"
-                )}
+                className="w-full rounded-2xl border-2 border-[var(--c-black)] bg-white px-4 py-2.5 text-sm text-[var(--c-black)] focus:outline-none focus:ring-2 focus:ring-[var(--c-lavender)]/30 [&::-webkit-date-and-time-value]:text-left"
               />
             </div>
 
             {/* Category — custom dropdown */}
             <div>
-              <span className="block text-xs font-medium text-[var(--color-text-muted)] mb-1.5">
+              <span className="block text-xs font-bold uppercase text-[#999] mb-1.5">
                 Категория
               </span>
               <div className="relative" ref={categoryRef}>
                 <button
                   type="button"
                   onClick={() => setCategoryOpen(!categoryOpen)}
-                  className={cn(
-                    "flex w-full items-center justify-between rounded-xl border-2 border-[var(--color-border)] px-4 py-2.5 text-sm",
-                    "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]",
-                    "bg-[var(--color-bg)] text-left transition-all cursor-pointer"
-                  )}
+                  className="flex w-full items-center justify-between rounded-2xl border-2 border-[var(--c-black)] px-4 py-2.5 text-sm bg-white text-left transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--c-lavender)]/30"
                 >
                   <span className="flex items-center gap-2 truncate">
                     {selectedCategory ? (
@@ -300,15 +283,15 @@ export function EventForm({ isOpen, onClose, event, defaultDate, onSave }: Event
                           className="inline-block h-3 w-3 shrink-0 rounded-full"
                           style={{ backgroundColor: selectedCategory.color }}
                         />
-                        <span className="text-[var(--color-text)]">{selectedCategory.name}</span>
+                        <span className="text-[var(--c-black)]">{selectedCategory.name}</span>
                       </>
                     ) : (
-                      <span className="text-[var(--color-text-muted)]">Без категории</span>
+                      <span className="text-[#999]">Без категории</span>
                     )}
                   </span>
                   <svg
                     className={cn(
-                      "h-4 w-4 shrink-0 text-[var(--color-text-muted)] transition-transform",
+                      "h-4 w-4 shrink-0 text-[#999] transition-transform",
                       categoryOpen && "rotate-180"
                     )}
                     fill="none"
@@ -325,7 +308,7 @@ export function EventForm({ isOpen, onClose, event, defaultDate, onSave }: Event
                 </button>
 
                 {categoryOpen && (
-                  <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-56 overflow-y-auto rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg-card)] shadow-lg">
+                  <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-56 overflow-y-auto rounded-2xl border-2 border-[var(--c-black)] bg-white shadow-lg">
                     <button
                       type="button"
                       onClick={() => {
@@ -335,11 +318,11 @@ export function EventForm({ isOpen, onClose, event, defaultDate, onSave }: Event
                       className={cn(
                         "flex w-full items-center gap-3 px-4 py-3 text-left text-sm transition-colors cursor-pointer",
                         !categoryId
-                          ? "bg-[var(--color-primary-50)] text-[var(--color-primary)] font-semibold"
-                          : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)]"
+                          ? "bg-[var(--c-yellow)] text-[var(--c-black)] font-bold"
+                          : "text-[#666] hover:bg-[var(--c-gray)]"
                       )}
                     >
-                      <span className="inline-block h-3 w-3 shrink-0 rounded-full bg-[var(--color-text-muted)]" />
+                      <span className="inline-block h-3 w-3 shrink-0 rounded-full bg-[#999]" />
                       Без категории
                     </button>
                     {categories.map((cat: { id: string; name: string; color: string }) => (
@@ -353,8 +336,8 @@ export function EventForm({ isOpen, onClose, event, defaultDate, onSave }: Event
                         className={cn(
                           "flex w-full items-center gap-3 px-4 py-3 text-left text-sm transition-colors cursor-pointer",
                           categoryId === cat.id
-                            ? "bg-[var(--color-primary-50)] text-[var(--color-primary)] font-semibold"
-                            : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)]"
+                            ? "bg-[var(--c-yellow)] text-[var(--c-black)] font-bold"
+                            : "text-[#666] hover:bg-[var(--c-gray)]"
                         )}
                       >
                         <span
@@ -373,7 +356,7 @@ export function EventForm({ isOpen, onClose, event, defaultDate, onSave }: Event
             <div>
               <label
                 htmlFor="event-location"
-                className="block text-xs font-medium text-[var(--color-text-muted)] mb-1.5"
+                className="block text-xs font-bold uppercase text-[#999] mb-1.5"
               >
                 Место
               </label>
@@ -383,20 +366,16 @@ export function EventForm({ isOpen, onClose, event, defaultDate, onSave }: Event
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="Место проведения"
-                className={cn(
-                  "w-full rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2.5 text-sm",
-                  "text-[var(--color-text)] placeholder:text-[var(--color-text-muted)]",
-                  "focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]"
-                )}
+                className="w-full rounded-2xl border-2 border-[var(--c-black)] bg-white px-4 py-2.5 text-sm text-[var(--c-black)] placeholder:text-[#999] focus:outline-none focus:ring-2 focus:ring-[var(--c-lavender)]/30"
               />
             </div>
 
             {/* Color picker with flag icon */}
             <div>
-              <label className="block text-xs font-medium text-[var(--color-text-muted)] mb-2">
+              <label className="block text-xs font-bold uppercase text-[#999] mb-2">
                 <span className="flex items-center gap-2">
                   <svg
-                    className="h-4 w-4 text-[var(--color-text-muted)]"
+                    className="h-4 w-4 text-[#999]"
                     fill="none"
                     viewBox="0 0 24 24"
                     strokeWidth={2}
@@ -412,7 +391,7 @@ export function EventForm({ isOpen, onClose, event, defaultDate, onSave }: Event
                 </span>
               </label>
               <ColorPicker
-                value={color ?? "#0d9488"}
+                value={color ?? "#000000"}
                 onChange={(c) => setColor(c)}
                 showNone
                 onNone={() => setColor(null)}
@@ -422,17 +401,17 @@ export function EventForm({ isOpen, onClose, event, defaultDate, onSave }: Event
 
             {/* Completed checkbox (only when editing) */}
             {isEditing && (
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--color-bg)] border border-[var(--color-border)]">
+              <div className="flex items-center gap-3 p-3 rounded-2xl bg-[var(--c-gray)]">
                 <input
                   id="event-completed"
                   type="checkbox"
                   checked={isCompleted}
                   onChange={(e) => setIsCompleted(e.target.checked)}
-                  className="h-5 w-5 rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)] cursor-pointer"
+                  className="h-5 w-5 rounded cursor-pointer accent-[var(--c-black)]"
                 />
                 <label
                   htmlFor="event-completed"
-                  className="text-sm font-medium text-[var(--color-text)] cursor-pointer"
+                  className="text-sm font-bold text-[var(--c-black)] cursor-pointer"
                 >
                   Выполнено
                 </label>
@@ -441,25 +420,25 @@ export function EventForm({ isOpen, onClose, event, defaultDate, onSave }: Event
           </div>
 
           {/* Footer — always visible at bottom */}
-          <div className="flex items-center gap-3 p-4 pb-6 border-t border-[var(--color-border)] shrink-0 bg-[var(--color-bg-card)] md:pb-4">
+          <div className="flex items-center gap-3 p-4 pb-6 shrink-0 bg-white md:pb-4">
             {isEditing && !showDeleteConfirm && (
               <button
                 type="button"
                 onClick={() => setShowDeleteConfirm(true)}
-                className="rounded-xl px-4 py-2.5 text-sm font-semibold text-[var(--color-error)] bg-[var(--color-bg-card)] border-2 border-[var(--color-error)]/30 hover:bg-[var(--color-error)]/10 transition-all cursor-pointer"
+                className="rounded-full px-4 py-2.5 text-sm font-bold uppercase text-[var(--c-coral)] border-2 border-[var(--c-coral)] hover:bg-[var(--c-coral)]/10 transition-all cursor-pointer"
               >
                 Удалить
               </button>
             )}
             {showDeleteConfirm ? (
               <>
-                <span className="flex-1 text-sm font-medium text-[var(--color-error)]">
+                <span className="flex-1 text-sm font-bold uppercase text-[var(--c-coral)]">
                   Удалить событие?
                 </span>
                 <button
                   type="button"
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="rounded-xl px-4 py-2.5 text-sm font-semibold text-[var(--color-text-secondary)] bg-[var(--color-bg)] border-2 border-[var(--color-border)] hover:bg-[var(--color-border-light)] transition-all cursor-pointer"
+                  className="rounded-full border-2 border-[var(--c-black)] px-5 py-2.5 text-sm font-bold uppercase text-[var(--c-black)] hover:bg-[var(--c-gray)] transition-all cursor-pointer"
                 >
                   Отмена
                 </button>
@@ -468,7 +447,7 @@ export function EventForm({ isOpen, onClose, event, defaultDate, onSave }: Event
                   onClick={handleDelete}
                   disabled={isDeleting}
                   className={cn(
-                    "rounded-xl px-4 py-2.5 text-sm font-semibold text-white bg-[var(--color-error)] hover:bg-red-700 transition-all cursor-pointer",
+                    "rounded-full px-5 py-2.5 text-sm font-bold uppercase text-white bg-[var(--c-coral)] hover:opacity-80 transition-all cursor-pointer",
                     "disabled:opacity-50 disabled:cursor-not-allowed"
                   )}
                 >
@@ -481,7 +460,7 @@ export function EventForm({ isOpen, onClose, event, defaultDate, onSave }: Event
                 <button
                   type="button"
                   onClick={onClose}
-                  className="rounded-xl px-4 py-2.5 text-sm font-semibold text-[var(--color-text-secondary)] bg-[var(--color-bg)] border-2 border-[var(--color-border)] hover:bg-[var(--color-border-light)] transition-all cursor-pointer"
+                  className="rounded-full border-2 border-[var(--c-black)] px-5 py-2.5 text-sm font-bold uppercase text-[var(--c-black)] hover:bg-[var(--c-gray)] transition-all cursor-pointer"
                 >
                   Отмена
                 </button>
@@ -489,7 +468,7 @@ export function EventForm({ isOpen, onClose, event, defaultDate, onSave }: Event
                   type="submit"
                   disabled={isSubmitting}
                   className={cn(
-                    "rounded-xl px-5 py-2.5 text-sm font-semibold text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] transition-all cursor-pointer",
+                    "rounded-full px-6 py-2.5 text-sm font-bold uppercase text-white bg-[var(--c-black)] hover:opacity-80 transition-all cursor-pointer",
                     "disabled:opacity-50 disabled:cursor-not-allowed"
                   )}
                 >
