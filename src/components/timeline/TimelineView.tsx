@@ -33,21 +33,40 @@ interface TimelineEvent {
   description?: string | null;
   date: string;
   category?: { id: string; name: string; color: string } | null;
+  assignee?: { id: string; name: string } | null;
 }
 
 export function TimelineView() {
   const todayRef = useRef<HTMLDivElement>(null);
   const horizontalScrollRef = useRef<HTMLDivElement>(null);
   const touchStartRef = useRef<number | null>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>("vertical");
+  // Adaptive default: check on first render
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    if (typeof window !== "undefined") {
+      return window.matchMedia("(max-width: 767px)").matches ? "vertical" : "horizontal";
+    }
+    return "horizontal";
+  });
   const [eventFormOpen, setEventFormOpen] = useState(false);
   const [taskFormOpen, setTaskFormOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<TimelineEvent | null>(null);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [hoveredEvent, setHoveredEvent] = useState<TimelineEvent | null>(null);
+  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
 
   const currentYear = new Date().getFullYear();
   const startYear = currentYear;
   const endYear = currentYear + TOTAL_YEARS - 1;
+
+  // Listen for screen size changes
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const handler = (e: MediaQueryListEvent) => {
+      setViewMode(e.matches ? "vertical" : "horizontal");
+    };
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
 
   // Year navigation
   const canGoPrev = selectedYear > startYear;
@@ -115,6 +134,18 @@ export function TimelineView() {
   function handleSave() {
     mutate();
   }
+
+  // Tooltip handlers for horizontal view
+  const handleEventHover = useCallback((evt: TimelineEvent, e: React.MouseEvent) => {
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    setHoveredEvent(evt);
+    setTooltipPos({ x: rect.left + rect.width / 2, y: rect.top });
+  }, []);
+
+  const handleEventLeave = useCallback(() => {
+    setHoveredEvent(null);
+    setTooltipPos(null);
+  }, []);
 
   // Generate all months in the range
   const today = new Date();
@@ -348,7 +379,7 @@ export function TimelineView() {
                       <div
                         className={cn(
                           "text-xs sm:text-sm font-bold uppercase",
-                          isCurrentMonth ? "text-white" : "text-[var(--c-black)]"
+                          isCurrentMonth ? "text-[var(--c-black)]" : "text-[var(--c-black)]"
                         )}
                       >
                         {format(monthDate, "LLL", { locale: ru })}
@@ -397,9 +428,11 @@ export function TimelineView() {
                               key={evt.id}
                               type="button"
                               onClick={() => handleEventClick(evt)}
+                              onMouseEnter={(e) => handleEventHover(evt, e)}
+                              onMouseLeave={handleEventLeave}
                               className={cn(
                                 "w-full text-left p-1.5 sm:p-2 rounded-xl transition-all cursor-pointer",
-                                "hover:scale-[1.02] bg-white",
+                                "hover:shadow-md bg-white",
                                 isPast && "opacity-50"
                               )}
                             >
@@ -428,6 +461,46 @@ export function TimelineView() {
               })}
             </div>
           </div>
+
+          {/* Tooltip for hovered event */}
+          {hoveredEvent && tooltipPos && (
+            <div
+              className="fixed z-50 pointer-events-none"
+              style={{
+                left: tooltipPos.x,
+                top: tooltipPos.y,
+                transform: "translate(-50%, -100%)",
+              }}
+            >
+              <div className="mb-2 w-56 rounded-2xl bg-white shadow-xl border border-[var(--c-gray)] p-3">
+                <p className="text-xs font-bold uppercase text-[var(--c-black)] mb-1">
+                  {hoveredEvent.title}
+                </p>
+                {hoveredEvent.description && (
+                  <p className="text-[10px] text-[#666] mb-1 line-clamp-2">
+                    {hoveredEvent.description}
+                  </p>
+                )}
+                <p className="text-[10px] text-[#999]">
+                  {format(new Date(hoveredEvent.date), "d MMMM yyyy", { locale: ru })}
+                </p>
+                {hoveredEvent.category && (
+                  <div className="flex items-center gap-1 mt-1">
+                    <span
+                      className="h-2 w-2 rounded-full"
+                      style={{ backgroundColor: hoveredEvent.category.color }}
+                    />
+                    <span className="text-[10px] font-bold text-[#999] uppercase">
+                      {hoveredEvent.category.name}
+                    </span>
+                  </div>
+                )}
+                {hoveredEvent.assignee && (
+                  <p className="text-[10px] text-[#999] mt-1">{hoveredEvent.assignee.name}</p>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -476,7 +549,7 @@ export function TimelineView() {
                             "rounded-3xl p-5 transition-all",
                             isPast && "opacity-50",
                             isCurrentMonth
-                              ? "text-white"
+                              ? "text-[var(--c-black)]"
                               : "bg-[var(--c-gray)] text-[var(--c-black)]"
                           )}
                           style={
@@ -491,7 +564,7 @@ export function TimelineView() {
                               className={cn(
                                 "flex h-11 w-11 items-center justify-center rounded-full font-bold text-lg",
                                 isCurrentMonth
-                                  ? "bg-white/20 text-white"
+                                  ? "bg-white/30 text-[var(--c-black)]"
                                   : "bg-white text-[var(--c-black)]"
                               )}
                             >
@@ -502,7 +575,7 @@ export function TimelineView() {
                                 {monthName}
                               </h3>
                               {isCurrentMonth && (
-                                <span className="text-xs font-bold text-white/70 uppercase">
+                                <span className="text-xs font-bold text-[var(--c-black)]/60 uppercase">
                                   Текущий месяц
                                 </span>
                               )}
@@ -522,7 +595,7 @@ export function TimelineView() {
                                     onClick={() => handleEventClick(evt)}
                                     className={cn(
                                       "w-full text-left p-3 rounded-2xl transition-all cursor-pointer",
-                                      "hover:-translate-y-0.5",
+                                      "hover:shadow-md",
                                       isCurrentMonth
                                         ? "bg-white/20 hover:bg-white/30"
                                         : "bg-white hover:bg-white/80"
@@ -546,14 +619,7 @@ export function TimelineView() {
                                       </span>
                                       <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2">
-                                          <span
-                                            className={cn(
-                                              "font-bold uppercase text-sm",
-                                              isCurrentMonth
-                                                ? "text-white"
-                                                : "text-[var(--c-black)]"
-                                            )}
-                                          >
+                                          <span className="font-bold uppercase text-sm text-[var(--c-black)]">
                                             {evt.title}
                                           </span>
                                           {evt.category && (
@@ -565,8 +631,10 @@ export function TimelineView() {
                                         {evt.description && (
                                           <p
                                             className={cn(
-                                              "text-xs truncate mt-0.5",
-                                              isCurrentMonth ? "text-white/60" : "text-[#999]"
+                                              "text-xs line-clamp-2 mt-0.5",
+                                              isCurrentMonth
+                                                ? "text-[var(--c-black)]/60"
+                                                : "text-[#999]"
                                             )}
                                           >
                                             {evt.description}
@@ -577,7 +645,7 @@ export function TimelineView() {
                                         className={cn(
                                           "text-sm font-bold rounded-full px-3 py-1",
                                           isCurrentMonth
-                                            ? "bg-white/20 text-white"
+                                            ? "bg-white/30 text-[var(--c-black)]"
                                             : "bg-white text-[var(--c-black)]"
                                         )}
                                       >
@@ -594,7 +662,7 @@ export function TimelineView() {
                             <p
                               className={cn(
                                 "text-sm font-bold uppercase",
-                                isCurrentMonth ? "text-white/40" : "text-[#ccc]"
+                                isCurrentMonth ? "text-[var(--c-black)]/40" : "text-[#ccc]"
                               )}
                             >
                               Нет событий

@@ -18,6 +18,7 @@ interface TaskFormTask {
   phaseId?: string | null;
   categoryId?: string | null;
   assigneeId?: string | null;
+  showOnRoadmap?: boolean;
 }
 
 interface TaskFormProps {
@@ -154,6 +155,7 @@ export function TaskForm({ isOpen, onClose, task, defaultStatus, onSave }: TaskF
   const [phaseId, setPhaseId] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [assigneeId, setAssigneeId] = useState("");
+  const [showOnRoadmap, setShowOnRoadmap] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -166,6 +168,7 @@ export function TaskForm({ isOpen, onClose, task, defaultStatus, onSave }: TaskF
         setPhaseId(task.phaseId ?? "");
         setCategoryId(task.categoryId ?? "");
         setAssigneeId(task.assigneeId ?? "");
+        setShowOnRoadmap(task.showOnRoadmap ?? false);
       } else {
         setTitle("");
         setDescription("");
@@ -175,6 +178,7 @@ export function TaskForm({ isOpen, onClose, task, defaultStatus, onSave }: TaskF
         setPhaseId("");
         setCategoryId("");
         setAssigneeId("");
+        setShowOnRoadmap(false);
       }
     }
   }, [isOpen, task, defaultStatus]);
@@ -191,6 +195,11 @@ export function TaskForm({ isOpen, onClose, task, defaultStatus, onSave }: TaskF
       return;
     }
 
+    if (showOnRoadmap && !phaseId) {
+      toast.error("Выберите фазу для отображения на роадмапе");
+      return;
+    }
+
     setIsSubmitting(true);
 
     const body = {
@@ -199,7 +208,8 @@ export function TaskForm({ isOpen, onClose, task, defaultStatus, onSave }: TaskF
       status,
       startDate: startDate || undefined,
       endDate: endDate || undefined,
-      phaseId: phaseId || undefined,
+      showOnRoadmap,
+      phaseId: showOnRoadmap ? phaseId || undefined : undefined,
       categoryId: categoryId || undefined,
       assigneeId: assigneeId || undefined,
     };
@@ -267,7 +277,7 @@ export function TaskForm({ isOpen, onClose, task, defaultStatus, onSave }: TaskF
   ];
 
   const phaseOptions = [
-    { value: "", label: "Без фазы" },
+    { value: "", label: "Выберите фазу" },
     ...phases.map((p) => ({
       value: p.id,
       label: `${p.emoji ? p.emoji + " " : ""}${p.name}`,
@@ -393,14 +403,52 @@ export function TaskForm({ isOpen, onClose, task, defaultStatus, onSave }: TaskF
               </div>
             </div>
 
-            {/* Phase */}
-            <CustomSelect
-              label="Фаза роадмапа"
-              value={phaseId}
-              options={phaseOptions}
-              onChange={setPhaseId}
-              placeholder="Без фазы"
-            />
+            {/* Show on Roadmap */}
+            <div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowOnRoadmap(!showOnRoadmap);
+                  if (showOnRoadmap) setPhaseId("");
+                }}
+                className="flex items-center gap-3 cursor-pointer group"
+              >
+                <div
+                  className={cn(
+                    "flex h-5 w-5 items-center justify-center rounded-md border-2 transition-all",
+                    showOnRoadmap
+                      ? "border-[var(--c-lavender)] bg-[var(--c-lavender)]"
+                      : "border-[#ccc] group-hover:border-[var(--c-lavender)]"
+                  )}
+                >
+                  {showOnRoadmap && (
+                    <svg
+                      className="h-3 w-3 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={3}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </div>
+                <span className="text-xs font-bold uppercase text-[var(--c-black)]">
+                  Отображать на роадмапе
+                </span>
+              </button>
+            </div>
+
+            {/* Phase (only when showOnRoadmap) */}
+            {showOnRoadmap && (
+              <CustomSelect
+                label="Фаза роадмапа"
+                value={phaseId}
+                options={phaseOptions}
+                onChange={setPhaseId}
+                placeholder="Выберите фазу"
+              />
+            )}
 
             {/* Category */}
             <CustomSelect
