@@ -30,8 +30,9 @@ model Category {
   icon      String?
   createdAt DateTime @default(now())
 
-  events Event[]
-  tasks  Task[]
+  events     Event[]
+  tasks      Task[]
+  milestones Milestone[]
 }
 
 model Event {
@@ -235,34 +236,28 @@ model RoadmapPhase {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  tasks RoadmapTask[]
+  milestones Milestone[]
 
   @@index([position])
 }
 
-model RoadmapTask {
+model Milestone {
   id          String       @id @default(cuid())
   name        String
   details     String?
-  taskType    String
   startDate   DateTime
   endDate     DateTime
   isCompleted Boolean      @default(false)
   position    Int          @default(0)
   phaseId     String
   phase       RoadmapPhase @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+  categoryId  String?
+  category    Category?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
   @@index([phaseId])
   @@index([startDate])
-}
-
-model RoadmapTaskType {
-  id       String @id @default(cuid())
-  key      String @unique
-  label    String
-  color    String
-  position Int    @default(0)
+  @@index([categoryId])
 }
 

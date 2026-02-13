@@ -144,26 +144,20 @@ CREATE TABLE IF NOT EXISTS "RoadmapPhase" (
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );
-CREATE TABLE IF NOT EXISTS "RoadmapTask" (
+CREATE TABLE IF NOT EXISTS "Milestone" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "name" TEXT NOT NULL,
     "details" TEXT,
-    "taskType" TEXT NOT NULL,
     "startDate" DATETIME NOT NULL,
     "endDate" DATETIME NOT NULL,
     "isCompleted" BOOLEAN NOT NULL DEFAULT false,
     "position" INTEGER NOT NULL DEFAULT 0,
     "phaseId" TEXT NOT NULL,
+    "categoryId" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "RoadmapTask_phaseId_fkey" FOREIGN KEY ("phaseId") REFERENCES "RoadmapPhase" ("id") ON DELETE CASCADE ON UPDATE CASCADE
-);
-CREATE TABLE IF NOT EXISTS "RoadmapTaskType" (
-    "id" TEXT NOT NULL PRIMARY KEY,
-    "key" TEXT NOT NULL,
-    "label" TEXT NOT NULL,
-    "color" TEXT NOT NULL,
-    "position" INTEGER NOT NULL DEFAULT 0
+    CONSTRAINT "Milestone_phaseId_fkey" FOREIGN KEY ("phaseId") REFERENCES "RoadmapPhase" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "Milestone_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 CREATE TABLE IF NOT EXISTS "_EventAssignees" (
     "A" TEXT NOT NULL,
@@ -196,8 +190,8 @@ CREATE UNIQUE INDEX "BudgetExpenseEntry_expenseCategoryId_month_key" ON "BudgetE
 CREATE INDEX "CurrencyRate_budgetYearId_idx" ON "CurrencyRate"("budgetYearId");
 CREATE UNIQUE INDEX "CurrencyRate_budgetYearId_currency_month_key" ON "CurrencyRate"("budgetYearId", "currency", "month");
 CREATE INDEX "RoadmapPhase_position_idx" ON "RoadmapPhase"("position");
-CREATE INDEX "RoadmapTask_phaseId_idx" ON "RoadmapTask"("phaseId");
-CREATE INDEX "RoadmapTask_startDate_idx" ON "RoadmapTask"("startDate");
-CREATE UNIQUE INDEX "RoadmapTaskType_key_key" ON "RoadmapTaskType"("key");
+CREATE INDEX "Milestone_phaseId_idx" ON "Milestone"("phaseId");
+CREATE INDEX "Milestone_startDate_idx" ON "Milestone"("startDate");
+CREATE INDEX "Milestone_categoryId_idx" ON "Milestone"("categoryId");
 CREATE UNIQUE INDEX "_EventAssignees_AB_unique" ON "_EventAssignees"("A", "B");
 CREATE INDEX "_EventAssignees_B_index" ON "_EventAssignees"("B");

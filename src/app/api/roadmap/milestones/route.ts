@@ -1,13 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { createRoadmapTaskSchema } from "@/lib/validations/roadmap";
+import { createMilestoneSchema } from "@/lib/validations/roadmap";
 import { withAuth } from "@/lib/api-utils";
 import { logger } from "@/lib/logger";
 
 export const POST = withAuth(async (request) => {
   try {
     const body = await request.json();
-    const result = createRoadmapTaskSchema.safeParse(body);
+    const result = createMilestoneSchema.safeParse(body);
 
     if (!result.success) {
       return NextResponse.json(
@@ -27,29 +27,30 @@ export const POST = withAuth(async (request) => {
 
     let position = data.position;
     if (position === undefined) {
-      const maxPositionResult = await prisma.roadmapTask.aggregate({
+      const maxPositionResult = await prisma.milestone.aggregate({
         where: { phaseId: data.phaseId },
         _max: { position: true },
       });
       position = (maxPositionResult._max.position ?? -1) + 1;
     }
 
-    const task = await prisma.roadmapTask.create({
+    const milestone = await prisma.milestone.create({
       data: {
         name: data.name,
         details: data.details,
-        taskType: data.taskType,
+        categoryId: data.categoryId || null,
         startDate: new Date(data.startDate),
         endDate: new Date(data.endDate),
         phaseId: data.phaseId,
         position,
         isCompleted: data.isCompleted ?? false,
       },
+      include: { category: true },
     });
 
-    return NextResponse.json(task, { status: 201 });
+    return NextResponse.json(milestone, { status: 201 });
   } catch (error) {
-    logger.error({ err: error }, "Не удалось создать задачу роадмапа");
-    return NextResponse.json({ error: "Не удалось создать задачу" }, { status: 500 });
+    logger.error({ err: error }, "Не удалось создать веху роадмапа");
+    return NextResponse.json({ error: "Не удалось создать веху" }, { status: 500 });
   }
 });

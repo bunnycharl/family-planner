@@ -12,10 +12,10 @@ export const updateRoadmapPhaseSchema = z.object({
   position: z.number().int().min(0).optional(),
 });
 
-export const createRoadmapTaskSchema = z.object({
+export const createMilestoneSchema = z.object({
   name: z.string().min(1).max(300),
   details: z.string().max(2000).optional(),
-  taskType: z.string().min(1).max(50),
+  categoryId: z.string().optional(),
   startDate: z.string(),
   endDate: z.string(),
   phaseId: z.string().min(1),
@@ -23,10 +23,10 @@ export const createRoadmapTaskSchema = z.object({
   isCompleted: z.boolean().optional(),
 });
 
-export const updateRoadmapTaskSchema = z.object({
+export const updateMilestoneSchema = z.object({
   name: z.string().min(1).max(300).optional(),
   details: z.string().max(2000).optional(),
-  taskType: z.string().min(1).max(50).optional(),
+  categoryId: z.string().nullable().optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
   phaseId: z.string().optional(),
@@ -36,5 +36,5 @@ export const updateRoadmapTaskSchema = z.object({
 
 export type CreateRoadmapPhaseInput = z.infer<typeof createRoadmapPhaseSchema>;
 export type UpdateRoadmapPhaseInput = z.infer<typeof updateRoadmapPhaseSchema>;
-export type CreateRoadmapTaskInput = z.infer<typeof createRoadmapTaskSchema>;
-export type UpdateRoadmapTaskInput = z.infer<typeof updateRoadmapTaskSchema>;
+export type CreateMilestoneInput = z.infer<typeof createMilestoneSchema>;
+export type UpdateMilestoneInput = z.infer<typeof updateMilestoneSchema>;

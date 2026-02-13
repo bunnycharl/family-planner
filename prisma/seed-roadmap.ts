@@ -2,55 +2,16 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-const taskTypes = [
-  {
-    key: "documents",
-    label: "Документы / подготовка",
-    color: "#3b82f6",
-    position: 0,
-  },
-  {
-    key: "travel",
-    label: "Путешествия / перелёты",
-    color: "#f59e0b",
-    position: 1,
-  },
-  {
-    key: "consultation",
-    label: "Консультация / юрист",
-    color: "#8b5cf6",
-    position: 2,
-  },
-  {
-    key: "visa",
-    label: "Визы / ВНЖ / ожидание",
-    color: "#6366f1",
-    position: 3,
-  },
-  {
-    key: "relocation",
-    label: "Переезд / обустройство",
-    color: "#ef4444",
-    position: 4,
-  },
-  {
-    key: "living",
-    label: "Жизнь в стране / работа",
-    color: "#10b981",
-    position: 5,
-  },
-  {
-    key: "child",
-    label: "Ребёнок / роды",
-    color: "#ec4899",
-    position: 6,
-  },
-  {
-    key: "citizenship",
-    label: "Гражданство",
-    color: "#f97316",
-    position: 7,
-  },
+// These will be created as Categories (shared with events/tasks)
+const milestoneCategories = [
+  { name: "Документы / подготовка", color: "#3b82f6" },
+  { name: "Путешествия / перелёты", color: "#f59e0b" },
+  { name: "Консультация / юрист", color: "#8b5cf6" },
+  { name: "Визы / ВНЖ / ожидание", color: "#6366f1" },
+  { name: "Переезд / обустройство", color: "#ef4444" },
+  { name: "Жизнь в стране / работа", color: "#10b981" },
+  { name: "Ребёнок / роды", color: "#ec4899" },
+  { name: "Гражданство", color: "#f97316" },
 ];
 
 // Helper functions for date ranges
@@ -76,11 +37,11 @@ const phases = [
     name: "🇪🇸 ПОДГОТОВКА К ПЕРЕЕЗДУ",
     emoji: "🇪🇸",
     position: 0,
-    tasks: [
+    milestones: [
       {
         name: "Шенгенская виза",
         details: "Для поездки-разведки",
-        taskType: "visa",
+        categoryName: "Визы / ВНЖ / ожидание",
         start: monthStart(2026, 2),
         end: monthEnd(2026, 3),
         position: 0,
@@ -88,7 +49,7 @@ const phases = [
       {
         name: "Разведка Европы (15 дней)",
         details: "Барселона→Валенсия→Малага→Порту→Лиссабон",
-        taskType: "travel",
+        categoryName: "Путешествия / перелёты",
         start: monthStart(2026, 4),
         end: monthEnd(2026, 4),
         position: 1,
@@ -96,7 +57,7 @@ const phases = [
       {
         name: "Консультация + «под ключ»",
         details: "Иммиграционный юрист, за 4 мес до переезда",
-        taskType: "consultation",
+        categoryName: "Консультация / юрист",
         start: monthStart(2026, 5),
         end: monthEnd(2026, 5),
         position: 2,
@@ -104,7 +65,7 @@ const phases = [
       {
         name: "Сбор документов",
         details: "Несудимость за 2 года, апостили, переводы...",
-        taskType: "documents",
+        categoryName: "Документы / подготовка",
         start: monthStart(2026, 5),
         end: monthEnd(2026, 8),
         position: 3,
@@ -112,7 +73,7 @@ const phases = [
       {
         name: "Шенгенская виза",
         details: "Подача и получение шенгена для въезда в Испанию",
-        taskType: "visa",
+        categoryName: "Визы / ВНЖ / ожидание",
         start: monthStart(2026, 8),
         end: monthEnd(2026, 9),
         position: 4,
@@ -120,7 +81,7 @@ const phases = [
       {
         name: "Переезд в Валенсию",
         details: "Въезд по шенгену как турист",
-        taskType: "relocation",
+        categoryName: "Переезд / обустройство",
         start: monthStart(2026, 10),
         end: monthEnd(2026, 10),
         position: 5,
@@ -128,7 +89,7 @@ const phases = [
       {
         name: "Подача на DN ВНЖ из Испании",
         details: "UGE-CE онлайн, жена как cónyuge",
-        taskType: "visa",
+        categoryName: "Визы / ВНЖ / ожидание",
         start: monthStart(2026, 10),
         end: monthEnd(2026, 11),
         position: 6,
@@ -136,7 +97,7 @@ const phases = [
       {
         name: "Одобрение ВНЖ (3 года)",
         details: "Обработка ~20 рабочих дней",
-        taskType: "visa",
+        categoryName: "Визы / ВНЖ / ожидание",
         start: monthStart(2026, 11),
         end: monthEnd(2026, 12),
         position: 7,
@@ -144,7 +105,7 @@ const phases = [
       {
         name: "TIE (карточка резидента)",
         details: "Отпечатки в полиции → карточка через 30-40 дней",
-        taskType: "visa",
+        categoryName: "Визы / ВНЖ / ожидание",
         start: monthStart(2026, 12),
         end: quarterEnd(2027, 1),
         position: 8,
@@ -152,7 +113,7 @@ const phases = [
       {
         name: "Обустройство",
         details: "Жильё, банк, регистрация Beckham Law",
-        taskType: "relocation",
+        categoryName: "Переезд / обустройство",
         start: monthStart(2026, 10),
         end: monthEnd(2026, 12),
         position: 9,
@@ -160,7 +121,7 @@ const phases = [
       {
         name: "✈️ Москва: Новый год 2026-2027",
         details: null,
-        taskType: "travel",
+        categoryName: "Путешествия / перелёты",
         start: monthStart(2026, 12),
         end: monthEnd(2026, 12),
         position: 10,
@@ -168,7 +129,7 @@ const phases = [
       {
         name: "Собачка",
         details: "Переезд Бруно к нам",
-        taskType: "relocation",
+        categoryName: "Переезд / обустройство",
         start: quarterStart(2027, 1),
         end: quarterEnd(2027, 1),
         position: 11,
@@ -179,11 +140,11 @@ const phases = [
     name: "🇪🇸 ЖИЗНЬ В ИСПАНИИ",
     emoji: "🇪🇸",
     position: 1,
-    tasks: [
+    milestones: [
       {
         name: "Удалённая работа + интеграция",
         details: null,
-        taskType: "living",
+        categoryName: "Жизнь в стране / работа",
         start: quarterStart(2027, 1),
         end: quarterEnd(2027, 4),
         position: 0,
@@ -191,7 +152,7 @@ const phases = [
       {
         name: "✈️ Москва: всё лето 2027",
         details: null,
-        taskType: "travel",
+        categoryName: "Путешествия / перелёты",
         start: quarterStart(2027, 2),
         end: quarterEnd(2027, 3),
         position: 1,
@@ -199,7 +160,7 @@ const phases = [
       {
         name: "Продление ВНЖ (если нужно)",
         details: "Изначально 3 года → до осени 2029",
-        taskType: "visa",
+        categoryName: "Визы / ВНЖ / ожидание",
         start: quarterStart(2027, 3),
         end: quarterEnd(2027, 3),
         position: 2,
@@ -207,7 +168,7 @@ const phases = [
       {
         name: "Учить португальский",
         details: "Подготовка к Бразилии",
-        taskType: "documents",
+        categoryName: "Документы / подготовка",
         start: quarterStart(2028, 1),
         end: quarterEnd(2028, 2),
         position: 3,
@@ -215,7 +176,7 @@ const phases = [
       {
         name: "Подготовка к родам в Бразилии",
         details: "Выбор клиники, логистика",
-        taskType: "child",
+        categoryName: "Ребёнок / роды",
         start: quarterStart(2028, 2),
         end: quarterEnd(2028, 3),
         position: 4,
@@ -223,7 +184,7 @@ const phases = [
       {
         name: "✈️ Москва: перед Бразилией",
         details: null,
-        taskType: "travel",
+        categoryName: "Путешествия / перелёты",
         start: quarterStart(2028, 3),
         end: quarterEnd(2028, 3),
         position: 5,
@@ -234,11 +195,11 @@ const phases = [
     name: "🇧🇷 БРАЗИЛИЯ: РОДЫ + ГРАЖДАНСТВО",
     emoji: "🇧🇷",
     position: 2,
-    tasks: [
+    milestones: [
       {
         name: "Зачатие",
         details: "Планирование для родов ~июнь 2029",
-        taskType: "child",
+        categoryName: "Ребёнок / роды",
         start: quarterStart(2028, 4),
         end: quarterEnd(2028, 4),
         position: 0,
@@ -246,7 +207,7 @@ const phases = [
       {
         name: "Прививка от жёлтой лихорадки",
         details: "За 10+ дней до вылета",
-        taskType: "documents",
+        categoryName: "Документы / подготовка",
         start: quarterStart(2029, 1),
         end: quarterEnd(2029, 1),
         position: 1,
@@ -254,7 +215,7 @@ const phases = [
       {
         name: "Перелёт в Бразилию",
         details: "Безвизовый въезд, ~7 мес беременности",
-        taskType: "travel",
+        categoryName: "Путешествия / перелёты",
         start: quarterStart(2029, 1),
         end: quarterEnd(2029, 1),
         position: 2,
@@ -262,7 +223,7 @@ const phases = [
       {
         name: "Роды",
         details: "Флорианополис, ребёнок = гражданин BR",
-        taskType: "child",
+        categoryName: "Ребёнок / роды",
         start: quarterStart(2029, 2),
         end: quarterEnd(2029, 2),
         position: 3,
@@ -270,7 +231,7 @@ const phases = [
       {
         name: "Документы ребёнка",
         details: "Cartório → свидетельство → CPF → паспорт BR",
-        taskType: "documents",
+        categoryName: "Документы / подготовка",
         start: quarterStart(2029, 2),
         end: quarterEnd(2029, 3),
         position: 4,
@@ -278,7 +239,7 @@ const phases = [
       {
         name: "Продление пребывания",
         details: "Продлить на +90 дней в Федеральной полиции",
-        taskType: "visa",
+        categoryName: "Визы / ВНЖ / ожидание",
         start: quarterStart(2029, 3),
         end: quarterEnd(2029, 3),
         position: 5,
@@ -286,7 +247,7 @@ const phases = [
       {
         name: "✈️ Москва: знакомство с бабушками",
         details: null,
-        taskType: "travel",
+        categoryName: "Путешествия / перелёты",
         start: quarterStart(2029, 4),
         end: quarterEnd(2029, 4),
         position: 6,
@@ -294,7 +255,7 @@ const phases = [
       {
         name: "ПМЖ родителей (VIPER)",
         details: "Подача в Фед. полицию через ребёнка-гражданина",
-        taskType: "visa",
+        categoryName: "Визы / ВНЖ / ожидание",
         start: quarterStart(2029, 4),
         end: quarterEnd(2030, 1),
         position: 7,
@@ -302,7 +263,7 @@ const phases = [
       {
         name: "Жизнь в Бразилии (1 год ПМЖ)",
         details: "Обязательный год для натурализации",
-        taskType: "living",
+        categoryName: "Жизнь в стране / работа",
         start: quarterStart(2030, 1),
         end: quarterEnd(2030, 4),
         position: 8,
@@ -310,7 +271,7 @@ const phases = [
       {
         name: "Подача на гражданство BR",
         details: "Платформа Naturalizar-se, после 1 года ПМЖ",
-        taskType: "citizenship",
+        categoryName: "Гражданство",
         start: quarterStart(2031, 1),
         end: quarterEnd(2031, 1),
         position: 9,
@@ -318,7 +279,7 @@ const phases = [
       {
         name: "Получение гражданства BR 🇧🇷",
         details: "Обработка ~6 мес",
-        taskType: "citizenship",
+        categoryName: "Гражданство",
         start: quarterStart(2031, 2),
         end: quarterEnd(2031, 3),
         position: 10,
@@ -329,11 +290,11 @@ const phases = [
     name: "🇪🇸 ВОЗВРАЩЕНИЕ → ГРАЖДАНСТВО ЕС",
     emoji: "🇪🇸",
     position: 3,
-    tasks: [
+    milestones: [
       {
         name: "Возвращение в Испанию",
         details: "Новый ВНЖ как граждане Бразилии",
-        taskType: "relocation",
+        categoryName: "Переезд / обустройство",
         start: quarterStart(2031, 4),
         end: quarterEnd(2031, 4),
         position: 0,
@@ -341,7 +302,7 @@ const phases = [
       {
         name: "Резидентство — год 1",
         details: "Непрерывное проживание, макс 3 мес отсутствия",
-        taskType: "living",
+        categoryName: "Жизнь в стране / работа",
         start: quarterStart(2032, 1),
         end: quarterEnd(2032, 4),
         position: 1,
@@ -349,7 +310,7 @@ const phases = [
       {
         name: "Резидентство — год 2",
         details: "Подготовка к CCSE",
-        taskType: "living",
+        categoryName: "Жизнь в стране / работа",
         start: quarterStart(2033, 1),
         end: quarterEnd(2033, 4),
         position: 2,
@@ -357,7 +318,7 @@ const phases = [
       {
         name: "Зачатие (ребёнок №2)",
         details: "Планирование для родов конец 2032",
-        taskType: "child",
+        categoryName: "Ребёнок / роды",
         start: quarterStart(2032, 2),
         end: quarterEnd(2032, 2),
         position: 3,
@@ -365,7 +326,7 @@ const phases = [
       {
         name: "Роды в Испании (ребёнок №2)",
         details: null,
-        taskType: "child",
+        categoryName: "Ребёнок / роды",
         start: quarterStart(2032, 4),
         end: quarterEnd(2032, 4),
         position: 4,
@@ -373,7 +334,7 @@ const phases = [
       {
         name: "Гражданство ES для ребёнка №2",
         details: "Рождён в Испании → гражданство после 1 года",
-        taskType: "citizenship",
+        categoryName: "Гражданство",
         start: quarterStart(2033, 4),
         end: quarterEnd(2033, 4),
         position: 5,
@@ -381,7 +342,7 @@ const phases = [
       {
         name: "Подача на гражданство ES",
         details: "Registro Civil, после 2 лет резидентства",
-        taskType: "citizenship",
+        categoryName: "Гражданство",
         start: quarterStart(2034, 1),
         end: quarterEnd(2034, 1),
         position: 6,
@@ -389,7 +350,7 @@ const phases = [
       {
         name: "Ожидание решения",
         details: "Обработка 1-2 года",
-        taskType: "citizenship",
+        categoryName: "Гражданство",
         start: quarterStart(2034, 2),
         end: quarterEnd(2035, 1),
         position: 7,
@@ -397,7 +358,7 @@ const phases = [
       {
         name: "Гражданство Испании 🇪🇸🇪🇺",
         details: "Присяга, паспорт ЕС для всей семьи",
-        taskType: "citizenship",
+        categoryName: "Гражданство",
         start: quarterStart(2035, 2),
         end: quarterEnd(2035, 2),
         position: 8,
@@ -407,44 +368,46 @@ const phases = [
 ];
 
 async function main() {
-  // Seed task types via upsert
-  for (const tt of taskTypes) {
-    await prisma.roadmapTaskType.upsert({
-      where: { key: tt.key },
-      update: { label: tt.label, color: tt.color, position: tt.position },
-      create: tt,
+  // Create categories (upsert to avoid duplicates)
+  const categoryMap = new Map<string, string>();
+  for (const cat of milestoneCategories) {
+    const created = await prisma.category.upsert({
+      where: { name: cat.name },
+      update: { color: cat.color },
+      create: { name: cat.name, color: cat.color },
     });
+    categoryMap.set(cat.name, created.id);
   }
-  console.log(`Task types: ${taskTypes.length}`);
+  console.log(`Categories: ${milestoneCategories.length}`);
 
-  // Delete existing phases and tasks (to allow re-running)
-  await prisma.roadmapTask.deleteMany();
+  // Delete existing phases and milestones (to allow re-running)
+  await prisma.milestone.deleteMany();
   await prisma.roadmapPhase.deleteMany();
 
-  // Create phases with tasks
+  // Create phases with milestones
   for (const phaseData of phases) {
     const phase = await prisma.roadmapPhase.create({
       data: {
         name: phaseData.name,
         emoji: phaseData.emoji,
         position: phaseData.position,
-        tasks: {
-          create: phaseData.tasks.map((t) => ({
-            name: t.name,
-            details: t.details,
-            taskType: t.taskType,
-            startDate: t.start,
-            endDate: t.end,
-            position: t.position,
+        milestones: {
+          create: phaseData.milestones.map((m) => ({
+            name: m.name,
+            details: m.details,
+            categoryId: categoryMap.get(m.categoryName) || null,
+            startDate: m.start,
+            endDate: m.end,
+            position: m.position,
           })),
         },
       },
     });
-    console.log(`Phase: ${phase.name} (${phaseData.tasks.length} tasks)`);
+    console.log(`Phase: ${phase.name} (${phaseData.milestones.length} milestones)`);
   }
 
-  const totalTasks = phases.reduce((sum, p) => sum + p.tasks.length, 0);
-  console.log(`\nTotal: ${phases.length} phases, ${totalTasks} tasks`);
+  const totalMilestones = phases.reduce((sum, p) => sum + p.milestones.length, 0);
+  console.log(`\nTotal: ${phases.length} phases, ${totalMilestones} milestones`);
 }
 
 main()

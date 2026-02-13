@@ -1,27 +1,34 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { toast } from "sonner";
-import { useRoadmap, useRoadmapTaskTypes } from "@/hooks/useRoadmap";
+import { useRoadmap } from "@/hooks/useRoadmap";
 import type { ZoomLevel } from "@/lib/roadmap-utils";
 import { GanttChart } from "./GanttChart";
 import { GanttLegend } from "./GanttLegend";
 import { RoadmapToolbar } from "./RoadmapToolbar";
 import { RoadmapListView } from "./RoadmapListView";
 import { PhaseFormModal } from "./PhaseFormModal";
-import { TaskFormModal } from "./TaskFormModal";
-import { TaskDetailSheet } from "./TaskDetailSheet";
+import { MilestoneFormModal } from "./MilestoneFormModal";
+import { MilestoneDetailSheet } from "./MilestoneDetailSheet";
 
-interface RoadmapTask {
+interface CategoryInfo {
+  id: string;
+  name: string;
+  color: string;
+  icon?: string | null;
+}
+
+interface Milestone {
   id: string;
   name: string;
   details: string | null;
-  taskType: string;
   startDate: string;
   endDate: string;
   isCompleted: boolean;
   position: number;
   phaseId: string;
+  category: CategoryInfo | null;
 }
 
 interface RoadmapPhase {
@@ -29,12 +36,11 @@ interface RoadmapPhase {
   name: string;
   emoji: string | null;
   position: number;
-  tasks: RoadmapTask[];
+  milestones: Milestone[];
 }
 
 export function RoadmapView() {
-  const { phases, isLoading: phasesLoading, isError: phasesError, mutate } = useRoadmap();
-  const { taskTypes, isLoading: typesLoading } = useRoadmapTaskTypes();
+  const { phases, isLoading, isError, mutate } = useRoadmap();
 
   // UI state
   const [zoom, setZoom] = useState<ZoomLevel>("quarter");
@@ -43,10 +49,10 @@ export function RoadmapView() {
   // Modal state
   const [phaseFormOpen, setPhaseFormOpen] = useState(false);
   const [editingPhase, setEditingPhase] = useState<RoadmapPhase | null>(null);
-  const [taskFormOpen, setTaskFormOpen] = useState(false);
-  const [editingTask, setEditingTask] = useState<RoadmapTask | null>(null);
+  const [milestoneFormOpen, setMilestoneFormOpen] = useState(false);
+  const [editingMilestone, setEditingMilestone] = useState<Milestone | null>(null);
   const [defaultPhaseId, setDefaultPhaseId] = useState<string | null>(null);
-  const [selectedTask, setSelectedTask] = useState<RoadmapTask | null>(null);
+  const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(null);
 
   // Responsive detection
   useEffect(() => {
@@ -72,46 +78,45 @@ export function RoadmapView() {
     setPhaseFormOpen(true);
   }, []);
 
-  // Task CRUD
-  const handleAddTask = useCallback(() => {
-    setEditingTask(null);
+  // Milestone CRUD
+  const handleAddMilestone = useCallback(() => {
+    setEditingMilestone(null);
     setDefaultPhaseId(phases.length > 0 ? phases[0].id : null);
-    setTaskFormOpen(true);
+    setMilestoneFormOpen(true);
   }, [phases]);
 
-  const handleEditTask = useCallback((task: RoadmapTask) => {
-    setEditingTask(task);
-    setTaskFormOpen(true);
+  const handleEditMilestone = useCallback((milestone: Milestone) => {
+    setEditingMilestone(milestone);
+    setMilestoneFormOpen(true);
   }, []);
 
-  const handleTaskClick = useCallback((task: RoadmapTask) => {
-    setSelectedTask(task);
+  const handleMilestoneClick = useCallback((milestone: Milestone) => {
+    setSelectedMilestone(milestone);
   }, []);
 
   // Toggle completion with optimistic update
   const handleToggleCompletion = useCallback(
-    async (task: RoadmapTask) => {
-      const newValue = !task.isCompleted;
+    async (milestone: Milestone) => {
+      const newValue = !milestone.isCompleted;
 
       // Optimistic update
       const previousPhases = phases;
       mutate(
         phases.map((p: RoadmapPhase) => ({
           ...p,
-          tasks: p.tasks.map((t: RoadmapTask) =>
-            t.id === task.id ? { ...t, isCompleted: newValue } : t
+          milestones: p.milestones.map((m: Milestone) =>
+            m.id === milestone.id ? { ...m, isCompleted: newValue } : m
           ),
         })),
         false
       );
 
-      // Also update selectedTask if it's the same task
-      if (selectedTask?.id === task.id) {
-        setSelectedTask({ ...task, isCompleted: newValue });
+      if (selectedMilestone?.id === milestone.id) {
+        setSelectedMilestone({ ...milestone, isCompleted: newValue });
       }
 
       try {
-        const res = await fetch(`/api/roadmap/tasks/${task.id}`, {
+        const res = await fetch(`/api/roadmap/milestones/${milestone.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ isCompleted: newValue }),
@@ -124,10 +129,23 @@ export function RoadmapView() {
         toast.error("Не удалось обновить статус");
       }
     },
-    [phases, mutate, selectedTask]
+    [phases, mutate, selectedMilestone]
   );
 
-  const isLoading = phasesLoading || typesLoading;
+  // Collect unique categories from milestones for legend
+  const legendCategories = useMemo(() => {
+    const seen = new Set<string>();
+    const result: { name: string; color: string }[] = [];
+    for (const phase of phases) {
+      for (const m of phase.milestones ?? []) {
+        if (m.category && !seen.has(m.category.id)) {
+          seen.add(m.category.id);
+          result.push({ name: m.category.name, color: m.category.color });
+        }
+      }
+    }
+    return result;
+  }, [phases]);
 
   if (isLoading) {
     return (
@@ -138,7 +156,7 @@ export function RoadmapView() {
     );
   }
 
-  if (phasesError) {
+  if (isError) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-20">
         <span className="text-sm font-bold uppercase text-[var(--c-coral)]">
@@ -147,12 +165,6 @@ export function RoadmapView() {
       </div>
     );
   }
-
-  const taskTypeInfos = taskTypes.map((t: { key: string; label: string; color: string }) => ({
-    key: t.key,
-    label: t.label,
-    color: t.color,
-  }));
 
   return (
     <div className="space-y-6">
@@ -168,13 +180,13 @@ export function RoadmapView() {
         zoom={zoom}
         onZoomChange={setZoom}
         onAddPhase={handleAddPhase}
-        onAddTask={handleAddTask}
+        onAddMilestone={handleAddMilestone}
         hasPhases={phases.length > 0}
         isMobile={isMobile}
       />
 
       {/* Legend */}
-      <GanttLegend taskTypes={taskTypeInfos} />
+      <GanttLegend categories={legendCategories} />
 
       {/* Empty state */}
       {phases.length === 0 ? (
@@ -200,8 +212,7 @@ export function RoadmapView() {
       ) : isMobile ? (
         <RoadmapListView
           phases={phases}
-          taskTypes={taskTypeInfos}
-          onTaskClick={handleTaskClick}
+          onMilestoneClick={handleMilestoneClick}
           onToggleCompletion={handleToggleCompletion}
           onEditPhase={handleEditPhase}
         />
@@ -209,8 +220,7 @@ export function RoadmapView() {
         <GanttChart
           phases={phases}
           zoom={zoom}
-          taskTypes={taskTypeInfos}
-          onTaskClick={handleTaskClick}
+          onMilestoneClick={handleMilestoneClick}
           onEditPhase={handleEditPhase}
           onToggleCompletion={handleToggleCompletion}
         />
@@ -227,24 +237,22 @@ export function RoadmapView() {
         onSave={handleSave}
       />
 
-      <TaskFormModal
-        isOpen={taskFormOpen}
+      <MilestoneFormModal
+        isOpen={milestoneFormOpen}
         onClose={() => {
-          setTaskFormOpen(false);
-          setEditingTask(null);
+          setMilestoneFormOpen(false);
+          setEditingMilestone(null);
         }}
-        task={editingTask}
+        milestone={editingMilestone}
         phases={phases}
-        taskTypes={taskTypeInfos}
         defaultPhaseId={defaultPhaseId}
         onSave={handleSave}
       />
 
-      <TaskDetailSheet
-        task={selectedTask}
-        taskTypes={taskTypeInfos}
-        onClose={() => setSelectedTask(null)}
-        onEdit={handleEditTask}
+      <MilestoneDetailSheet
+        milestone={selectedMilestone}
+        onClose={() => setSelectedMilestone(null)}
+        onEdit={handleEditMilestone}
         onToggleCompletion={handleToggleCompletion}
       />
     </div>
