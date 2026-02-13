@@ -3,7 +3,6 @@
 import { useMemo } from "react";
 import type { TimeAxisConfig } from "@/lib/roadmap-utils";
 import { computeBarTracks } from "@/lib/roadmap-utils";
-import { GanttHeader } from "./GanttHeader";
 import { GanttBar } from "./GanttBar";
 import { GanttTodayMarker } from "./GanttTodayMarker";
 import { getTodayColumn } from "@/lib/roadmap-utils";
@@ -63,9 +62,6 @@ export function GanttTimeline({
 
   return (
     <div className="relative min-w-[600px] flex-1">
-      {/* Header */}
-      <GanttHeader columns={timeAxis.columns} yearSpans={timeAxis.yearSpans} />
-
       {/* Task rows */}
       <div className="relative">
         {/* Today marker */}

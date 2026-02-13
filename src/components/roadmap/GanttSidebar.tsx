@@ -60,15 +60,6 @@ export function GanttSidebar({
 
   return (
     <div className="sticky left-0 z-20 w-[340px] shrink-0 bg-[var(--c-gray)]">
-      {/* Header placeholder to match timeline header */}
-      <div>
-        <div className="h-[26px]" />
-        <div className="flex h-[30px] items-center border-b border-white/20">
-          <div className="w-[180px] px-3 text-[10px] font-bold uppercase text-[#999]">Фаза</div>
-          <div className="flex-1 px-3 text-[10px] font-bold uppercase text-[#999]">Задача</div>
-        </div>
-      </div>
-
       {/* Phase groups */}
       {sortedPhases.map((phase, phaseIdx) => {
         const isExpanded = expandedMap[phase.id] ?? true;

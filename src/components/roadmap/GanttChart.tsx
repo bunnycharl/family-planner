@@ -4,6 +4,7 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import { computeTimeAxis, getTodayColumn } from "@/lib/roadmap-utils";
 import { GanttSidebar } from "./GanttSidebar";
 import { GanttTimeline } from "./GanttTimeline";
+import { GanttHeader } from "./GanttHeader";
 
 interface RoadmapTask {
   id: string;
@@ -75,6 +76,17 @@ export function GanttChart({
 
   return (
     <div ref={scrollRef} className="overflow-x-auto rounded-3xl bg-[var(--c-gray)] p-4">
+      {/* Header section */}
+      <div className="flex mb-4">
+        {/* Empty space for sidebar */}
+        <div className="w-[340px] shrink-0" />
+        {/* Timeline header */}
+        <div className="flex-1">
+          <GanttHeader columns={timeAxis.columns} yearSpans={timeAxis.yearSpans} />
+        </div>
+      </div>
+
+      {/* Content section */}
       <div className="flex">
         <GanttSidebar
           phases={phases}
