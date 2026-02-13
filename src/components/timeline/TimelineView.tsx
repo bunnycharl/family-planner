@@ -226,7 +226,7 @@ export function TimelineView() {
 
       {/* Loading state */}
       {isLoading && (
-        <div className="px-4 py-12 flex flex-col items-center justify-center gap-3">
+        <div className="px-4 md:px-8 py-12 flex flex-col items-center justify-center gap-3">
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--c-gray)] border-t-[var(--c-lavender)]" />
           <span className="text-sm font-bold uppercase text-[#999]">Загрузка...</span>
         </div>
@@ -307,7 +307,7 @@ export function TimelineView() {
           </div>
 
           {/* Timeline content */}
-          <div ref={horizontalScrollRef} className="flex-1 overflow-y-auto px-4 py-6">
+          <div ref={horizontalScrollRef} className="flex-1 overflow-y-auto px-4 md:px-8 py-6">
             {/* Month columns grid */}
             <div className="grid grid-cols-12 gap-1 sm:gap-2 min-h-[400px]">
               {Array.from({ length: 12 }, (_, monthIdx) => {
@@ -446,29 +446,24 @@ export function TimelineView() {
             return (
               <div key={year} className={cn("mb-2", isPastYear && "opacity-60")}>
                 {/* Year header */}
-                <div
-                  className={cn(
-                    "sticky top-0 z-20 px-4 py-3",
-                    isCurrentYear ? "bg-[var(--c-yellow)]" : "bg-[var(--c-gray)]"
-                  )}
-                >
-                  <h2
-                    className={cn(
-                      "text-lg font-extrabold uppercase tracking-tight",
-                      "text-[var(--c-black)]"
-                    )}
-                  >
-                    {year}
-                    {isCurrentYear && (
-                      <span className="ml-2 text-sm font-bold text-[var(--c-black)]/60">
-                        — текущий год
-                      </span>
-                    )}
+                <div className="sticky top-0 z-20 px-4 md:px-8 py-3 bg-white">
+                  <h2 className="text-lg font-extrabold uppercase tracking-tight text-[var(--c-black)]">
+                    <span
+                      className={cn(
+                        "inline-block rounded-xl px-4 py-1",
+                        isCurrentYear ? "bg-[var(--c-yellow)]" : "bg-[var(--c-gray)]"
+                      )}
+                    >
+                      {year}
+                      {isCurrentYear && (
+                        <span className="ml-2 text-sm font-bold opacity-50">— текущий год</span>
+                      )}
+                    </span>
                   </h2>
                 </div>
 
                 {/* Months grid */}
-                <div className="px-4 py-4 space-y-4">
+                <div className="px-4 md:px-8 py-4 space-y-4">
                   {yearMonths.map(
                     ({ key: monthKey, events: monthEvents, isCurrentMonth }, monthIdx) => {
                       const monthDate = new Date(monthKey + "-01");
