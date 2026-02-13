@@ -5,28 +5,51 @@ import { cn } from "@/lib/utils";
 interface GanttBarProps {
   startCol: number;
   endCol: number;
+  totalColumns: number;
   color: string;
   label: string;
   isCompleted: boolean;
-  rowIndex: number;
+  onClick?: () => void;
 }
 
-export function GanttBar({ startCol, endCol, color, label, isCompleted, rowIndex }: GanttBarProps) {
+export function GanttBar({
+  startCol,
+  endCol,
+  totalColumns,
+  color,
+  label,
+  isCompleted,
+  onClick,
+}: GanttBarProps) {
+  if (totalColumns === 0) return null;
+
+  const leftPercent = (startCol / totalColumns) * 100;
+  const widthPercent = ((endCol - startCol + 1) / totalColumns) * 100;
+
   return (
     <div
-      className={cn(
-        "z-[5] flex h-8 items-center self-center rounded-full px-3 transition-opacity",
-        isCompleted && "opacity-50"
-      )}
+      className="absolute top-1 bottom-1 flex items-center"
       style={{
-        gridRow: rowIndex,
-        gridColumn: `${startCol + 3} / ${endCol + 4}`,
-        backgroundColor: color,
+        left: `${leftPercent}%`,
+        width: `${widthPercent}%`,
       }}
     >
-      <span className={cn("truncate text-xs font-bold text-white", isCompleted && "line-through")}>
-        {label}
-      </span>
+      <button
+        type="button"
+        onClick={onClick}
+        className={cn(
+          "flex h-full w-full items-center rounded-full px-3 transition-all cursor-pointer",
+          "hover:shadow-md hover:brightness-110",
+          isCompleted && "opacity-50"
+        )}
+        style={{ backgroundColor: color }}
+      >
+        <span
+          className={cn("truncate text-xs font-bold text-white", isCompleted && "line-through")}
+        >
+          {label}
+        </span>
+      </button>
     </div>
   );
 }

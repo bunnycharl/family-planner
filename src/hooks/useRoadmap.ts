@@ -15,7 +15,7 @@ export function useRoadmap() {
 }
 
 export function useRoadmapTaskTypes() {
-  const { data, error, isLoading } = useSWR("/api/roadmap/task-types", fetcher, {
+  const { data, error, isLoading, mutate } = useSWR("/api/roadmap/task-types", fetcher, {
     dedupingInterval: 30000,
   });
 
@@ -23,5 +23,6 @@ export function useRoadmapTaskTypes() {
     taskTypes: data || [],
     isLoading,
     isError: error,
+    mutate,
   };
 }

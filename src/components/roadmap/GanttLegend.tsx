@@ -1,19 +1,30 @@
 "use client";
 
-import { ROADMAP_TASK_TYPES } from "@/lib/roadmap-utils";
+interface TaskTypeInfo {
+  key: string;
+  label: string;
+  color: string;
+}
 
-export function GanttLegend() {
-  const entries = Object.entries(ROADMAP_TASK_TYPES);
+interface GanttLegendProps {
+  taskTypes: TaskTypeInfo[];
+}
+
+export function GanttLegend({ taskTypes }: GanttLegendProps) {
+  if (taskTypes.length === 0) return null;
 
   return (
     <div className="flex flex-wrap gap-2">
-      {entries.map(([key, { label, color }]) => (
+      {taskTypes.map((type) => (
         <div
-          key={key}
+          key={type.key}
           className="flex items-center gap-1.5 rounded-full bg-[var(--c-gray)] px-3 py-1 text-xs font-bold"
         >
-          <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: color }} />
-          <span className="text-[var(--c-black)]">{label}</span>
+          <span
+            className="h-2.5 w-2.5 shrink-0 rounded-full"
+            style={{ backgroundColor: type.color }}
+          />
+          <span className="text-[var(--c-black)]">{type.label}</span>
         </div>
       ))}
     </div>

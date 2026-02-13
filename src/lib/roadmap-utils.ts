@@ -1,89 +1,223 @@
-// 2026: monthly Feb-Dec = 11 columns (indices 0-10)
-// 2027-2035: quarterly Q1-Q4 = 36 columns (indices 11-46)
-// Total: 47 columns
+import {
+  startOfMonth,
+  endOfMonth,
+  startOfQuarter,
+  endOfQuarter,
+  startOfYear,
+  endOfYear,
+  addMonths,
+  addQuarters,
+  addYears,
+  isBefore,
+  isAfter,
+  format,
+  getQuarter,
+  isWithinInterval,
+  subMonths,
+  subQuarters,
+  subYears,
+} from "date-fns";
+import { ru } from "date-fns/locale";
 
-export function dateToColumn(date: Date): number {
-  const year = date.getFullYear();
-  const month = date.getMonth(); // 0-indexed
-
-  if (year === 2026) {
-    return Math.max(0, Math.min(10, month - 1)); // Feb(1)=0, Dec(11)=10
-  }
-  if (year >= 2027 && year <= 2035) {
-    const quarter = Math.floor(month / 3);
-    return 11 + (year - 2027) * 4 + quarter;
-  }
-  if (year < 2026) return 0;
-  return 46;
-}
-
-export function getColumnCount(): number {
-  return 47;
-}
+export type ZoomLevel = "month" | "quarter" | "year";
 
 export interface TimeColumn {
   index: number;
   label: string;
   year: number;
-  isMonthly: boolean;
   isCurrentPeriod: boolean;
+  periodStart: Date;
+  periodEnd: Date;
 }
 
-export function getTimeColumns(): TimeColumn[] {
-  const now = new Date();
-  const currentYear = now.getFullYear();
-  const currentMonth = now.getMonth();
-  const columns: TimeColumn[] = [];
-
-  // 2026 monthly (Feb-Dec)
-  const monthLabels = ["Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"];
-  monthLabels.forEach((label, i) => {
-    columns.push({
-      index: i,
-      label,
-      year: 2026,
-      isMonthly: true,
-      isCurrentPeriod: currentYear === 2026 && currentMonth === i + 1,
-    });
-  });
-
-  // 2027-2035 quarterly
-  for (let y = 2027; y <= 2035; y++) {
-    for (let q = 0; q < 4; q++) {
-      const colIndex = 11 + (y - 2027) * 4 + q;
-      columns.push({
-        index: colIndex,
-        label: `Q${q + 1}`,
-        year: y,
-        isMonthly: false,
-        isCurrentPeriod: currentYear === y && Math.floor(currentMonth / 3) === q,
-      });
-    }
-  }
-
-  return columns;
-}
-
-// Year boundaries for the header
-export function getYearSpans(): Array<{
+export interface YearSpan {
   year: number;
   colStart: number;
   colSpan: number;
-}> {
-  const spans = [{ year: 2026, colStart: 0, colSpan: 11 }];
-  for (let y = 2027; y <= 2035; y++) {
-    spans.push({ year: y, colStart: 11 + (y - 2027) * 4, colSpan: 4 });
-  }
-  return spans;
 }
 
-export const ROADMAP_TASK_TYPES: Record<string, { label: string; color: string }> = {
-  documents: { label: "Документы / подготовка", color: "#3b82f6" },
-  travel: { label: "Путешествия / перелёты", color: "#f59e0b" },
-  consultation: { label: "Консультация / юрист", color: "#8b5cf6" },
-  visa: { label: "Визы / ВНЖ / ожидание", color: "#6366f1" },
-  relocation: { label: "Переезд / обустройство", color: "#ef4444" },
-  living: { label: "Жизнь в стране / работа", color: "#10b981" },
-  child: { label: "Ребёнок / роды", color: "#ec4899" },
-  citizenship: { label: "Гражданство", color: "#f97316" },
-};
+export interface TimeAxisConfig {
+  columns: TimeColumn[];
+  yearSpans: YearSpan[];
+  totalColumns: number;
+  dateToColumn: (date: Date) => number;
+}
+
+interface TaskDateRange {
+  startDate: string;
+  endDate: string;
+}
+
+export function computeTimeAxis(tasks: TaskDateRange[], zoom: ZoomLevel): TimeAxisConfig {
+  const now = new Date();
+
+  // 1. Find min/max dates from tasks, or default to current year ± 1
+  let minDate: Date;
+  let maxDate: Date;
+
+  if (tasks.length > 0) {
+    const starts = tasks.map((t) => new Date(t.startDate));
+    const ends = tasks.map((t) => new Date(t.endDate));
+    minDate = new Date(Math.min(...starts.map((d) => d.getTime())));
+    maxDate = new Date(Math.max(...ends.map((d) => d.getTime())));
+  } else {
+    minDate = startOfYear(now);
+    maxDate = endOfYear(now);
+  }
+
+  // 2. Align to period boundaries and add 1 period of padding
+  let alignedMin: Date;
+  let alignedMax: Date;
+
+  switch (zoom) {
+    case "month":
+      alignedMin = startOfMonth(subMonths(minDate, 1));
+      alignedMax = endOfMonth(addMonths(maxDate, 1));
+      break;
+    case "quarter":
+      alignedMin = startOfQuarter(subQuarters(minDate, 1));
+      alignedMax = endOfQuarter(addQuarters(maxDate, 1));
+      break;
+    case "year":
+      alignedMin = startOfYear(subYears(minDate, 1));
+      alignedMax = endOfYear(addYears(maxDate, 1));
+      break;
+  }
+
+  // 3. Generate columns
+  const columns: TimeColumn[] = [];
+  let cursor: Date;
+  let index = 0;
+
+  switch (zoom) {
+    case "month":
+      cursor = new Date(alignedMin);
+      while (isBefore(cursor, alignedMax) || cursor.getTime() === alignedMax.getTime()) {
+        const periodStart = startOfMonth(cursor);
+        const periodEnd = endOfMonth(cursor);
+        const isCurrentPeriod = isWithinInterval(now, {
+          start: periodStart,
+          end: periodEnd,
+        });
+        columns.push({
+          index,
+          label: format(cursor, "LLL", { locale: ru }),
+          year: cursor.getFullYear(),
+          isCurrentPeriod,
+          periodStart,
+          periodEnd,
+        });
+        index++;
+        cursor = addMonths(cursor, 1);
+      }
+      break;
+
+    case "quarter":
+      cursor = new Date(alignedMin);
+      while (isBefore(cursor, alignedMax) || cursor.getTime() === alignedMax.getTime()) {
+        const periodStart = startOfQuarter(cursor);
+        const periodEnd = endOfQuarter(cursor);
+        const isCurrentPeriod = isWithinInterval(now, {
+          start: periodStart,
+          end: periodEnd,
+        });
+        columns.push({
+          index,
+          label: `Q${getQuarter(cursor)}`,
+          year: cursor.getFullYear(),
+          isCurrentPeriod,
+          periodStart,
+          periodEnd,
+        });
+        index++;
+        cursor = addQuarters(cursor, 1);
+      }
+      break;
+
+    case "year":
+      cursor = new Date(alignedMin);
+      while (isBefore(cursor, alignedMax) || cursor.getTime() === alignedMax.getTime()) {
+        const periodStart = startOfYear(cursor);
+        const periodEnd = endOfYear(cursor);
+        const isCurrentPeriod = isWithinInterval(now, {
+          start: periodStart,
+          end: periodEnd,
+        });
+        columns.push({
+          index,
+          label: String(cursor.getFullYear()),
+          year: cursor.getFullYear(),
+          isCurrentPeriod,
+          periodStart,
+          periodEnd,
+        });
+        index++;
+        cursor = addYears(cursor, 1);
+      }
+      break;
+  }
+
+  // 4. Compute year spans
+  const yearSpans: YearSpan[] = [];
+  let currentYear = -1;
+  let spanStart = 0;
+  let spanCount = 0;
+
+  for (const col of columns) {
+    if (col.year !== currentYear) {
+      if (currentYear !== -1) {
+        yearSpans.push({ year: currentYear, colStart: spanStart, colSpan: spanCount });
+      }
+      currentYear = col.year;
+      spanStart = col.index;
+      spanCount = 1;
+    } else {
+      spanCount++;
+    }
+  }
+  if (currentYear !== -1) {
+    yearSpans.push({ year: currentYear, colStart: spanStart, colSpan: spanCount });
+  }
+
+  // 5. Build dateToColumn
+  const dateToColumn = (date: Date): number => {
+    // Find the column whose period contains this date
+    for (const col of columns) {
+      if (
+        isWithinInterval(date, { start: col.periodStart, end: col.periodEnd }) ||
+        date.getTime() === col.periodStart.getTime()
+      ) {
+        return col.index;
+      }
+    }
+    // Clamp to boundaries
+    if (columns.length === 0) return 0;
+    if (isBefore(date, columns[0].periodStart)) return 0;
+    return columns[columns.length - 1].index;
+  };
+
+  return {
+    columns,
+    yearSpans,
+    totalColumns: columns.length,
+    dateToColumn,
+  };
+}
+
+/**
+ * Compute the column index for the "today" marker.
+ * Returns -1 if today is outside the visible range.
+ */
+export function getTodayColumn(timeAxis: TimeAxisConfig): number {
+  const now = new Date();
+  if (timeAxis.columns.length === 0) return -1;
+
+  const first = timeAxis.columns[0];
+  const last = timeAxis.columns[timeAxis.columns.length - 1];
+
+  if (isBefore(now, first.periodStart) || isAfter(now, last.periodEnd)) {
+    return -1;
+  }
+
+  return timeAxis.dateToColumn(now);
+}
