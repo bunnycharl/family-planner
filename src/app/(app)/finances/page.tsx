@@ -1,4 +1,5 @@
 "use client";
+import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 
 import { useState } from "react";
 import { useBudgetYear } from "@/hooks/finances/useBudgetYear";

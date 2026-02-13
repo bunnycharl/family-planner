@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 
 const KanbanBoard = dynamic(
   () => import("@/components/board/KanbanBoard").then((mod) => mod.KanbanBoard),
@@ -19,7 +20,9 @@ export default function BoardPage() {
       <h1 className="text-3xl font-extrabold uppercase tracking-tight text-[var(--c-black)]">
         <span className="bg-[var(--c-yellow)] px-4 py-1 rounded-xl inline-block">Канбан</span>
       </h1>
-      <KanbanBoard />
+      <ErrorBoundary featureName="Канбан">
+        <KanbanBoard />
+      </ErrorBoundary>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 
 const CalendarView = dynamic(
   () => import("@/components/calendar/CalendarView").then((mod) => mod.CalendarView),
@@ -14,5 +15,9 @@ const CalendarView = dynamic(
 );
 
 export default function CalendarPage() {
-  return <CalendarView />;
+  return (
+    <ErrorBoundary featureName="Календарь">
+      <CalendarView />
+    </ErrorBoundary>
+  );
 }

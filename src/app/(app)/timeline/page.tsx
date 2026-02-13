@@ -1,4 +1,5 @@
 "use client";
+import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 
 import dynamic from "next/dynamic";
 
@@ -14,5 +15,9 @@ const TimelineView = dynamic(
 );
 
 export default function TimelinePage() {
-  return <TimelineView />;
+  return (
+    <ErrorBoundary featureName="Таймлайн">
+      <TimelineView />
+    </ErrorBoundary>
+  );
 }
