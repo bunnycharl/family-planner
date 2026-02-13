@@ -16,10 +16,11 @@ model User {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  createdEvents  Event[] @relation("EventCreator")
-  assignedEvents Event[] @relation("EventAssignee")
-  createdTasks   Task[]  @relation("TaskCreator")
-  assignedTasks  Task[]  @relation("TaskAssignee")
+  createdEvents    Event[]                @relation("EventCreator")
+  assignedEvents   Event[]                @relation("EventAssignee")
+  createdTasks     Task[]                 @relation("TaskCreator")
+  assignedTasks    Task[]                 @relation("TaskAssignee")
+  incomeCategories BudgetIncomeCategory[] @relation("BudgetIncomeCategories")
 }
 
 model Category {
@@ -71,6 +72,7 @@ model Task {
   createdBy   User          @relation("TaskCreator", fields: [createdById], references: [id])
   assigneeId  String?
   assignee    User?         @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  showOnRoadmap Boolean       @default(false)
   phaseId     String?
   phase       RoadmapPhase? @relation(fields: [phaseId], references: [id], onDelete: SetNull)
 
@@ -90,40 +92,31 @@ model BudgetYear {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  members               FamilyMember[]
+  incomeCategories      BudgetIncomeCategory[]
   taxRates              TaxRate[]
   expenseGroups         BudgetExpenseGroup[]
   currencyRates         CurrencyRate[]
   transactionCategories TransactionCategory[]
 }
 
-model FamilyMember {
-  id           String     @id @default(cuid())
+model BudgetIncomeCategory {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation("BudgetIncomeCategories", fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  type      String   @default("FIXED")
+  taxRateId String?
+  taxRate   TaxRate? @relation(fields: [taxRateId], references: [id], onDelete: SetNull)
+  formula   String?
+
   budgetYearId String
   budgetYear   BudgetYear @relation(fields: [budgetYearId], references: [id], onDelete: Cascade)
-  name         String
-  sortOrder    Int        @default(0)
-
-  incomeCategories BudgetIncomeCategory[]
-
-  @@index([budgetYearId])
-}
-
-model BudgetIncomeCategory {
-  id             String       @id @default(cuid())
-  familyMemberId String
-  familyMember   FamilyMember @relation(fields: [familyMemberId], references: [id], onDelete: Cascade)
-  name           String
-  type           String       @default("FIXED")
-  taxRateId      String?
-  taxRate        TaxRate?     @relation(fields: [taxRateId], references: [id], onDelete: SetNull)
-  formula        String?
-  sortOrder      Int          @default(0)
 
   params  FormulaParam[]
   entries BudgetIncomeEntry[]
 
-  @@index([familyMemberId])
+  @@index([userId])
+  @@index([budgetYearId])
 }
 
 model FormulaParam {
@@ -270,4 +263,3 @@ model RoadmapPhase {
 
   @@index([position])
 }
-

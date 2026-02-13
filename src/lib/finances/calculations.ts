@@ -4,7 +4,7 @@ import type {
   IncomeCategoryData,
   TaxRateData,
   MonthSummary,
-  MemberMonthSummary,
+  UserMonthSummary,
   CategoryMonthSummary,
   ExpenseGroupMonthSummary,
 } from "./types";
@@ -79,18 +79,18 @@ export function computeYearSummary(data: BudgetYearData): MonthSummary[] {
   let cumulative = 0;
 
   for (let month = 1; month <= 12; month++) {
-    const memberSummaries: MemberMonthSummary[] = [];
+    const userSummaries: UserMonthSummary[] = [];
 
-    for (const member of data.members) {
+    for (const user of data.incomeUsers) {
       const categories: CategoryMonthSummary[] = [];
-      let memberGross = 0;
-      let memberTax = 0;
+      let userGross = 0;
+      let userTax = 0;
 
-      for (const cat of member.incomeCategories) {
+      for (const cat of user.incomeCategories) {
         const amount = computeCategoryIncome(cat, month);
         const tax = computeTax(amount, cat.taxRate);
-        memberGross += amount;
-        memberTax += tax;
+        userGross += amount;
+        userTax += tax;
 
         categories.push({
           id: cat.id,
@@ -101,12 +101,12 @@ export function computeYearSummary(data: BudgetYearData): MonthSummary[] {
         });
       }
 
-      memberSummaries.push({
-        memberId: member.id,
-        memberName: member.name,
-        grossIncome: memberGross,
-        tax: memberTax,
-        netIncome: memberGross - memberTax,
+      userSummaries.push({
+        userId: user.id,
+        userName: user.name,
+        grossIncome: userGross,
+        tax: userTax,
+        netIncome: userGross - userTax,
         categories,
       });
     }
@@ -135,8 +135,8 @@ export function computeYearSummary(data: BudgetYearData): MonthSummary[] {
       });
     }
 
-    const totalGrossIncome = memberSummaries.reduce((s, m) => s + m.grossIncome, 0);
-    const totalTax = memberSummaries.reduce((s, m) => s + m.tax, 0);
+    const totalGrossIncome = userSummaries.reduce((s, u) => s + u.grossIncome, 0);
+    const totalTax = userSummaries.reduce((s, u) => s + u.tax, 0);
     const totalNetIncome = totalGrossIncome - totalTax;
     const totalExpenses = expenseGroupSummaries.reduce((s, g) => s + g.amountInBaseCurrency, 0);
     const balance = totalNetIncome - totalExpenses;
@@ -150,7 +150,7 @@ export function computeYearSummary(data: BudgetYearData): MonthSummary[] {
       totalExpenses,
       balance,
       cumulative,
-      memberSummaries,
+      userSummaries,
       expenseGroupSummaries,
     });
   }

@@ -37,37 +37,11 @@ export function useBudgetMutations(year: number, mutate: () => void) {
     [base, mutate]
   );
 
-  // ─── Members ────────────────────────────────────────────────
-
-  const createMember = useCallback(
-    async (name: string) => {
-      await apiFetch(`${base}/members`, "POST", { name });
-      mutate();
-    },
-    [base, mutate]
-  );
-
-  const updateMember = useCallback(
-    async (id: string, data: { name?: string; sortOrder?: number }) => {
-      await apiFetch(`${base}/members/${id}`, "PUT", data);
-      mutate();
-    },
-    [base, mutate]
-  );
-
-  const deleteMember = useCallback(
-    async (id: string) => {
-      await apiFetch(`${base}/members/${id}`, "DELETE");
-      mutate();
-    },
-    [base, mutate]
-  );
-
   // ─── Income categories ──────────────────────────────────────
 
   const createIncomeCategory = useCallback(
     async (data: {
-      familyMemberId: string;
+      userId: string;
       name: string;
       type: "FIXED" | "FORMULA";
       taxRateId?: string | null;
@@ -87,7 +61,6 @@ export function useBudgetMutations(year: number, mutate: () => void) {
         type?: "FIXED" | "FORMULA";
         taxRateId?: string | null;
         formula?: string | null;
-        sortOrder?: number;
       }
     ) => {
       await apiFetch(`${base}/income-categories/${id}`, "PUT", data);
@@ -205,9 +178,6 @@ export function useBudgetMutations(year: number, mutate: () => void) {
   return {
     saveEntries,
     copyMonth,
-    createMember,
-    updateMember,
-    deleteMember,
     createIncomeCategory,
     updateIncomeCategory,
     deleteIncomeCategory,

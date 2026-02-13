@@ -65,14 +65,14 @@ export function PlanningCardView({ data, onCellChange, onCopyMonth }: PlanningCa
       </div>
 
       {/* Income sections */}
-      {data.members.map((member) => {
-        const memberSummary = monthSummary?.memberSummaries.find((ms) => ms.memberId === member.id);
+      {data.incomeUsers.map((user) => {
+        const userSummary = monthSummary?.userSummaries.find((us) => us.userId === user.id);
         return (
           <IncomeSection
-            key={member.id}
-            member={member}
+            key={user.id}
+            user={user}
             month={selectedMonth}
-            summary={memberSummary}
+            summary={userSummary}
             baseCurrency={data.baseCurrency}
             onCellChange={onCellChange}
           />

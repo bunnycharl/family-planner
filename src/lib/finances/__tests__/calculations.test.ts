@@ -16,12 +16,12 @@ import type { IncomeCategoryData, TaxRateData, BudgetYearData, MonthSummary } fr
 function makeFixedCategory(overrides?: Partial<IncomeCategoryData>): IncomeCategoryData {
   return {
     id: "cat-1",
+    userId: "user-1",
     name: "Зарплата",
     type: "FIXED",
     taxRateId: null,
     taxRate: null,
     formula: null,
-    sortOrder: 0,
     params: [],
     entries: [],
     ...overrides,
@@ -31,12 +31,12 @@ function makeFixedCategory(overrides?: Partial<IncomeCategoryData>): IncomeCateg
 function makeFormulaCategory(overrides?: Partial<IncomeCategoryData>): IncomeCategoryData {
   return {
     id: "cat-2",
+    userId: "user-1",
     name: "Фриланс",
     type: "FORMULA",
     taxRateId: null,
     taxRate: null,
     formula: "clients * price",
-    sortOrder: 0,
     params: [
       {
         id: "p1",
@@ -141,14 +141,14 @@ describe("computeYearSummary", () => {
       baseCurrency: "RUB",
       taxRates: [taxRate],
       currencyRates: [{ id: "cr-1", currency: "EUR", month: 1, rate: 100 }],
-      members: [
+      incomeUsers: [
         {
           id: "m1",
           name: "Алексей",
-          sortOrder: 0,
           incomeCategories: [
             makeFixedCategory({
               id: "c1",
+              userId: "m1",
               name: "Зарплата",
               taxRate,
               taxRateId: "tax-1",
@@ -201,11 +201,11 @@ describe("computeYearSummary", () => {
     // Cumulative after Jan = 94000
     expect(jan.cumulative).toBe(94000);
 
-    // Member summary
-    expect(jan.memberSummaries).toHaveLength(1);
-    expect(jan.memberSummaries[0].memberName).toBe("Алексей");
-    expect(jan.memberSummaries[0].grossIncome).toBe(200000);
-    expect(jan.memberSummaries[0].netIncome).toBe(174000);
+    // User summary
+    expect(jan.userSummaries).toHaveLength(1);
+    expect(jan.userSummaries[0].userName).toBe("Алексей");
+    expect(jan.userSummaries[0].grossIncome).toBe(200000);
+    expect(jan.userSummaries[0].netIncome).toBe(174000);
 
     // Expense group summary
     expect(jan.expenseGroupSummaries).toHaveLength(1);
@@ -272,7 +272,7 @@ function makeSummary(overrides?: Partial<MonthSummary>): MonthSummary {
     totalExpenses: 0,
     balance: 0,
     cumulative: 0,
-    memberSummaries: [],
+    userSummaries: [],
     expenseGroupSummaries: [],
     ...overrides,
   };

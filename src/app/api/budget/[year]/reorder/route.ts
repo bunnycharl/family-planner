@@ -6,7 +6,7 @@ import { withAuth } from "@/lib/api-utils";
 import { logger } from "@/lib/logger";
 
 const reorderBodySchema = z.object({
-  type: z.enum(["members", "incomeCategories", "taxRates", "expenseGroups", "expenseCategories"]),
+  type: z.enum(["taxRates", "expenseGroups", "expenseCategories"]),
   items: reorderSchema,
 });
 
@@ -25,8 +25,6 @@ export const PUT = withAuth(async (request) => {
     const { type, items } = result.data;
 
     const modelMap = {
-      members: prisma.familyMember,
-      incomeCategories: prisma.budgetIncomeCategory,
       taxRates: prisma.taxRate,
       expenseGroups: prisma.budgetExpenseGroup,
       expenseCategories: prisma.budgetExpenseCategory,

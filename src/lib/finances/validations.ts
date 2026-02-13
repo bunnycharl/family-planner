@@ -73,7 +73,6 @@ export const updateIncomeCategorySchema = z.object({
   type: z.enum(["FIXED", "FORMULA"]).optional(),
   taxRateId: z.string().nullable().optional(),
   formula: z.string().nullable().optional(),
-  sortOrder: z.number().int().optional(),
 });
 
 export const createFormulaParamSchema = z.object({

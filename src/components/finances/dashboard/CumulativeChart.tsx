@@ -26,11 +26,14 @@ export function CumulativeChart({ summaries, baseCurrency, selectedMonth }: Cumu
   }));
 
   return (
-    <div className="rounded-3xl bg-[var(--c-gray)] p-4 md:p-6">
-      <h3 className="mb-4 text-xs font-bold uppercase tracking-wide text-[var(--c-black)]/40">
-        {insightCumulative(summaries, selectedMonth, baseCurrency)}
+    <div className="rounded-3xl bg-[var(--c-gray)] p-5 md:p-8">
+      <h3 className="text-sm font-extrabold uppercase tracking-wide text-[var(--c-black)]">
+        Накопления
       </h3>
-      <ResponsiveContainer width="100%" height={200}>
+      <p className="mt-1 mb-6 text-xs font-medium text-[var(--c-black)]/40">
+        {insightCumulative(summaries, selectedMonth, baseCurrency)}
+      </p>
+      <ResponsiveContainer width="100%" height={220}>
         <AreaChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
           <XAxis dataKey="name" tick={{ fontSize: 10, fontWeight: 700 }} />

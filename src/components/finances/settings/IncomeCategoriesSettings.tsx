@@ -10,7 +10,7 @@ interface IncomeCategoriesSettingsProps {
   data: BudgetYearData;
   mutations: {
     createIncomeCategory: (data: {
-      familyMemberId: string;
+      userId: string;
       name: string;
       type: IncomeCategoryType;
       taxRateId?: string | null;
@@ -35,20 +35,20 @@ interface IncomeCategoriesSettingsProps {
 }
 
 export function IncomeCategoriesSettings({ data, mutations }: IncomeCategoriesSettingsProps) {
-  const [selectedMemberId, setSelectedMemberId] = useState(data.members[0]?.id ?? "");
+  const [selectedUserId, setSelectedUserId] = useState(data.incomeUsers[0]?.id ?? "");
   const [newName, setNewName] = useState("");
   const [newType, setNewType] = useState<IncomeCategoryType>("FIXED");
   const [newTaxRateId, setNewTaxRateId] = useState<string>("");
   const [expandedCatId, setExpandedCatId] = useState<string | null>(null);
 
-  const member = data.members.find((m) => m.id === selectedMemberId);
-  const categories = member?.incomeCategories ?? [];
+  const user = data.incomeUsers.find((u) => u.id === selectedUserId);
+  const categories = user?.incomeCategories ?? [];
 
   async function handleAdd() {
-    if (!newName.trim() || !selectedMemberId) return;
+    if (!newName.trim() || !selectedUserId) return;
     try {
       await mutations.createIncomeCategory({
-        familyMemberId: selectedMemberId,
+        userId: selectedUserId,
         name: newName.trim(),
         type: newType,
         taxRateId: newTaxRateId || null,
@@ -74,21 +74,21 @@ export function IncomeCategoriesSettings({ data, mutations }: IncomeCategoriesSe
 
   return (
     <div className="space-y-4">
-      {/* Member selector */}
+      {/* User selector */}
       <div className="flex flex-wrap gap-2">
-        {data.members.map((m) => (
+        {data.incomeUsers.map((u) => (
           <button
-            key={m.id}
+            key={u.id}
             type="button"
-            onClick={() => setSelectedMemberId(m.id)}
+            onClick={() => setSelectedUserId(u.id)}
             className={cn(
               "rounded-full px-4 py-2 text-xs font-bold uppercase transition-all cursor-pointer",
-              selectedMemberId === m.id
+              selectedUserId === u.id
                 ? "bg-[var(--c-lavender)] text-white"
                 : "bg-[var(--c-gray)] text-[var(--c-black)] hover:bg-[var(--c-gray)]/80"
             )}
           >
-            {m.name}
+            {u.name}
           </button>
         ))}
       </div>
@@ -192,7 +192,7 @@ function CategoryDetail({
   taxRates,
   mutations,
 }: {
-  cat: IncomeCategoriesSettingsProps["data"]["members"][0]["incomeCategories"][0];
+  cat: IncomeCategoriesSettingsProps["data"]["incomeUsers"][0]["incomeCategories"][0];
   taxRates: IncomeCategoriesSettingsProps["data"]["taxRates"];
   mutations: IncomeCategoriesSettingsProps["mutations"];
 }) {

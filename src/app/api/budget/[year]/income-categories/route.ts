@@ -4,7 +4,14 @@ import { createIncomeCategorySchema } from "@/lib/finances/validations";
 import { withAuth } from "@/lib/api-utils";
 import { logger } from "@/lib/logger";
 
-export const POST = withAuth(async (request) => {
+export const POST = withAuth(async (request, session, context) => {
+  const { year: yearStr } = await context!.params;
+  const year = parseInt(yearStr, 10);
+
+  if (isNaN(year)) {
+    return NextResponse.json({ error: "Некорректный год" }, { status: 400 });
+  }
+
   try {
     const body = await request.json();
     const result = createIncomeCategorySchema.safeParse(body);
@@ -16,31 +23,32 @@ export const POST = withAuth(async (request) => {
       );
     }
 
-    const { familyMemberId, name, type, taxRateId, formula } = result.data;
+    const { userId, name, type, taxRateId, formula } = result.data;
 
-    const member = await prisma.familyMember.findUnique({
-      where: { id: familyMemberId },
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
     });
 
-    if (!member) {
-      return NextResponse.json({ error: "Член семьи не найден" }, { status: 404 });
+    if (!user) {
+      return NextResponse.json({ error: "Пользователь не найден" }, { status: 404 });
     }
 
-    const maxSortOrder = await prisma.budgetIncomeCategory.aggregate({
-      where: { familyMemberId },
-      _max: { sortOrder: true },
+    const budgetYear = await prisma.budgetYear.findUnique({
+      where: { year },
     });
 
-    const sortOrder = (maxSortOrder._max.sortOrder ?? -1) + 1;
+    if (!budgetYear) {
+      return NextResponse.json({ error: "Бюджетный год не найден" }, { status: 404 });
+    }
 
     const category = await prisma.budgetIncomeCategory.create({
       data: {
-        familyMemberId,
+        userId,
+        budgetYearId: budgetYear.id,
         name,
         type,
         taxRateId: taxRateId ?? null,
         formula: formula ?? null,
-        sortOrder,
       },
       include: {
         taxRate: true,

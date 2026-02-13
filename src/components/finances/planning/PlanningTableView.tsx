@@ -43,11 +43,11 @@ export function PlanningTableView({ data, onCellChange }: PlanningTableViewProps
           </tr>
         </thead>
         <tbody>
-          {/* Income per member */}
-          {data.members.map((member) => (
-            <MemberRows
-              key={member.id}
-              member={member}
+          {/* Income per user */}
+          {data.incomeUsers.map((user) => (
+            <UserRows
+              key={user.id}
+              user={user}
               data={data}
               summaries={summaries}
               currentMonth={currentMonth}
@@ -111,14 +111,14 @@ export function PlanningTableView({ data, onCellChange }: PlanningTableViewProps
   );
 }
 
-function MemberRows({
-  member,
+function UserRows({
+  user,
   data,
   summaries,
   currentMonth,
   onCellChange,
 }: {
-  member: BudgetYearData["members"][0];
+  user: BudgetYearData["incomeUsers"][0];
   data: BudgetYearData;
   summaries: ReturnType<typeof computeYearSummary>;
   currentMonth: number;
@@ -130,12 +130,12 @@ function MemberRows({
       <tr>
         <td colSpan={14} className="sticky left-0 z-10 bg-[var(--c-gray)] px-3 pt-4 pb-1">
           <span className="text-[10px] font-extrabold uppercase tracking-wide text-[var(--c-lavender)]">
-            {member.name}
+            {user.name}
           </span>
         </td>
       </tr>
 
-      {member.incomeCategories.map((cat) => {
+      {user.incomeCategories.map((cat) => {
         if (cat.type === "FIXED") {
           const values = Array.from({ length: 12 }, (_, i) => {
             const entry = cat.entries.find((e) => e.month === i + 1);
@@ -168,12 +168,12 @@ function MemberRows({
         );
       })}
 
-      {/* Member net income */}
+      {/* User net income */}
       <SummaryRow
-        label={`Чистый доход ${member.name}`}
+        label={`Чистый доход ${user.name}`}
         values={summaries.map((s) => {
-          const ms = s.memberSummaries.find((m) => m.memberId === member.id);
-          return ms?.netIncome ?? 0;
+          const us = s.userSummaries.find((u) => u.userId === user.id);
+          return us?.netIncome ?? 0;
         })}
         bold
         currentMonth={currentMonth}

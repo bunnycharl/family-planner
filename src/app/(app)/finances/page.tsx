@@ -13,6 +13,21 @@ import { BudgetProgressBars } from "@/components/finances/dashboard/BudgetProgre
 import { PlanVsFactBars } from "@/components/finances/dashboard/PlanVsFactBars";
 import { CompactSummaryTable } from "@/components/finances/dashboard/CompactSummaryTable";
 
+const MONTH_NAMES_FULL = [
+  "Январь",
+  "Февраль",
+  "Март",
+  "Апрель",
+  "Май",
+  "Июнь",
+  "Июль",
+  "Август",
+  "Сентябрь",
+  "Октябрь",
+  "Ноябрь",
+  "Декабрь",
+];
+
 export default function FinanceDashboardPage() {
   const [year, setYear] = useState(new Date().getFullYear());
   const currentMonth = new Date().getMonth() + 1;
@@ -43,13 +58,19 @@ export default function FinanceDashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <YearSelector year={year} onChange={setYear} />
+    <div className="space-y-8">
+      {/* Header: month name + year selector + month pills */}
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[var(--c-black)]">
+            {MONTH_NAMES_FULL[selectedMonth - 1]}
+          </h2>
+          <YearSelector year={year} onChange={setYear} />
+        </div>
         <MonthNavigator selectedMonth={selectedMonth} onSelect={setSelectedMonth} />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {/* KPI — full width */}
         <div className="col-span-1 md:col-span-2 lg:col-span-3 animate-fade-in-up">
           <KPICards
@@ -79,9 +100,9 @@ export default function FinanceDashboardPage() {
           <ExpenseDonutChart summary={monthSummary} baseCurrency={data.baseCurrency} />
         </div>
 
-        {/* Cumulative — 2/3 */}
+        {/* Cumulative — full width */}
         <div
-          className="col-span-1 md:col-span-1 lg:col-span-2 animate-fade-in-up"
+          className="col-span-1 md:col-span-2 lg:col-span-3 animate-fade-in-up"
           style={{ animationDelay: "240ms" }}
         >
           <CumulativeChart
@@ -99,9 +120,9 @@ export default function FinanceDashboardPage() {
           <BudgetProgressBars summary={monthSummary} baseCurrency={data.baseCurrency} />
         </div>
 
-        {/* Plan vs Fact — 1/3 */}
+        {/* Plan vs Fact — 2/3 */}
         <div
-          className="col-span-1 md:col-span-1 lg:col-span-1 animate-fade-in-up"
+          className="col-span-1 md:col-span-1 lg:col-span-2 animate-fade-in-up"
           style={{ animationDelay: "360ms" }}
         >
           <PlanVsFactBars year={year} month={selectedMonth} baseCurrency={data.baseCurrency} />

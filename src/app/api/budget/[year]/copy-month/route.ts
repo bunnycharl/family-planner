@@ -28,16 +28,12 @@ export const POST = withAuth(async (request, session, context) => {
     const budgetYear = await prisma.budgetYear.findUnique({
       where: { year },
       include: {
-        members: {
+        incomeCategories: {
           include: {
-            incomeCategories: {
+            entries: { where: { month: fromMonth } },
+            params: {
               include: {
-                entries: { where: { month: fromMonth } },
-                params: {
-                  include: {
-                    values: { where: { month: fromMonth } },
-                  },
-                },
+                values: { where: { month: fromMonth } },
               },
             },
           },
@@ -64,47 +60,45 @@ export const POST = withAuth(async (request, session, context) => {
 
     for (const toMonth of toMonths) {
       // Copy income entries
-      for (const member of budgetYear.members) {
-        for (const cat of member.incomeCategories) {
-          for (const entry of cat.entries) {
+      for (const cat of budgetYear.incomeCategories) {
+        for (const entry of cat.entries) {
+          operations.push(
+            prisma.budgetIncomeEntry.upsert({
+              where: {
+                incomeCategoryId_month: {
+                  incomeCategoryId: cat.id,
+                  month: toMonth,
+                },
+              },
+              update: { amount: entry.amount },
+              create: {
+                incomeCategoryId: cat.id,
+                month: toMonth,
+                amount: entry.amount,
+              },
+            })
+          );
+        }
+
+        // Copy formula param values
+        for (const param of cat.params) {
+          for (const val of param.values) {
             operations.push(
-              prisma.budgetIncomeEntry.upsert({
+              prisma.formulaParamValue.upsert({
                 where: {
-                  incomeCategoryId_month: {
-                    incomeCategoryId: cat.id,
+                  formulaParamId_month: {
+                    formulaParamId: param.id,
                     month: toMonth,
                   },
                 },
-                update: { amount: entry.amount },
+                update: { value: val.value },
                 create: {
-                  incomeCategoryId: cat.id,
+                  formulaParamId: param.id,
                   month: toMonth,
-                  amount: entry.amount,
+                  value: val.value,
                 },
               })
             );
-          }
-
-          // Copy formula param values
-          for (const param of cat.params) {
-            for (const val of param.values) {
-              operations.push(
-                prisma.formulaParamValue.upsert({
-                  where: {
-                    formulaParamId_month: {
-                      formulaParamId: param.id,
-                      month: toMonth,
-                    },
-                  },
-                  update: { value: val.value },
-                  create: {
-                    formulaParamId: param.id,
-                    month: toMonth,
-                    value: val.value,
-                  },
-                })
-              );
-            }
           }
         }
       }

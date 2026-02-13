@@ -32,7 +32,7 @@ export function ExpenseDonutChart({ summary, baseCurrency }: ExpenseDonutChartPr
 
   if (chartData.length === 0) {
     return (
-      <div className="rounded-3xl bg-[var(--c-gray)] p-4 md:p-6 flex items-center justify-center min-h-[300px]">
+      <div className="rounded-3xl bg-[var(--c-gray)] p-5 md:p-8 flex items-center justify-center min-h-[300px]">
         <p className="text-sm font-bold uppercase text-[var(--c-black)]/20">Нет расходов</p>
       </div>
     );
@@ -42,11 +42,14 @@ export function ExpenseDonutChart({ summary, baseCurrency }: ExpenseDonutChartPr
   const topGroup = chartData.reduce((a, b) => (a.value > b.value ? a : b));
 
   return (
-    <div className="rounded-3xl bg-[var(--c-gray)] p-4 md:p-6">
-      <h3 className="mb-4 text-xs font-bold uppercase tracking-wide text-[var(--c-black)]/40">
-        {insightDonut(summary, baseCurrency)}
+    <div className="rounded-3xl bg-[var(--c-gray)] p-5 md:p-8">
+      <h3 className="text-sm font-extrabold uppercase tracking-wide text-[var(--c-black)]">
+        Расходы по категориям
       </h3>
-      <ResponsiveContainer width="100%" height={250}>
+      <p className="mt-1 mb-5 text-xs font-medium text-[var(--c-black)]/40">
+        {insightDonut(summary, baseCurrency)}
+      </p>
+      <ResponsiveContainer width="100%" height={260}>
         <PieChart>
           <Pie
             data={chartData}
@@ -108,14 +111,14 @@ export function ExpenseDonutChart({ summary, baseCurrency }: ExpenseDonutChartPr
       </ResponsiveContainer>
 
       {/* Legend */}
-      <div className="mt-3 flex flex-wrap gap-3 justify-center">
+      <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 justify-center">
         {chartData.map((item, idx) => (
-          <div key={item.name} className="flex items-center gap-1.5">
+          <div key={item.name} className="flex items-center gap-2">
             <div
-              className="h-2.5 w-2.5 rounded-full"
+              className="h-2.5 w-2.5 rounded-full shrink-0"
               style={{ backgroundColor: COLORS[idx % COLORS.length] }}
             />
-            <span className="text-[10px] font-bold text-[var(--c-black)]/60">{item.name}</span>
+            <span className="text-xs font-bold text-[var(--c-black)]/60">{item.name}</span>
           </div>
         ))}
       </div>

@@ -24,11 +24,11 @@ export function BudgetProgressBars({ summary, baseCurrency }: BudgetProgressBars
 
   if (ratio === null) {
     return (
-      <div className="rounded-3xl bg-[var(--c-gray)] p-4 md:p-6">
-        <h3 className="mb-4 text-xs font-bold uppercase tracking-wide text-[var(--c-black)]/40">
+      <div className="rounded-3xl bg-[var(--c-gray)] p-5 md:p-8">
+        <h3 className="text-sm font-extrabold uppercase tracking-wide text-[var(--c-black)]">
           Расходы от дохода
         </h3>
-        <p className="text-sm font-bold text-[var(--c-black)]/30">Нет данных о доходах</p>
+        <p className="mt-2 text-sm font-bold text-[var(--c-black)]/30">Нет данных о доходах</p>
       </div>
     );
   }
@@ -39,8 +39,8 @@ export function BudgetProgressBars({ summary, baseCurrency }: BudgetProgressBars
   const totalExpenses = expenseGroups.reduce((s, g) => s + g.amountInBaseCurrency, 0);
 
   return (
-    <div className="rounded-3xl bg-[var(--c-gray)] p-4 md:p-6">
-      <h3 className="mb-4 text-xs font-bold uppercase tracking-wide text-[var(--c-black)]/40">
+    <div className="rounded-3xl bg-[var(--c-gray)] p-5 md:p-8">
+      <h3 className="mb-5 text-sm font-extrabold uppercase tracking-wide text-[var(--c-black)]">
         Расходы от дохода
       </h3>
 

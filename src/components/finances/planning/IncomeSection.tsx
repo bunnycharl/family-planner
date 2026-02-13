@@ -1,20 +1,20 @@
 "use client";
 
-import type { FamilyMemberData, MemberMonthSummary, BulkUpsertInput } from "@/lib/finances/types";
+import type { IncomeUserData, UserMonthSummary, BulkUpsertInput } from "@/lib/finances/types";
 import { formatMoney } from "@/lib/finances/calculations";
 import { Accordion } from "@/components/finances/shared/Accordion";
 import { CurrencyInput } from "@/components/finances/shared/CurrencyInput";
 
 interface IncomeSectionProps {
-  member: FamilyMemberData;
+  user: IncomeUserData;
   month: number;
-  summary?: MemberMonthSummary;
+  summary?: UserMonthSummary;
   baseCurrency: string;
   onCellChange: (entry: Partial<BulkUpsertInput>) => void;
 }
 
 export function IncomeSection({
-  member,
+  user,
   month,
   summary,
   baseCurrency,
@@ -22,11 +22,11 @@ export function IncomeSection({
 }: IncomeSectionProps) {
   return (
     <Accordion
-      title={member.name}
+      title={user.name}
       subtitle={summary ? formatMoney(summary.netIncome, baseCurrency) : undefined}
       color="var(--c-lavender)"
     >
-      {member.incomeCategories.map((cat) => {
+      {user.incomeCategories.map((cat) => {
         const catSummary = summary?.categories.find((c) => c.id === cat.id);
 
         if (cat.type === "FIXED") {

@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS "Task" (
     "categoryId" TEXT,
     "createdById" TEXT NOT NULL,
     "assigneeId" TEXT,
+    "showOnRoadmap" INTEGER NOT NULL DEFAULT 0,
     "phaseId" TEXT,
     CONSTRAINT "Task_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT "Task_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -54,22 +55,16 @@ CREATE TABLE IF NOT EXISTS "BudgetYear" (
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );
-CREATE TABLE IF NOT EXISTS "FamilyMember" (
-    "id" TEXT NOT NULL PRIMARY KEY,
-    "budgetYearId" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "sortOrder" INTEGER NOT NULL DEFAULT 0,
-    CONSTRAINT "FamilyMember_budgetYearId_fkey" FOREIGN KEY ("budgetYearId") REFERENCES "BudgetYear" ("id") ON DELETE CASCADE ON UPDATE CASCADE
-);
 CREATE TABLE IF NOT EXISTS "BudgetIncomeCategory" (
     "id" TEXT NOT NULL PRIMARY KEY,
-    "familyMemberId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "type" TEXT NOT NULL DEFAULT 'FIXED',
     "taxRateId" TEXT,
     "formula" TEXT,
-    "sortOrder" INTEGER NOT NULL DEFAULT 0,
-    CONSTRAINT "BudgetIncomeCategory_familyMemberId_fkey" FOREIGN KEY ("familyMemberId") REFERENCES "FamilyMember" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    "budgetYearId" TEXT NOT NULL,
+    CONSTRAINT "BudgetIncomeCategory_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "BudgetIncomeCategory_budgetYearId_fkey" FOREIGN KEY ("budgetYearId") REFERENCES "BudgetYear" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "BudgetIncomeCategory_taxRateId_fkey" FOREIGN KEY ("taxRateId") REFERENCES "TaxRate" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 CREATE TABLE IF NOT EXISTS "FormulaParam" (
@@ -152,8 +147,8 @@ CREATE INDEX "Task_assigneeId_idx" ON "Task"("assigneeId");
 CREATE INDEX "Task_phaseId_idx" ON "Task"("phaseId");
 CREATE INDEX "Task_endDate_idx" ON "Task"("endDate");
 CREATE UNIQUE INDEX "BudgetYear_year_key" ON "BudgetYear"("year");
-CREATE INDEX "FamilyMember_budgetYearId_idx" ON "FamilyMember"("budgetYearId");
-CREATE INDEX "BudgetIncomeCategory_familyMemberId_idx" ON "BudgetIncomeCategory"("familyMemberId");
+CREATE INDEX "BudgetIncomeCategory_userId_idx" ON "BudgetIncomeCategory"("userId");
+CREATE INDEX "BudgetIncomeCategory_budgetYearId_idx" ON "BudgetIncomeCategory"("budgetYearId");
 CREATE INDEX "FormulaParam_incomeCategoryId_idx" ON "FormulaParam"("incomeCategoryId");
 CREATE UNIQUE INDEX "FormulaParam_incomeCategoryId_paramKey_key" ON "FormulaParam"("incomeCategoryId", "paramKey");
 CREATE INDEX "BudgetIncomeEntry_incomeCategoryId_idx" ON "BudgetIncomeEntry"("incomeCategoryId");

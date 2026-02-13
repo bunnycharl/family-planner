@@ -50,16 +50,19 @@ export function IncomeExpenseChart({
   };
 
   return (
-    <div className="rounded-3xl bg-[var(--c-gray)] p-4 md:p-6">
-      <div className="mb-4 flex items-center justify-between gap-2">
-        <h3 className="text-xs font-bold uppercase tracking-wide text-[var(--c-black)]/40">
-          {insight}
-        </h3>
+    <div className="rounded-3xl bg-[var(--c-gray)] p-5 md:p-8">
+      <div className="mb-6 flex items-start justify-between gap-2">
+        <div>
+          <h3 className="text-sm font-extrabold uppercase tracking-wide text-[var(--c-black)]">
+            Доходы и расходы
+          </h3>
+          <p className="mt-1 text-xs font-medium text-[var(--c-black)]/40">{insight}</p>
+        </div>
         <button
           type="button"
           onClick={() => setShowComparison((v) => !v)}
           className={cn(
-            "shrink-0 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wide transition-colors",
+            "shrink-0 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wide transition-colors cursor-pointer",
             showComparison
               ? "bg-[var(--c-black)]/10 text-[var(--c-black)]/70"
               : "bg-[var(--c-black)]/5 text-[var(--c-black)]/30 hover:bg-[var(--c-black)]/8"
@@ -68,7 +71,7 @@ export function IncomeExpenseChart({
           Сравнение
         </button>
       </div>
-      <ResponsiveContainer width="100%" height={250}>
+      <ResponsiveContainer width="100%" height={280}>
         <BarChart
           data={chartData}
           onClick={(e) => {

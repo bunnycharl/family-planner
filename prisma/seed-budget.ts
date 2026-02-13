@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 export async function seedBudget(prisma: PrismaClient) {
   const year = 2026;
@@ -21,49 +22,64 @@ export async function seedBudget(prisma: PrismaClient) {
     data: { budgetYearId: budgetYear.id, name: "Школа 6%", rate: 0.06, sortOrder: 2 },
   });
 
-  // 3. Family Members
-  const nikita = await prisma.familyMember.create({
-    data: { budgetYearId: budgetYear.id, name: "Никита", sortOrder: 0 },
+  // 3. Users
+  const hashedPassword = await bcrypt.hash("password", 10);
+  const nikita = await prisma.user.upsert({
+    where: { email: "nikita@example.com" },
+    update: {},
+    create: { name: "Никита", email: "nikita@example.com", hashedPassword },
   });
-  const darya = await prisma.familyMember.create({
-    data: { budgetYearId: budgetYear.id, name: "Дарья", sortOrder: 1 },
+  const darya = await prisma.user.upsert({
+    where: { email: "darya@example.com" },
+    update: {},
+    create: { name: "Дарья", email: "darya@example.com", hashedPassword },
   });
 
   // 4. Income Categories — Nikita (FIXED)
   await prisma.budgetIncomeCategory.createMany({
     data: [
-      { familyMemberId: nikita.id, name: "Аренда квартиры", type: "FIXED", sortOrder: 0 },
       {
-        familyMemberId: nikita.id,
+        budgetYearId: budgetYear.id,
+        userId: nikita.id,
+        name: "Аренда квартиры",
+        type: "FIXED",
+      },
+      {
+        budgetYearId: budgetYear.id,
+        userId: nikita.id,
         name: "Инвестиции",
         type: "FIXED",
         taxRateId: taxNdfl.id,
-        sortOrder: 1,
       },
-      { familyMemberId: nikita.id, name: "Фриланс / работа / прочее", type: "FIXED", sortOrder: 2 },
+      {
+        budgetYearId: budgetYear.id,
+        userId: nikita.id,
+        name: "Фриланс / работа / прочее",
+        type: "FIXED",
+      },
     ],
   });
 
   // 5. Income Categories — Darya (FORMULA)
   const consultations = await prisma.budgetIncomeCategory.create({
     data: {
-      familyMemberId: darya.id,
+      budgetYearId: budgetYear.id,
+      userId: darya.id,
       name: "Консультации",
       type: "FORMULA",
       formula: "clients * price",
       taxRateId: taxUsn4.id,
-      sortOrder: 0,
     },
   });
 
   const school = await prisma.budgetIncomeCategory.create({
     data: {
-      familyMemberId: darya.id,
+      budgetYearId: budgetYear.id,
+      userId: darya.id,
       name: "Школа",
       type: "FORMULA",
       formula: "lessons_per_week * price * work_days * 4",
       taxRateId: taxSchool.id,
-      sortOrder: 1,
     },
   });
 
@@ -131,7 +147,7 @@ export async function seedBudget(prisma: PrismaClient) {
 
   console.log("Budget seed completed:");
   console.log(`  Year: ${year}`);
-  console.log(`  Members: ${nikita.name}, ${darya.name}`);
+  console.log(`  Users: ${nikita.name}, ${darya.name}`);
   console.log(`  Tax rates: 3`);
   console.log(`  Expense groups: 3`);
 }

@@ -22,13 +22,13 @@ export function CompactSummaryTable({ data, summaries, selectedMonth }: CompactS
 
   const rows: Row[] = [];
 
-  // Per-member net income
-  for (const member of data.members) {
+  // Per-user net income
+  for (const user of data.incomeUsers) {
     rows.push({
-      label: `${member.name} (чистый)`,
+      label: `${user.name} (чистый)`,
       values: summaries.map((s) => {
-        const ms = s.memberSummaries.find((m) => m.memberId === member.id);
-        return ms?.netIncome ?? 0;
+        const us = s.userSummaries.find((u) => u.userId === user.id);
+        return us?.netIncome ?? 0;
       }),
     });
   }
@@ -72,8 +72,8 @@ export function CompactSummaryTable({ data, summaries, selectedMonth }: CompactS
   });
 
   return (
-    <div className="rounded-3xl bg-[var(--c-gray)] p-4 overflow-x-auto">
-      <h3 className="mb-3 text-xs font-bold uppercase tracking-wide text-[var(--c-black)]/40">
+    <div className="rounded-3xl bg-[var(--c-gray)] p-5 md:p-8 overflow-x-auto">
+      <h3 className="mb-4 text-sm font-extrabold uppercase tracking-wide text-[var(--c-black)]">
         Сводка за год
       </h3>
       <p className="mb-2 text-[9px] font-medium text-[var(--c-black)]/20 md:hidden">

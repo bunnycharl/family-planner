@@ -6,27 +6,26 @@ export interface BudgetYearData {
   id: string;
   year: number;
   baseCurrency: string;
-  members: FamilyMemberData[];
+  incomeUsers: IncomeUserData[];
   taxRates: TaxRateData[];
   expenseGroups: ExpenseGroupData[];
   currencyRates: CurrencyRateData[];
 }
 
-export interface FamilyMemberData {
+export interface IncomeUserData {
   id: string;
   name: string;
-  sortOrder: number;
   incomeCategories: IncomeCategoryData[];
 }
 
 export interface IncomeCategoryData {
   id: string;
+  userId: string;
   name: string;
   type: IncomeCategoryType;
   taxRateId: string | null;
   taxRate: TaxRateData | null;
   formula: string | null;
-  sortOrder: number;
   params: FormulaParamData[];
   entries: IncomeEntryData[];
 }
@@ -145,13 +144,13 @@ export interface MonthSummary {
   totalExpenses: number;
   balance: number;
   cumulative: number;
-  memberSummaries: MemberMonthSummary[];
+  userSummaries: UserMonthSummary[];
   expenseGroupSummaries: ExpenseGroupMonthSummary[];
 }
 
-export interface MemberMonthSummary {
-  memberId: string;
-  memberName: string;
+export interface UserMonthSummary {
+  userId: string;
+  userName: string;
   grossIncome: number;
   tax: number;
   netIncome: number;
