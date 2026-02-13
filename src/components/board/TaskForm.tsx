@@ -311,12 +311,12 @@ export function TaskForm({ isOpen, onClose, task, defaultStatus, onSave }: TaskF
       {/* Modal — full screen on mobile */}
       <div
         className={cn(
-          "absolute inset-0 z-10 bg-white flex flex-col rounded-b-3xl",
+          "absolute inset-0 z-10 bg-white flex flex-col rounded-b-3xl overflow-hidden",
           "md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2",
           "md:max-w-lg md:w-full md:rounded-3xl md:shadow-xl md:max-h-[90vh]"
         )}
       >
-        <form onSubmit={handleSubmit} className="flex flex-col h-full">
+        <form onSubmit={handleSubmit} className="flex flex-col h-full overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 shrink-0">
             <div className="flex items-center gap-3">

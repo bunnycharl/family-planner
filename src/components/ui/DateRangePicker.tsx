@@ -36,6 +36,7 @@ export function DateRangePicker({
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectingStart, setSelectingStart] = useState(true);
   const ref = useRef<HTMLDivElement>(null);
+  const calendarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -47,6 +48,20 @@ export function DateRangePicker({
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
       return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [isOpen]);
+
+  // Auto-scroll into view when calendar opens
+  useEffect(() => {
+    if (isOpen && calendarRef.current) {
+      setTimeout(() => {
+        if (calendarRef.current) {
+          calendarRef.current.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest",
+          });
+        }
+      }, 50);
     }
   }, [isOpen]);
 
@@ -117,7 +132,10 @@ export function DateRangePicker({
         </button>
 
         {isOpen && (
-          <div className="absolute left-0 right-0 top-full z-50 mt-2 rounded-2xl border-2 border-[var(--c-black)] bg-white shadow-2xl p-4">
+          <div
+            ref={calendarRef}
+            className="absolute left-0 right-0 top-full z-50 mt-2 rounded-2xl border-2 border-[var(--c-black)] bg-white shadow-2xl p-4"
+          >
             {/* Month navigation */}
             <div className="flex items-center justify-between mb-4">
               <button
