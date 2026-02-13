@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import type { MonthSummary } from "@/lib/finances/types";
 import { formatMoney } from "@/lib/finances/calculations";
@@ -15,7 +16,49 @@ function pctChange(current: number, previous: number): number | null {
   return Math.round(((current - previous) / Math.abs(previous)) * 100);
 }
 
+function renderDrillDown(
+  label: string,
+  summary: MonthSummary,
+  baseCurrency: string
+): React.ReactNode {
+  if (label === "Расходы") {
+    const groups = [...summary.expenseGroupSummaries].sort(
+      (a, b) => b.amountInBaseCurrency - a.amountInBaseCurrency
+    );
+    if (groups.length === 0) return null;
+    return (
+      <div className="mt-2 pt-2 border-t border-[var(--c-black)]/10 space-y-1">
+        {groups.map((g) => (
+          <div key={g.groupId} className="flex justify-between text-[10px]">
+            <span className="font-medium text-[var(--c-black)]/60">{g.groupName}</span>
+            <span className="font-bold">{formatMoney(g.amountInBaseCurrency, baseCurrency)}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (label === "Доходы") {
+    const members = summary.memberSummaries;
+    if (members.length === 0) return null;
+    return (
+      <div className="mt-2 pt-2 border-t border-[var(--c-black)]/10 space-y-1">
+        {members.map((m) => (
+          <div key={m.memberId} className="flex justify-between text-[10px]">
+            <span className="font-medium text-[var(--c-black)]/60">{m.memberName}</span>
+            <span className="font-bold">{formatMoney(m.netIncome, baseCurrency)}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return null;
+}
+
 export function KPICards({ summary, prevSummary, baseCurrency }: KPICardsProps) {
+  const [expandedCard, setExpandedCard] = useState<string | null>(null);
+
   if (!summary) return null;
 
   const cards = [
@@ -54,8 +97,17 @@ export function KPICards({ summary, prevSummary, baseCurrency }: KPICardsProps) 
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
       {cards.map((card) => {
         const change = card.prev != null ? pctChange(card.value, card.prev) : null;
+        const isExpanded = expandedCard === card.label;
         return (
-          <div key={card.label} className={cn("rounded-3xl p-4 md:p-5 space-y-1", card.bgClass)}>
+          <div
+            key={card.label}
+            className={cn(
+              "rounded-3xl p-4 md:p-5 space-y-1 cursor-pointer transition-shadow",
+              card.bgClass,
+              isExpanded && "ring-2 ring-[var(--c-lavender)]"
+            )}
+            onClick={() => setExpandedCard(isExpanded ? null : card.label)}
+          >
             <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--c-black)]/40">
               {card.label}
             </p>
@@ -75,6 +127,7 @@ export function KPICards({ summary, prevSummary, baseCurrency }: KPICardsProps) 
             {card.subtitle && (
               <p className="text-[10px] font-medium text-[var(--c-black)]/30">{card.subtitle}</p>
             )}
+            {isExpanded && renderDrillDown(card.label, summary, baseCurrency)}
           </div>
         );
       })}
