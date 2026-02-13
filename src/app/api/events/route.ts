@@ -14,12 +14,12 @@ export const GET = withAuth(async (request) => {
   const where: Record<string, unknown> = {};
 
   if (start || end) {
-    where.startDate = {};
+    where.date = {};
     if (start) {
-      (where.startDate as Record<string, unknown>).gte = new Date(start);
+      (where.date as Record<string, unknown>).gte = new Date(start);
     }
     if (end) {
-      (where.startDate as Record<string, unknown>).lte = new Date(end);
+      (where.date as Record<string, unknown>).lte = new Date(end);
     }
   }
 
@@ -37,11 +37,10 @@ export const GET = withAuth(async (request) => {
       include: {
         category: true,
         createdBy: true,
-        modifiedBy: true,
-        assignees: true,
+        assignee: true,
       },
       orderBy: {
-        startDate: "asc",
+        date: "asc",
       },
     });
 
@@ -64,21 +63,18 @@ export const POST = withAuth(async (request, session) => {
       );
     }
 
-    const { assigneeIds, ...data } = result.data;
+    const data = result.data;
 
     const event = await prisma.event.create({
       data: {
         ...data,
-        startDate: new Date(data.startDate),
-        endDate: data.endDate ? new Date(data.endDate) : undefined,
+        date: new Date(data.date),
         createdById: session.user!.id!,
-        assignees: assigneeIds ? { connect: assigneeIds.map((id) => ({ id })) } : undefined,
       },
       include: {
         category: true,
         createdBy: true,
-        modifiedBy: true,
-        assignees: true,
+        assignee: true,
       },
     });
 

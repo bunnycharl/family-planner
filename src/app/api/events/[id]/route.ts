@@ -13,8 +13,7 @@ export const GET = withAuth(async (request, session, context) => {
       include: {
         category: true,
         createdBy: true,
-        modifiedBy: true,
-        assignees: true,
+        assignee: true,
       },
     });
 
@@ -43,26 +42,12 @@ export const PUT = withAuth(async (request, session, context) => {
       );
     }
 
-    const { assigneeIds, ...data } = result.data;
+    const data = result.data;
 
-    const updateData: Record<string, unknown> = {
-      ...data,
-      modifiedById: session.user!.id!,
-    };
+    const updateData: Record<string, unknown> = { ...data };
 
-    if (data.startDate) {
-      updateData.startDate = new Date(data.startDate);
-    }
-
-    if (data.endDate) {
-      updateData.endDate = new Date(data.endDate);
-    }
-
-    if (assigneeIds) {
-      updateData.assignees = {
-        set: [],
-        connect: assigneeIds.map((id) => ({ id })),
-      };
+    if (data.date) {
+      updateData.date = new Date(data.date);
     }
 
     const event = await prisma.event.update({
@@ -71,8 +56,7 @@ export const PUT = withAuth(async (request, session, context) => {
       include: {
         category: true,
         createdBy: true,
-        modifiedBy: true,
-        assignees: true,
+        assignee: true,
       },
     });
 

@@ -14,6 +14,7 @@ export const GET = withAuth(async (request, session, context) => {
         category: true,
         createdBy: true,
         assignee: true,
+        phase: true,
       },
     });
 
@@ -44,16 +45,28 @@ export const PUT = withAuth(async (request, session, context) => {
 
     const data = result.data;
 
+    const updateData: Record<string, unknown> = { ...data };
+
+    if (data.startDate) {
+      updateData.startDate = new Date(data.startDate);
+    }
+
+    if (data.endDate) {
+      updateData.endDate = new Date(data.endDate);
+    }
+
+    if (data.phaseId === null) {
+      updateData.phaseId = null;
+    }
+
     const task = await prisma.task.update({
       where: { id },
-      data: {
-        ...data,
-        dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
-      },
+      data: updateData,
       include: {
         category: true,
         createdBy: true,
         assignee: true,
+        phase: true,
       },
     });
 
@@ -90,6 +103,7 @@ export const PATCH = withAuth(async (request, session, context) => {
         category: true,
         createdBy: true,
         assignee: true,
+        phase: true,
       },
     });
 

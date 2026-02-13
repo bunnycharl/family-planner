@@ -8,8 +8,8 @@ export const GET = withAuth(async () => {
   try {
     const phases = await prisma.roadmapPhase.findMany({
       include: {
-        milestones: {
-          include: { category: true },
+        tasks: {
+          include: { category: true, assignee: true },
           orderBy: { position: "asc" },
         },
       },
@@ -52,8 +52,8 @@ export const POST = withAuth(async (request) => {
         position,
       },
       include: {
-        milestones: {
-          include: { category: true },
+        tasks: {
+          include: { category: true, assignee: true },
           orderBy: { position: "asc" },
         },
       },

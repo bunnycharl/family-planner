@@ -27,8 +27,8 @@ export const PUT = withAuth(async (request, session, context) => {
       where: { id },
       data: result.data,
       include: {
-        milestones: {
-          include: { category: true },
+        tasks: {
+          include: { category: true, assignee: true },
           orderBy: { position: "asc" },
         },
       },

@@ -9,9 +9,9 @@ export const GET = withAuth(async (request) => {
   const status = searchParams.get("status");
   const categoryId = searchParams.get("categoryId");
   const assigneeId = searchParams.get("assigneeId");
-  const dueDateStart = searchParams.get("dueDateStart");
-  const dueDateEnd = searchParams.get("dueDateEnd");
-  const hasDueDate = searchParams.get("hasDueDate");
+  const endDateFrom = searchParams.get("endDateFrom");
+  const endDateTo = searchParams.get("endDateTo");
+  const phaseId = searchParams.get("phaseId");
 
   const where: Record<string, unknown> = {};
 
@@ -27,18 +27,19 @@ export const GET = withAuth(async (request) => {
     where.assigneeId = assigneeId;
   }
 
-  if (hasDueDate === "true" || dueDateStart || dueDateEnd) {
-    const dueDateFilter: Record<string, unknown> = {};
-    if (hasDueDate === "true") {
-      dueDateFilter.not = null;
+  if (endDateFrom || endDateTo) {
+    const endDateFilter: Record<string, unknown> = {};
+    if (endDateFrom) {
+      endDateFilter.gte = new Date(endDateFrom);
     }
-    if (dueDateStart) {
-      dueDateFilter.gte = new Date(dueDateStart);
+    if (endDateTo) {
+      endDateFilter.lte = new Date(endDateTo);
     }
-    if (dueDateEnd) {
-      dueDateFilter.lte = new Date(dueDateEnd);
-    }
-    where.dueDate = dueDateFilter;
+    where.endDate = endDateFilter;
+  }
+
+  if (phaseId) {
+    where.phaseId = phaseId;
   }
 
   try {
@@ -48,6 +49,7 @@ export const GET = withAuth(async (request) => {
         category: true,
         createdBy: true,
         assignee: true,
+        phase: true,
       },
       orderBy: {
         position: "asc",
@@ -85,7 +87,8 @@ export const POST = withAuth(async (request, session) => {
     const task = await prisma.task.create({
       data: {
         ...data,
-        dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
+        startDate: new Date(data.startDate),
+        endDate: new Date(data.endDate),
         position,
         createdById: session.user!.id!,
       },
@@ -93,6 +96,7 @@ export const POST = withAuth(async (request, session) => {
         category: true,
         createdBy: true,
         assignee: true,
+        phase: true,
       },
     });
 
