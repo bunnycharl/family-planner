@@ -11,9 +11,39 @@ export interface CalendarItem {
   taskStartDate?: string;
 }
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+interface BaseUser {
+  id: string;
+  name: string;
+  avatarColor: string;
+}
 
-export function eventToCalendarItem(event: any): CalendarItem {
+interface BaseCategory {
+  id: string;
+  name: string;
+  color: string;
+}
+
+interface CalendarEvent {
+  id: string;
+  title: string;
+  date: string;
+  category?: BaseCategory | null;
+  createdBy?: BaseUser | null;
+  assignee?: BaseUser | null;
+}
+
+interface CalendarTask {
+  id: string;
+  title: string;
+  startDate: string;
+  endDate: string;
+  status: "TODO" | "IN_PROGRESS" | "DONE";
+  category?: BaseCategory | null;
+  createdBy?: BaseUser | null;
+  assignee?: BaseUser | null;
+}
+
+export function eventToCalendarItem(event: CalendarEvent): CalendarItem {
   return {
     id: event.id,
     title: event.title,
@@ -25,7 +55,7 @@ export function eventToCalendarItem(event: any): CalendarItem {
   };
 }
 
-export function taskToCalendarItem(task: any): CalendarItem {
+export function taskToCalendarItem(task: CalendarTask): CalendarItem {
   return {
     id: task.id,
     title: task.title,
