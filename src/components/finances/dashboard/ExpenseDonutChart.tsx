@@ -56,30 +56,23 @@ export function ExpenseDonutChart({ summary, baseCurrency }: ExpenseDonutChartPr
             outerRadius={90}
             paddingAngle={3}
             dataKey="value"
-            label={({
-              x,
-              y,
-              percent,
-              index,
-            }: {
-              x: number;
-              y: number;
-              percent: number;
-              index: number;
-            }) =>
-              percent >= 0.05 ? (
+            label={({ x, y, percent, index }) => {
+              const p = percent ?? 0;
+              const i = typeof index === "number" ? index : 0;
+              if (p < 0.05) return null;
+              return (
                 <text
-                  x={x}
-                  y={y}
+                  x={x as number}
+                  y={y as number}
                   textAnchor="middle"
                   dominantBaseline="central"
                   className="text-[9px] font-bold"
-                  fill={COLORS[index % COLORS.length]}
+                  fill={COLORS[i % COLORS.length]}
                 >
-                  {Math.round(percent * 100)}%
+                  {Math.round(p * 100)}%
                 </text>
-              ) : null
-            }
+              );
+            }}
           >
             {chartData.map((_, idx) => (
               <Cell key={idx} fill={COLORS[idx % COLORS.length]} />

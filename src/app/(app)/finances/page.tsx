@@ -9,6 +9,7 @@ import { KPICards } from "@/components/finances/dashboard/KPICards";
 import { IncomeExpenseChart } from "@/components/finances/dashboard/IncomeExpenseChart";
 import { ExpenseDonutChart } from "@/components/finances/dashboard/ExpenseDonutChart";
 import { CumulativeChart } from "@/components/finances/dashboard/CumulativeChart";
+import { BudgetProgressBars } from "@/components/finances/dashboard/BudgetProgressBars";
 import { CompactSummaryTable } from "@/components/finances/dashboard/CompactSummaryTable";
 
 export default function FinanceDashboardPage() {
@@ -47,24 +48,64 @@ export default function FinanceDashboardPage() {
         <MonthNavigator selectedMonth={selectedMonth} onSelect={setSelectedMonth} />
       </div>
 
-      <KPICards
-        summary={monthSummary}
-        prevSummary={prevMonthSummary}
-        baseCurrency={data.baseCurrency}
-      />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* KPI — full width */}
+        <div className="col-span-1 md:col-span-2 lg:col-span-3 animate-fade-in-up">
+          <KPICards
+            summary={monthSummary}
+            prevSummary={prevMonthSummary}
+            baseCurrency={data.baseCurrency}
+          />
+        </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <IncomeExpenseChart
-          summaries={summaries}
-          selectedMonth={selectedMonth}
-          onSelectMonth={setSelectedMonth}
-        />
-        <ExpenseDonutChart summary={monthSummary} baseCurrency={data.baseCurrency} />
+        {/* Bar chart — 2/3 */}
+        <div
+          className="col-span-1 md:col-span-2 lg:col-span-2 animate-fade-in-up"
+          style={{ animationDelay: "80ms" }}
+        >
+          <IncomeExpenseChart
+            summaries={summaries}
+            selectedMonth={selectedMonth}
+            onSelectMonth={setSelectedMonth}
+          />
+        </div>
+
+        {/* Donut — 1/3 */}
+        <div
+          className="col-span-1 md:col-span-2 lg:col-span-1 animate-fade-in-up"
+          style={{ animationDelay: "160ms" }}
+        >
+          <ExpenseDonutChart summary={monthSummary} baseCurrency={data.baseCurrency} />
+        </div>
+
+        {/* Cumulative — 2/3 */}
+        <div
+          className="col-span-1 md:col-span-1 lg:col-span-2 animate-fade-in-up"
+          style={{ animationDelay: "240ms" }}
+        >
+          <CumulativeChart
+            summaries={summaries}
+            baseCurrency={data.baseCurrency}
+            selectedMonth={selectedMonth}
+          />
+        </div>
+
+        {/* Progress bars — 1/3 */}
+        <div
+          className="col-span-1 md:col-span-1 lg:col-span-1 animate-fade-in-up"
+          style={{ animationDelay: "320ms" }}
+        >
+          <BudgetProgressBars summary={monthSummary} baseCurrency={data.baseCurrency} />
+        </div>
+
+        {/* Summary table — full width */}
+        <div
+          className="col-span-1 md:col-span-2 lg:col-span-3 animate-fade-in-up"
+          style={{ animationDelay: "400ms" }}
+        >
+          <CompactSummaryTable data={data} summaries={summaries} selectedMonth={selectedMonth} />
+        </div>
       </div>
-
-      <CumulativeChart summaries={summaries} baseCurrency={data.baseCurrency} />
-
-      <CompactSummaryTable data={data} summaries={summaries} selectedMonth={selectedMonth} />
     </div>
   );
 }
