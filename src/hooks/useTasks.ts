@@ -1,5 +1,4 @@
-import useSWR from "swr";
-import { fetcher } from "./fetcher";
+import { useApiQuery } from "./useApi";
 
 interface UseTasksParams {
   status?: string;
@@ -8,6 +7,20 @@ interface UseTasksParams {
   endDateFrom?: string;
   endDateTo?: string;
   phaseId?: string;
+}
+
+interface Task {
+  id: string;
+  title: string;
+  description?: string | null;
+  status: "TODO" | "IN_PROGRESS" | "DONE";
+  startDate: string;
+  endDate: string;
+  category?: { id: string; name: string; color: string } | null;
+  createdBy?: { id: string; name: string; avatarColor: string } | null;
+  assignee?: { id: string; name: string; avatarColor: string } | null;
+  showOnRoadmap: boolean;
+  phaseId?: string | null;
 }
 
 export function useTasks(params?: UseTasksParams) {
@@ -22,14 +35,15 @@ export function useTasks(params?: UseTasksParams) {
   const query = searchParams.toString();
   const url = `/api/tasks${query ? `?${query}` : ""}`;
 
-  const { data, error, isLoading, mutate } = useSWR(url, fetcher, {
+  const { data, isLoading, isError, mutate } = useApiQuery<Task[]>(url, {
+    transform: (data) => data || [],
     dedupingInterval: 5000,
   });
 
   return {
-    tasks: data || [],
+    tasks: data,
     isLoading,
-    isError: error,
+    isError,
     mutate,
   };
 }

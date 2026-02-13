@@ -1,15 +1,22 @@
-import useSWR from "swr";
-import { fetcher } from "./fetcher";
+import { useApiQuery } from "./useApi";
+
+interface Category {
+  id: string;
+  name: string;
+  color: string;
+  icon?: string | null;
+}
 
 export function useCategories() {
-  const { data, error, isLoading, mutate } = useSWR("/api/categories", fetcher, {
+  const { data, isLoading, isError, mutate } = useApiQuery<Category[]>("/api/categories", {
+    transform: (data) => data || [],
     dedupingInterval: 30000,
   });
 
   return {
-    categories: data || [],
+    categories: data,
     isLoading,
-    isError: error,
+    isError,
     mutate,
   };
 }

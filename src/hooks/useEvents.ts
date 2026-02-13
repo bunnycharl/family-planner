@@ -1,10 +1,19 @@
-import useSWR from "swr";
-import { fetcher } from "./fetcher";
+import { useApiQuery } from "./useApi";
 
 interface UseEventsParams {
   start?: string;
   end?: string;
   categoryId?: string;
+}
+
+interface Event {
+  id: string;
+  title: string;
+  date: string;
+  description?: string | null;
+  category?: { id: string; name: string; color: string } | null;
+  createdBy?: { id: string; name: string; avatarColor: string } | null;
+  assignee?: { id: string; name: string; avatarColor: string } | null;
 }
 
 export function useEvents(params?: UseEventsParams) {
@@ -16,14 +25,15 @@ export function useEvents(params?: UseEventsParams) {
   const query = searchParams.toString();
   const url = `/api/events${query ? `?${query}` : ""}`;
 
-  const { data, error, isLoading, mutate } = useSWR(url, fetcher, {
+  const { data, isLoading, isError, mutate } = useApiQuery<Event[]>(url, {
+    transform: (data) => data || [],
     dedupingInterval: 5000,
   });
 
   return {
-    events: data || [],
+    events: data,
     isLoading,
-    isError: error,
+    isError,
     mutate,
   };
 }
