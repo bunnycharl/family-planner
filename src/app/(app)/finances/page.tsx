@@ -7,6 +7,7 @@ import { IncomeSheet } from "@/components/finances/IncomeSheet";
 import { IncomeParamSheet } from "@/components/finances/IncomeParamSheet";
 import { ExpenseSheet } from "@/components/finances/ExpenseSheet";
 import { SummarySheet } from "@/components/finances/SummarySheet";
+import { FinanceSettings } from "@/components/finances/FinanceSettings";
 
 export default function FinancesPage() {
   const [year, setYear] = useState(2026);
@@ -21,7 +22,7 @@ export default function FinancesPage() {
               Финансы
             </span>
           </h1>
-          <YearSelector year={year} onChange={setYear} />
+          {tab !== "settings" && <YearSelector year={year} onChange={setYear} />}
         </div>
         <FinanceTabs active={tab} onChange={setTab} />
       </div>
@@ -29,6 +30,7 @@ export default function FinancesPage() {
       {tab === "darya" && <IncomeParamSheet year={year} />}
       {tab === "expenses" && <ExpenseSheet year={year} />}
       {tab === "summary" && <SummarySheet year={year} />}
+      {tab === "settings" && <FinanceSettings />}
     </div>
   );
 }

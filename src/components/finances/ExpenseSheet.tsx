@@ -4,38 +4,53 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useFinanceExpenses } from "@/hooks/useFinanceExpenses";
 import { useExchangeRates } from "@/hooks/useExchangeRates";
-import { EXPENSE_CATEGORIES_MOSCOW, EXPENSE_CATEGORIES_ONETIME } from "@/lib/finance-utils";
+import { useExpenseGroups } from "@/hooks/useExpenseGroups";
 import { SpreadsheetGrid, GridRow } from "./SpreadsheetGrid";
-
-const EXPENSE_CATEGORIES_SPAIN = ["Аренда", "Продукты", "Транспорт", "Связь", "Прочее"] as const;
-
-type ExpenseSubTab = "moscow" | "spain" | "onetime";
-
-const SUB_TABS: { key: ExpenseSubTab; label: string }[] = [
-  { key: "moscow", label: "Москва" },
-  { key: "spain", label: "Испания" },
-  { key: "onetime", label: "Разовые" },
-];
 
 interface ExpenseSheetProps {
   year: number;
 }
 
-export function ExpenseSheet({ year }: ExpenseSheetProps) {
-  const [subTab, setSubTab] = useState<ExpenseSubTab>("moscow");
+interface ExpenseGroupData {
+  id: string;
+  name: string;
+  slug: string;
+  currency: string;
+  position: number;
+  categories: { id: string; name: string; position: number }[];
+}
 
+export function ExpenseSheet({ year }: ExpenseSheetProps) {
+  const [activeGroupSlug, setActiveGroupSlug] = useState<string>("");
+
+  const { groups, isLoading: groupsLoading } = useExpenseGroups();
   const {
     entries,
     isLoading: expensesLoading,
     mutate: mutateExpenses,
   } = useFinanceExpenses({ year });
-
   const { rates, isLoading: ratesLoading, mutate: mutateRates } = useExchangeRates({ year });
 
-  if (expensesLoading || ratesLoading) {
+  const isLoading = groupsLoading || expensesLoading || ratesLoading;
+
+  if (isLoading) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--c-gray)] border-t-[var(--c-lavender)]" />
+      </div>
+    );
+  }
+
+  const typedGroups: ExpenseGroupData[] = groups;
+
+  // Default to first group if not set
+  const currentSlug = activeGroupSlug || typedGroups[0]?.slug || "";
+  const currentGroup = typedGroups.find((g) => g.slug === currentSlug);
+
+  if (!currentGroup || typedGroups.length === 0) {
+    return (
+      <div className="flex min-h-[300px] items-center justify-center text-sm font-bold uppercase text-[#999]">
+        Нет групп расходов
       </div>
     );
   }
@@ -64,15 +79,15 @@ export function ExpenseSheet({ year }: ExpenseSheetProps) {
 
   async function handleExpenseChange(
     group: string,
-    categories: readonly string[],
+    categoryNames: string[],
     rowIndex: number,
     monthIndex: number,
     value: number
   ) {
-    if (rowIndex >= categories.length) return;
+    if (rowIndex >= categoryNames.length) return;
 
     const month = monthIndex + 1;
-    const monthEntries = categories.map((cat, i) => ({
+    const monthEntries = categoryNames.map((cat, i) => ({
       category: cat,
       amount: i === rowIndex ? value : getValues(group, cat)[monthIndex],
     }));
@@ -97,123 +112,74 @@ export function ExpenseSheet({ year }: ExpenseSheetProps) {
     mutateRates();
   }
 
-  function renderMoscow() {
-    const categories = EXPENSE_CATEGORIES_MOSCOW;
+  function renderGroup(group: ExpenseGroupData) {
+    const categoryNames = group.categories.map((c) => c.name);
+    const isNonRub = group.currency !== "RUB";
+    const currencySymbol = isNonRub ? " \u20AC" : " \u20BD";
+
     const totalRow = Array(12).fill(0) as number[];
     for (let m = 0; m < 12; m++) {
-      for (const cat of categories) {
-        totalRow[m] += getValues("moscow", cat)[m];
+      for (const cat of categoryNames) {
+        totalRow[m] += getValues(group.slug, cat)[m];
       }
     }
 
     const rows: GridRow[] = [
-      ...categories.map((cat) => ({
+      ...categoryNames.map((cat) => ({
         label: cat,
-        values: getValues("moscow", cat),
-        suffix: " \u20BD",
+        values: getValues(group.slug, cat),
+        suffix: currencySymbol,
       })),
       {
-        label: "Итого Москва",
+        label: `Итого ${group.name}`,
         values: totalRow,
         bold: true,
         readOnly: true,
-        suffix: " \u20BD",
+        suffix: currencySymbol,
       },
     ];
 
-    return (
-      <SpreadsheetGrid
-        rows={rows}
-        onCellChange={(rowIdx, monthIdx, val) =>
-          handleExpenseChange("moscow", categories, rowIdx, monthIdx, val)
-        }
-      />
-    );
-  }
-
-  function renderSpain() {
-    const categories = EXPENSE_CATEGORIES_SPAIN;
-    const totalEur = Array(12).fill(0) as number[];
-    const totalRub = Array(12).fill(0) as number[];
-
-    for (let m = 0; m < 12; m++) {
-      for (const cat of categories) {
-        totalEur[m] += getValues("spain", cat)[m];
+    // For non-RUB groups, add conversion row
+    if (isNonRub) {
+      const totalRub = Array(12).fill(0) as number[];
+      for (let m = 0; m < 12; m++) {
+        totalRub[m] = Math.round(totalRow[m] * rateLookup[m]);
       }
-      totalRub[m] = Math.round(totalEur[m] * rateLookup[m]);
-    }
-
-    const rateRow: GridRow[] = [
-      {
-        label: "Курс EUR/RUB",
-        values: [...rateLookup],
-      },
-    ];
-
-    const rows: GridRow[] = [
-      ...categories.map((cat) => ({
-        label: cat,
-        values: getValues("spain", cat),
-        suffix: " \u20AC",
-      })),
-      {
-        label: "Итого Испания",
-        values: totalEur,
-        bold: true,
-        readOnly: true,
-        suffix: " \u20AC",
-      },
-      {
+      rows.push({
         label: "Итого в \u20BD",
         values: totalRub,
         bold: true,
         readOnly: true,
         suffix: " \u20BD",
-      },
-    ];
-
-    return (
-      <div className="space-y-4">
-        <SpreadsheetGrid rows={rateRow} onCellChange={handleRateChange} showTotal={false} />
-        <SpreadsheetGrid
-          rows={rows}
-          onCellChange={(rowIdx, monthIdx, val) =>
-            handleExpenseChange("spain", categories, rowIdx, monthIdx, val)
-          }
-        />
-      </div>
-    );
-  }
-
-  function renderOnetime() {
-    const categories = EXPENSE_CATEGORIES_ONETIME;
-    const totalRow = Array(12).fill(0) as number[];
-    for (let m = 0; m < 12; m++) {
-      for (const cat of categories) {
-        totalRow[m] += getValues("onetime", cat)[m];
-      }
+      });
     }
 
-    const rows: GridRow[] = [
-      ...categories.map((cat) => ({
-        label: cat,
-        values: getValues("onetime", cat),
-        suffix: " \u20BD",
-      })),
-      {
-        label: "Итого разовые",
-        values: totalRow,
-        bold: true,
-        readOnly: true,
-        suffix: " \u20BD",
-      },
-    ];
+    if (isNonRub) {
+      const rateRow: GridRow[] = [
+        {
+          label: `Курс ${group.currency}/RUB`,
+          values: [...rateLookup],
+        },
+      ];
+
+      return (
+        <div className="space-y-4">
+          <SpreadsheetGrid rows={rateRow} onCellChange={handleRateChange} showTotal={false} />
+          <SpreadsheetGrid
+            rows={rows}
+            onCellChange={(rowIdx, monthIdx, val) =>
+              handleExpenseChange(group.slug, categoryNames, rowIdx, monthIdx, val)
+            }
+          />
+        </div>
+      );
+    }
 
     return (
       <SpreadsheetGrid
         rows={rows}
         onCellChange={(rowIdx, monthIdx, val) =>
-          handleExpenseChange("onetime", categories, rowIdx, monthIdx, val)
+          handleExpenseChange(group.slug, categoryNames, rowIdx, monthIdx, val)
         }
       />
     );
@@ -222,26 +188,24 @@ export function ExpenseSheet({ year }: ExpenseSheetProps) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-2">
-        {SUB_TABS.map((tab) => (
+        {typedGroups.map((group) => (
           <button
-            key={tab.key}
+            key={group.slug}
             type="button"
-            onClick={() => setSubTab(tab.key)}
+            onClick={() => setActiveGroupSlug(group.slug)}
             className={cn(
               "rounded-full px-4 py-2 text-xs font-bold uppercase transition-all cursor-pointer",
-              subTab === tab.key
+              currentSlug === group.slug
                 ? "bg-[var(--c-yellow)] text-[var(--c-black)]"
                 : "border-2 border-[var(--c-black)]/20 bg-white text-[var(--c-black)] hover:border-[var(--c-black)]/40"
             )}
           >
-            {tab.label}
+            {group.name}
           </button>
         ))}
       </div>
 
-      {subTab === "moscow" && renderMoscow()}
-      {subTab === "spain" && renderSpain()}
-      {subTab === "onetime" && renderOnetime()}
+      {renderGroup(currentGroup)}
     </div>
   );
 }

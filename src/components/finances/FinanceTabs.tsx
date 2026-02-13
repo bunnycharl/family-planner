@@ -2,13 +2,14 @@
 
 import { cn } from "@/lib/utils";
 
-export type FinanceTab = "nikita" | "darya" | "expenses" | "summary";
+export type FinanceTab = "nikita" | "darya" | "expenses" | "summary" | "settings";
 
 const TABS: { key: FinanceTab; label: string; color: string }[] = [
   { key: "nikita", label: "Никита", color: "var(--c-lavender)" },
   { key: "darya", label: "Дарья", color: "var(--c-coral)" },
   { key: "expenses", label: "Расходы", color: "var(--c-yellow)" },
   { key: "summary", label: "Итого", color: "var(--c-mint)" },
+  { key: "settings", label: "Настройки", color: "var(--c-black)" },
 ];
 
 interface FinanceTabsProps {

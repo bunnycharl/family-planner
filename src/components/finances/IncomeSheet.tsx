@@ -2,7 +2,9 @@
 
 import { useFinancePersons } from "@/hooks/useFinancePersons";
 import { useFinanceIncome } from "@/hooks/useFinanceIncome";
-import { INCOME_CATEGORIES_NIKITA, computeTax } from "@/lib/finance-utils";
+import { useFinanceIncomeCategories } from "@/hooks/useFinanceIncomeCategories";
+import { useFinanceTaxRules } from "@/hooks/useFinanceTaxRules";
+import { computeTaxDynamic } from "@/lib/finance-utils";
 import { SpreadsheetGrid, GridRow } from "./SpreadsheetGrid";
 
 interface IncomeSheetProps {
@@ -15,8 +17,10 @@ export function IncomeSheet({ year }: IncomeSheetProps) {
   const personId = nikita?.id ?? "";
 
   const { entries, isLoading: entriesLoading, mutate } = useFinanceIncome({ year, personId });
+  const { categories: allCategories, isLoading: catsLoading } = useFinanceIncomeCategories();
+  const { rules: allRules, isLoading: rulesLoading } = useFinanceTaxRules();
 
-  if (personsLoading || entriesLoading) {
+  if (personsLoading || entriesLoading || catsLoading || rulesLoading) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--c-gray)] border-t-[var(--c-lavender)]" />
@@ -24,9 +28,19 @@ export function IncomeSheet({ year }: IncomeSheetProps) {
     );
   }
 
+  // Dynamic categories for nikita from DB
+  const categories: string[] = allCategories
+    .filter((c: { personId: string }) => c.personId === personId)
+    .map((c: { name: string }) => c.name);
+
+  // Dynamic tax rules for nikita from DB
+  const taxRules: { category: string; rate: number }[] = allRules
+    .filter((r: { personId: string }) => r.personId === personId)
+    .map((r: { category: string; rate: number }) => ({ category: r.category, rate: r.rate }));
+
   // Build a lookup: category -> month (0-based) -> amount
   const lookup: Record<string, number[]> = {};
-  for (const cat of INCOME_CATEGORIES_NIKITA) {
+  for (const cat of categories) {
     lookup[cat] = Array(12).fill(0);
   }
   for (const entry of entries) {
@@ -45,20 +59,26 @@ export function IncomeSheet({ year }: IncomeSheetProps) {
   for (let m = 0; m < 12; m++) {
     let income = 0;
     let tax = 0;
-    for (const cat of INCOME_CATEGORIES_NIKITA) {
-      const amount = lookup[cat][m];
+    for (const cat of categories) {
+      const amount = lookup[cat]?.[m] ?? 0;
       income += amount;
-      tax += computeTax("nikita", cat, amount);
+      tax += computeTaxDynamic(taxRules, cat, amount);
     }
     totalIncome[m] = income;
     totalTax[m] = tax;
     netIncome[m] = income - tax;
   }
 
+  // Build tax label from dynamic rules
+  const taxLabel =
+    taxRules.length > 0
+      ? `Налог (${taxRules.map((r) => `${Math.round(r.rate * 100)}% ${r.category.toLowerCase()}`).join(", ")})`
+      : "Налог";
+
   const rows: GridRow[] = [
-    ...INCOME_CATEGORIES_NIKITA.map((cat) => ({
+    ...categories.map((cat) => ({
       label: cat,
-      values: lookup[cat],
+      values: lookup[cat] ?? Array(12).fill(0),
       suffix: " \u20BD",
     })),
     {
@@ -69,7 +89,7 @@ export function IncomeSheet({ year }: IncomeSheetProps) {
       suffix: " \u20BD",
     },
     {
-      label: "Налог (13% инвестиции)",
+      label: taxLabel,
       values: totalTax,
       readOnly: true,
       negative: true,
@@ -85,14 +105,12 @@ export function IncomeSheet({ year }: IncomeSheetProps) {
   ];
 
   async function handleCellChange(rowIndex: number, monthIndex: number, value: number) {
-    // Only editable rows are category rows (indices 0..N-1)
-    if (rowIndex >= INCOME_CATEGORIES_NIKITA.length) return;
+    if (rowIndex >= categories.length) return;
 
     const month = monthIndex + 1;
-    // Build entries for this month: update the changed category, keep others
-    const monthEntries = INCOME_CATEGORIES_NIKITA.map((cat, i) => ({
+    const monthEntries = categories.map((cat, i) => ({
       category: cat,
-      amount: i === rowIndex ? value : lookup[cat][monthIndex],
+      amount: i === rowIndex ? value : (lookup[cat]?.[monthIndex] ?? 0),
     }));
 
     await fetch("/api/finances/income", {
