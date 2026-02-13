@@ -13,8 +13,8 @@ export default function FinancesPage() {
   const [tab, setTab] = useState<FinanceTab>("nikita");
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
-      <div className="sticky top-0 z-20 -mx-4 -mt-4 bg-white px-4 pt-4 pb-4 md:-mx-6 md:-mt-6 md:px-6 md:pt-6 space-y-4">
+    <div className="p-4 md:p-8 space-y-6">
+      <div className="sticky top-0 z-20 -mx-4 -mt-4 bg-white px-4 pt-4 pb-4 md:-mx-8 md:-mt-8 md:px-8 md:pt-8 space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h1 className="text-3xl font-extrabold uppercase tracking-tight text-[var(--c-black)]">
             Финансы

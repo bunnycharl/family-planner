@@ -59,7 +59,7 @@ export function CalendarHeader({
   const modes: ViewMode[] = ["day", "month", "year"];
 
   return (
-    <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between bg-white">
+    <div className="flex flex-col gap-3 p-4 md:px-8 md:pt-8 sm:flex-row sm:items-center sm:justify-between bg-white">
       {/* Left: navigation */}
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-1">

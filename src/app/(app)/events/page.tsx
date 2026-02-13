@@ -56,7 +56,7 @@ export default function EventsPage() {
   }, [mutate]);
 
   return (
-    <div className="p-4 md:p-6 space-y-4">
+    <div className="p-4 md:p-8 space-y-4">
       {/* Page title */}
       <h1 className="text-3xl font-extrabold uppercase tracking-tight text-[var(--c-black)]">
         <span className="bg-[var(--c-mint)] px-4 py-1 rounded-xl inline-block">События</span>

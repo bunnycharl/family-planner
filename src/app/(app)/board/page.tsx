@@ -15,7 +15,7 @@ const KanbanBoard = dynamic(
 
 export default function BoardPage() {
   return (
-    <div className="flex flex-col gap-4 p-4 md:p-6">
+    <div className="flex flex-col gap-4 p-4 md:p-8">
       <h1 className="text-3xl font-extrabold uppercase tracking-tight text-[var(--c-black)]">
         <span className="bg-[var(--c-yellow)] px-4 py-1 rounded-xl inline-block">Канбан</span>
       </h1>
