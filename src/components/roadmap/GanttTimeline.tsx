@@ -76,7 +76,7 @@ export function GanttTimeline({
           {timeAxis.columns.map((col) => (
             <div
               key={col.index}
-              className="border-r border-white/30"
+              className="border-r-2 border-white/60 last:border-r-0"
               style={{ width: `${100 / timeAxis.totalColumns}%` }}
             />
           ))}

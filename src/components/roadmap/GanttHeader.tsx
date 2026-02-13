@@ -12,11 +12,11 @@ export function GanttHeader({ columns, yearSpans }: GanttHeaderProps) {
   return (
     <>
       {/* Level 1: Year spans */}
-      <div className="flex">
+      <div className="flex mb-2">
         {yearSpans.map((span) => (
           <div
             key={span.year}
-            className="flex items-end justify-center pb-1 text-[10px] font-bold uppercase text-[#999]"
+            className="flex items-center justify-center pb-2 text-xl sm:text-2xl font-extrabold uppercase text-[var(--c-black)] bg-white rounded-xl py-2"
             style={{ width: `${(span.colSpan / columns.length) * 100}%` }}
           >
             {span.year}
@@ -25,13 +25,15 @@ export function GanttHeader({ columns, yearSpans }: GanttHeaderProps) {
       </div>
 
       {/* Level 2: Month columns */}
-      <div className="flex">
+      <div className="flex border-b-2 border-white/50">
         {columns.map((col) => (
           <div
             key={col.index}
             className={cn(
-              "flex items-center justify-center py-1.5 text-[10px] font-bold uppercase text-[#999]",
-              col.isCurrentPeriod && "rounded-lg bg-[var(--c-lavender)]/20 text-[var(--c-black)]"
+              "flex items-center justify-center py-2.5 text-sm font-bold uppercase border-r-2 last:border-r-0",
+              col.isCurrentPeriod
+                ? "bg-[var(--c-lavender)] text-white"
+                : "text-[var(--c-black)] bg-white/50 border-white/60"
             )}
             style={{ width: `${100 / columns.length}%` }}
           >
