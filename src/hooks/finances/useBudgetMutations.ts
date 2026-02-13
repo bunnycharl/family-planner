@@ -67,7 +67,7 @@ export function useBudgetMutations(year: number, mutate: () => void) {
 
   const createIncomeCategory = useCallback(
     async (data: {
-      memberId: string;
+      familyMemberId: string;
       name: string;
       type: "FIXED" | "FORMULA";
       taxRateId?: string | null;

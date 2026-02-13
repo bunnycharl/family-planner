@@ -84,123 +84,145 @@ model Task {
   @@index([assigneeId])
 }
 
-// ─── Finances ───────────────────────────────────────────────
+// ─── Budget / Finances (v2) ────────────────────────────────
 
-model FinancePerson {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  slug      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model BudgetYear {
+  id           String   @id @default(cuid())
+  year         Int      @unique
+  baseCurrency String   @default("RUB")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  incomeEntries    IncomeEntry[]
-  incomeParams     IncomeParam[]
-  incomeCategories FinanceIncomeCategory[]
-  taxRules         FinanceTaxRule[]
+  members       FamilyMember[]
+  taxRates      TaxRate[]
+  expenseGroups BudgetExpenseGroup[]
+  currencyRates CurrencyRate[]
 }
 
-model FinanceIncomeCategory {
-  id       String        @id @default(cuid())
-  personId String
-  person   FinancePerson @relation(fields: [personId], references: [id], onDelete: Cascade)
-  name     String
-  position Int           @default(0)
+model FamilyMember {
+  id           String     @id @default(cuid())
+  budgetYearId String
+  budgetYear   BudgetYear @relation(fields: [budgetYearId], references: [id], onDelete: Cascade)
+  name         String
+  sortOrder    Int        @default(0)
 
-  @@unique([personId, name])
-  @@index([personId])
+  incomeCategories BudgetIncomeCategory[]
+
+  @@index([budgetYearId])
 }
 
-model FinanceTaxRule {
-  id       String        @id @default(cuid())
-  personId String
-  person   FinancePerson @relation(fields: [personId], references: [id], onDelete: Cascade)
-  category String
-  rate     Float
+model BudgetIncomeCategory {
+  id             String       @id @default(cuid())
+  familyMemberId String
+  familyMember   FamilyMember @relation(fields: [familyMemberId], references: [id], onDelete: Cascade)
+  name           String
+  type           String       @default("FIXED")
+  taxRateId      String?
+  taxRate        TaxRate?     @relation(fields: [taxRateId], references: [id], onDelete: SetNull)
+  formula        String?
+  sortOrder      Int          @default(0)
 
-  @@unique([personId, category])
-  @@index([personId])
+  params  FormulaParam[]
+  entries BudgetIncomeEntry[]
+
+  @@index([familyMemberId])
 }
 
-model IncomeEntry {
-  id        String        @id @default(cuid())
-  personId  String
-  person    FinancePerson @relation(fields: [personId], references: [id], onDelete: Cascade)
-  year      Int
-  month     Int
-  category  String
-  amount    Float         @default(0)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
+model FormulaParam {
+  id               String               @id @default(cuid())
+  incomeCategoryId String
+  incomeCategory   BudgetIncomeCategory @relation(fields: [incomeCategoryId], references: [id], onDelete: Cascade)
+  name             String
+  paramKey         String
+  sortOrder        Int                  @default(0)
 
-  @@unique([personId, year, month, category])
-  @@index([personId])
-  @@index([year, month])
+  values FormulaParamValue[]
+
+  @@unique([incomeCategoryId, paramKey])
+  @@index([incomeCategoryId])
 }
 
-model IncomeParam {
-  id        String        @id @default(cuid())
-  personId  String
-  person    FinancePerson @relation(fields: [personId], references: [id], onDelete: Cascade)
-  year      Int
-  month     Int
-  key       String
-  value     Float         @default(0)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
+model BudgetIncomeEntry {
+  id               String               @id @default(cuid())
+  incomeCategoryId String
+  incomeCategory   BudgetIncomeCategory @relation(fields: [incomeCategoryId], references: [id], onDelete: Cascade)
+  month            Int
+  amount           Float                @default(0)
 
-  @@unique([personId, year, month, key])
-  @@index([personId])
-  @@index([year, month])
+  @@unique([incomeCategoryId, month])
+  @@index([incomeCategoryId])
 }
 
-model ExchangeRate {
-  id        String   @id @default(cuid())
-  year      Int
-  month     Int
-  eurRub    Float
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model FormulaParamValue {
+  id             String       @id @default(cuid())
+  formulaParamId String
+  formulaParam   FormulaParam @relation(fields: [formulaParamId], references: [id], onDelete: Cascade)
+  month          Int
+  value          Float        @default(0)
 
-  @@unique([year, month])
+  @@unique([formulaParamId, month])
+  @@index([formulaParamId])
 }
 
-model ExpenseEntry {
-  id        String   @id @default(cuid())
-  year      Int
-  month     Int
-  group     String
-  category  String
-  amount    Float    @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model TaxRate {
+  id           String     @id @default(cuid())
+  budgetYearId String
+  budgetYear   BudgetYear @relation(fields: [budgetYearId], references: [id], onDelete: Cascade)
+  name         String
+  rate         Float
+  sortOrder    Int        @default(0)
 
-  @@unique([year, month, group, category])
-  @@index([year, month])
-  @@index([group])
+  incomeCategories BudgetIncomeCategory[]
+
+  @@index([budgetYearId])
 }
 
-model ExpenseGroup {
-  id         String                 @id @default(cuid())
-  name       String
-  slug       String                 @unique
-  currency   String                 @default("RUB")
-  position   Int                    @default(0)
-  createdAt  DateTime               @default(now())
-  updatedAt  DateTime               @updatedAt
-  categories ExpenseGroupCategory[]
+model BudgetExpenseGroup {
+  id           String     @id @default(cuid())
+  budgetYearId String
+  budgetYear   BudgetYear @relation(fields: [budgetYearId], references: [id], onDelete: Cascade)
+  name         String
+  currency     String     @default("RUB")
+  sortOrder    Int        @default(0)
 
-  @@index([position])
+  categories BudgetExpenseCategory[]
+
+  @@index([budgetYearId])
 }
 
-model ExpenseGroupCategory {
-  id       String       @id @default(cuid())
-  groupId  String
-  group    ExpenseGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  name     String
-  position Int          @default(0)
+model BudgetExpenseCategory {
+  id             String             @id @default(cuid())
+  expenseGroupId String
+  expenseGroup   BudgetExpenseGroup @relation(fields: [expenseGroupId], references: [id], onDelete: Cascade)
+  name           String
+  sortOrder      Int                @default(0)
 
-  @@unique([groupId, name])
-  @@index([groupId])
+  entries BudgetExpenseEntry[]
+
+  @@index([expenseGroupId])
+}
+
+model BudgetExpenseEntry {
+  id                String                @id @default(cuid())
+  expenseCategoryId String
+  expenseCategory   BudgetExpenseCategory @relation(fields: [expenseCategoryId], references: [id], onDelete: Cascade)
+  month             Int
+  amount            Float                 @default(0)
+
+  @@unique([expenseCategoryId, month])
+  @@index([expenseCategoryId])
+}
+
+model CurrencyRate {
+  id           String     @id @default(cuid())
+  budgetYearId String
+  budgetYear   BudgetYear @relation(fields: [budgetYearId], references: [id], onDelete: Cascade)
+  currency     String
+  month        Int
+  rate         Float      @default(0)
+
+  @@unique([budgetYearId, currency, month])
+  @@index([budgetYearId])
 }
 
 // ─── Roadmap ────────────────────────────────────────────────

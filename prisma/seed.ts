@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { seedBudget } from "./seed-budget";
 
 const prisma = new PrismaClient();
 
@@ -59,8 +60,13 @@ async function main() {
     });
   }
 
+  // Budget seed
+  await seedBudget(prisma);
+
   console.log("Seed completed:");
-  console.log(`  Users: ${createdUsers.map(u => u.name).join(", ") || "none (set SEED_USER* env vars)"}`);
+  console.log(
+    `  Users: ${createdUsers.map((u) => u.name).join(", ") || "none (set SEED_USER* env vars)"}`
+  );
   console.log(`  Categories: ${categories.length}`);
 }
 

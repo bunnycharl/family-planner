@@ -59,7 +59,8 @@ export const POST = withAuth(async (request, session, context) => {
       return NextResponse.json({ error: "Бюджетный год не найден" }, { status: 404 });
     }
 
-    const operations: Parameters<typeof prisma.$transaction>[0] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const operations: any[] = [];
 
     for (const toMonth of toMonths) {
       // Copy income entries

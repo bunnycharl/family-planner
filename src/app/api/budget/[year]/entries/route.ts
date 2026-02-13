@@ -33,7 +33,8 @@ export const PUT = withAuth(async (request, session, context) => {
 
     const { incomeEntries, formulaParamValues, expenseEntries, currencyRates } = result.data;
 
-    const operations: Parameters<typeof prisma.$transaction>[0] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const operations: any[] = [];
 
     if (incomeEntries) {
       for (const entry of incomeEntries) {
