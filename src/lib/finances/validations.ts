@@ -60,17 +60,8 @@ export const copyMonthSchema = z.object({
 
 // ─── Settings CRUD ──────────────────────────────────────────
 
-export const createMemberSchema = z.object({
-  name: z.string().min(1).max(100),
-});
-
-export const updateMemberSchema = z.object({
-  name: z.string().min(1).max(100).optional(),
-  sortOrder: z.number().int().optional(),
-});
-
 export const createIncomeCategorySchema = z.object({
-  familyMemberId: z.string(),
+  userId: z.string(),
   name: z.string().min(1).max(100),
   type: z.enum(["FIXED", "FORMULA"]).default("FIXED"),
   taxRateId: z.string().nullable().optional(),
@@ -157,6 +148,16 @@ export const updateTransactionSchema = z.object({
   date: z.string().optional(),
   description: z.string().max(500).nullable().optional(),
 });
+
+// ─── Currency Rates ─────────────────────────────────────────
+
+export const currencyRateSchema = z.object({
+  currency: z.enum(["USD", "EUR"]),
+  month: z.number().int().min(1).max(12),
+  rate: z.number().min(0),
+});
+
+export const upsertCurrencyRatesSchema = z.array(currencyRateSchema);
 
 // ─── Reorder ────────────────────────────────────────────────
 

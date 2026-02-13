@@ -6,27 +6,23 @@ import { toast } from "sonner";
 import { useBudgetYear } from "@/hooks/finances/useBudgetYear";
 import { useBudgetMutations } from "@/hooks/finances/useBudgetMutations";
 import { YearSelector } from "@/components/finances/shared/YearSelector";
-import { MembersSettings } from "@/components/finances/settings/MembersSettings";
 import { IncomeCategoriesSettings } from "@/components/finances/settings/IncomeCategoriesSettings";
-import { TaxRatesSettings } from "@/components/finances/settings/TaxRatesSettings";
-import { ExpenseGroupsSettings } from "@/components/finances/settings/ExpenseGroupsSettings";
-import { TransactionCategoriesSettings } from "@/components/finances/settings/TransactionCategoriesSettings";
+import { BasicsSettings } from "@/components/finances/settings/BasicsSettings";
+import { ExpensesSettings } from "@/components/finances/settings/ExpensesSettings";
 
-type SettingsSection = "members" | "income" | "tax" | "expenses" | "transactions";
+type SettingsSection = "income" | "basics" | "expenses";
 
 const SECTIONS: { key: SettingsSection; label: string }[] = [
-  { key: "members", label: "Члены семьи" },
-  { key: "income", label: "Категории доходов" },
-  { key: "tax", label: "Налоговые ставки" },
-  { key: "expenses", label: "Группы расходов" },
-  { key: "transactions", label: "Категории расходов" },
+  { key: "income", label: "Доходы" },
+  { key: "basics", label: "Вводные" },
+  { key: "expenses", label: "Расходы" },
 ];
 
 export default function FinanceSettingsPage() {
   const [year, setYear] = useState(new Date().getFullYear());
   const { data, isLoading, mutate } = useBudgetYear(year);
   const mutations = useBudgetMutations(year, mutate);
-  const [section, setSection] = useState<SettingsSection>("members");
+  const [section, setSection] = useState<SettingsSection>("income");
   const [creating, setCreating] = useState(false);
 
   if (isLoading) {
@@ -102,13 +98,9 @@ export default function FinanceSettingsPage() {
         ))}
       </div>
 
-      {section === "members" && <MembersSettings data={data} mutations={mutations} />}
       {section === "income" && <IncomeCategoriesSettings data={data} mutations={mutations} />}
-      {section === "tax" && <TaxRatesSettings data={data} mutations={mutations} />}
-      {section === "expenses" && <ExpenseGroupsSettings data={data} mutations={mutations} />}
-      {section === "transactions" && (
-        <TransactionCategoriesSettings year={year} budgetData={data} />
-      )}
+      {section === "basics" && <BasicsSettings year={year} data={data} mutations={mutations} />}
+      {section === "expenses" && <ExpensesSettings year={year} data={data} mutations={mutations} />}
     </div>
   );
 }
