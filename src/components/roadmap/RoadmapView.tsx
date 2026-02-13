@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { toast } from "sonner";
 import { useRoadmap } from "@/hooks/useRoadmap";
-import type { ZoomLevel } from "@/lib/roadmap-utils";
 import { GanttChart } from "./GanttChart";
 import { GanttLegend } from "./GanttLegend";
 import { RoadmapToolbar } from "./RoadmapToolbar";
@@ -30,6 +29,7 @@ interface RoadmapTask {
   category: CategoryInfo | null;
   categoryId?: string | null;
   assigneeId?: string | null;
+  showOnRoadmap?: boolean;
 }
 
 interface RoadmapPhase {
@@ -44,7 +44,7 @@ export function RoadmapView() {
   const { phases, isLoading, isError, mutate } = useRoadmap();
 
   // UI state
-  const [zoom, setZoom] = useState<ZoomLevel>("quarter");
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [isMobile, setIsMobile] = useState(false);
 
   // Modal state
@@ -62,6 +62,14 @@ export function RoadmapView() {
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
   }, []);
+
+  // Filter phases to only show tasks with showOnRoadmap === true
+  const filteredPhases = useMemo(() => {
+    return phases.map((phase: RoadmapPhase) => ({
+      ...phase,
+      tasks: phase.tasks.filter((t: RoadmapTask) => t.showOnRoadmap),
+    }));
+  }, [phases]);
 
   const handleSave = useCallback(() => {
     mutate();
@@ -135,7 +143,7 @@ export function RoadmapView() {
   const legendCategories = useMemo(() => {
     const seen = new Set<string>();
     const result: { name: string; color: string }[] = [];
-    for (const phase of phases) {
+    for (const phase of filteredPhases) {
       for (const t of phase.tasks ?? []) {
         if (t.category && !seen.has(t.category.id)) {
           seen.add(t.category.id);
@@ -144,7 +152,7 @@ export function RoadmapView() {
       }
     }
     return result;
-  }, [phases]);
+  }, [filteredPhases]);
 
   if (isLoading) {
     return (
@@ -176,12 +184,11 @@ export function RoadmapView() {
 
       {/* Toolbar */}
       <RoadmapToolbar
-        zoom={zoom}
-        onZoomChange={setZoom}
+        year={selectedYear}
+        onYearChange={setSelectedYear}
         onAddPhase={handleAddPhase}
         onAddTask={handleAddTask}
         hasPhases={phases.length > 0}
-        isMobile={isMobile}
       />
 
       {/* Legend */}
@@ -210,15 +217,15 @@ export function RoadmapView() {
         </div>
       ) : isMobile ? (
         <RoadmapListView
-          phases={phases}
+          phases={filteredPhases}
           onTaskClick={handleTaskClick}
           onToggleCompletion={handleToggleCompletion}
           onEditPhase={handleEditPhase}
         />
       ) : (
         <GanttChart
-          phases={phases}
-          zoom={zoom}
+          phases={filteredPhases}
+          year={selectedYear}
           onTaskClick={handleTaskClick}
           onEditPhase={handleEditPhase}
           onToggleCompletion={handleToggleCompletion}
@@ -254,6 +261,7 @@ export function RoadmapView() {
                 phaseId: editingTask.phaseId,
                 categoryId: editingTask.categoryId ?? null,
                 assigneeId: editingTask.assigneeId ?? null,
+                showOnRoadmap: editingTask.showOnRoadmap,
               }
             : null
         }

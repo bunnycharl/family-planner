@@ -1,11 +1,12 @@
 "use client";
 
+import { useMemo } from "react";
 import type { TimeAxisConfig } from "@/lib/roadmap-utils";
+import { computeBarTracks } from "@/lib/roadmap-utils";
 import { GanttHeader } from "./GanttHeader";
 import { GanttBar } from "./GanttBar";
 import { GanttTodayMarker } from "./GanttTodayMarker";
 import { getTodayColumn } from "@/lib/roadmap-utils";
-import type { ZoomLevel } from "@/lib/roadmap-utils";
 
 interface RoadmapTask {
   id: string;
@@ -30,7 +31,7 @@ interface RoadmapPhase {
 interface GanttTimelineProps {
   phases: RoadmapPhase[];
   timeAxis: TimeAxisConfig;
-  zoom: ZoomLevel;
+  selectedYear: number;
   expandedMap: Record<string, boolean>;
   onTaskClick: (task: RoadmapTask) => void;
 }
@@ -38,19 +39,32 @@ interface GanttTimelineProps {
 export function GanttTimeline({
   phases,
   timeAxis,
-  zoom,
+  selectedYear,
   expandedMap,
   onTaskClick,
 }: GanttTimelineProps) {
   const todayCol = getTodayColumn(timeAxis);
-
-  // Build flat list of rows for timeline
   const sortedPhases = [...phases].sort((a, b) => a.position - b.position);
+
+  // Filter tasks that are visible in the selected year and compute tracks per phase
+  const phaseData = useMemo(() => {
+    return sortedPhases.map((phase) => {
+      const visibleTasks = phase.tasks.filter((t) => {
+        const start = new Date(t.startDate);
+        const end = new Date(t.endDate);
+        return start.getFullYear() <= selectedYear && end.getFullYear() >= selectedYear;
+      });
+      const trackMap = computeBarTracks(visibleTasks);
+      const maxTrack = visibleTasks.length > 0 ? Math.max(...Array.from(trackMap.values())) : 0;
+      const rowHeight = visibleTasks.length > 0 ? (maxTrack + 1) * 40 : 40;
+      return { phase, visibleTasks, trackMap, rowHeight };
+    });
+  }, [sortedPhases, selectedYear]);
 
   return (
     <div className="relative min-w-[600px] flex-1">
       {/* Header */}
-      <GanttHeader columns={timeAxis.columns} yearSpans={timeAxis.yearSpans} zoom={zoom} />
+      <GanttHeader columns={timeAxis.columns} yearSpans={timeAxis.yearSpans} />
 
       {/* Task rows */}
       <div className="relative">
@@ -68,25 +82,26 @@ export function GanttTimeline({
           ))}
         </div>
 
-        {sortedPhases.map((phase) => {
+        {phaseData.map(({ phase, visibleTasks, trackMap, rowHeight }) => {
           const isExpanded = expandedMap[phase.id] ?? true;
-          const sortedTasks = [...phase.tasks].sort((a, b) => a.position - b.position);
 
           return (
             <div key={phase.id}>
-              {/* Phase header row — empty in timeline (sidebar shows the name) */}
+              {/* Phase header row */}
               <div className="h-10 border-b-2 border-white/40" />
 
-              {/* Task rows */}
-              {isExpanded &&
-                sortedTasks.map((task) => {
-                  const startCol = timeAxis.dateToColumn(new Date(task.startDate));
-                  const endCol = timeAxis.dateToColumn(new Date(task.endDate));
-                  const color = task.category?.color ?? "#999";
+              {/* Task bars */}
+              {isExpanded && (
+                <div className="relative border-b border-white/20" style={{ height: rowHeight }}>
+                  {visibleTasks.map((task) => {
+                    const startCol = timeAxis.dateToColumn(new Date(task.startDate));
+                    const endCol = timeAxis.dateToColumn(new Date(task.endDate));
+                    const color = task.category?.color ?? "#999";
+                    const track = trackMap.get(task.id) ?? 0;
 
-                  return (
-                    <div key={task.id} className="relative h-10 border-b border-white/20">
+                    return (
                       <GanttBar
+                        key={task.id}
                         startCol={startCol}
                         endCol={endCol}
                         totalColumns={timeAxis.totalColumns}
@@ -94,10 +109,22 @@ export function GanttTimeline({
                         label={task.title}
                         isCompleted={task.status === "DONE"}
                         onClick={() => onTaskClick(task)}
+                        style={{ top: `${track * 40 + 4}px`, height: "32px" }}
+                        task={{
+                          id: task.id,
+                          title: task.title,
+                          description: task.description,
+                          startDate: task.startDate,
+                          endDate: task.endDate,
+                          category: task.category
+                            ? { name: task.category.name, color: task.category.color }
+                            : null,
+                        }}
                       />
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
+              )}
             </div>
           );
         })}

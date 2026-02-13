@@ -1,25 +1,5 @@
-import {
-  startOfMonth,
-  endOfMonth,
-  startOfQuarter,
-  endOfQuarter,
-  startOfYear,
-  endOfYear,
-  addMonths,
-  addQuarters,
-  addYears,
-  isBefore,
-  isAfter,
-  format,
-  getQuarter,
-  isWithinInterval,
-  subMonths,
-  subQuarters,
-  subYears,
-} from "date-fns";
+import { format } from "date-fns";
 import { ru } from "date-fns/locale";
-
-export type ZoomLevel = "month" | "quarter" | "year";
 
 export interface TimeColumn {
   index: number;
@@ -43,163 +23,40 @@ export interface TimeAxisConfig {
   dateToColumn: (date: Date) => number;
 }
 
-interface TaskDateRange {
-  startDate: string;
-  endDate: string;
-}
-
-export function computeTimeAxis(tasks: TaskDateRange[], zoom: ZoomLevel): TimeAxisConfig {
+/**
+ * Compute a fixed 12-month time axis for a given year.
+ */
+export function computeTimeAxis(year: number): TimeAxisConfig {
   const now = new Date();
-
-  // 1. Find min/max dates from tasks, or default to current year ± 1
-  let minDate: Date;
-  let maxDate: Date;
-
-  if (tasks.length > 0) {
-    const starts = tasks.map((t) => new Date(t.startDate));
-    const ends = tasks.map((t) => new Date(t.endDate));
-    minDate = new Date(Math.min(...starts.map((d) => d.getTime())));
-    maxDate = new Date(Math.max(...ends.map((d) => d.getTime())));
-  } else {
-    minDate = startOfYear(now);
-    maxDate = endOfYear(now);
-  }
-
-  // 2. Align to period boundaries and add 1 period of padding
-  let alignedMin: Date;
-  let alignedMax: Date;
-
-  switch (zoom) {
-    case "month":
-      alignedMin = startOfMonth(subMonths(minDate, 1));
-      alignedMax = endOfMonth(addMonths(maxDate, 1));
-      break;
-    case "quarter":
-      alignedMin = startOfQuarter(subQuarters(minDate, 1));
-      alignedMax = endOfQuarter(addQuarters(maxDate, 1));
-      break;
-    case "year":
-      alignedMin = startOfYear(subYears(minDate, 1));
-      alignedMax = endOfYear(addYears(maxDate, 1));
-      break;
-  }
-
-  // 3. Generate columns
   const columns: TimeColumn[] = [];
-  let cursor: Date;
-  let index = 0;
 
-  switch (zoom) {
-    case "month":
-      cursor = new Date(alignedMin);
-      while (isBefore(cursor, alignedMax) || cursor.getTime() === alignedMax.getTime()) {
-        const periodStart = startOfMonth(cursor);
-        const periodEnd = endOfMonth(cursor);
-        const isCurrentPeriod = isWithinInterval(now, {
-          start: periodStart,
-          end: periodEnd,
-        });
-        columns.push({
-          index,
-          label: format(cursor, "LLL", { locale: ru }),
-          year: cursor.getFullYear(),
-          isCurrentPeriod,
-          periodStart,
-          periodEnd,
-        });
-        index++;
-        cursor = addMonths(cursor, 1);
-      }
-      break;
+  for (let month = 0; month < 12; month++) {
+    const periodStart = new Date(year, month, 1);
+    const periodEnd = new Date(year, month + 1, 0, 23, 59, 59);
+    const isCurrentPeriod = now >= periodStart && now <= periodEnd;
 
-    case "quarter":
-      cursor = new Date(alignedMin);
-      while (isBefore(cursor, alignedMax) || cursor.getTime() === alignedMax.getTime()) {
-        const periodStart = startOfQuarter(cursor);
-        const periodEnd = endOfQuarter(cursor);
-        const isCurrentPeriod = isWithinInterval(now, {
-          start: periodStart,
-          end: periodEnd,
-        });
-        columns.push({
-          index,
-          label: `Q${getQuarter(cursor)}`,
-          year: cursor.getFullYear(),
-          isCurrentPeriod,
-          periodStart,
-          periodEnd,
-        });
-        index++;
-        cursor = addQuarters(cursor, 1);
-      }
-      break;
-
-    case "year":
-      cursor = new Date(alignedMin);
-      while (isBefore(cursor, alignedMax) || cursor.getTime() === alignedMax.getTime()) {
-        const periodStart = startOfYear(cursor);
-        const periodEnd = endOfYear(cursor);
-        const isCurrentPeriod = isWithinInterval(now, {
-          start: periodStart,
-          end: periodEnd,
-        });
-        columns.push({
-          index,
-          label: String(cursor.getFullYear()),
-          year: cursor.getFullYear(),
-          isCurrentPeriod,
-          periodStart,
-          periodEnd,
-        });
-        index++;
-        cursor = addYears(cursor, 1);
-      }
-      break;
+    columns.push({
+      index: month,
+      label: format(periodStart, "LLL", { locale: ru }),
+      year,
+      isCurrentPeriod,
+      periodStart,
+      periodEnd,
+    });
   }
 
-  // 4. Compute year spans
-  const yearSpans: YearSpan[] = [];
-  let currentYear = -1;
-  let spanStart = 0;
-  let spanCount = 0;
+  const yearSpans: YearSpan[] = [{ year, colStart: 0, colSpan: 12 }];
 
-  for (const col of columns) {
-    if (col.year !== currentYear) {
-      if (currentYear !== -1) {
-        yearSpans.push({ year: currentYear, colStart: spanStart, colSpan: spanCount });
-      }
-      currentYear = col.year;
-      spanStart = col.index;
-      spanCount = 1;
-    } else {
-      spanCount++;
-    }
-  }
-  if (currentYear !== -1) {
-    yearSpans.push({ year: currentYear, colStart: spanStart, colSpan: spanCount });
-  }
-
-  // 5. Build dateToColumn
   const dateToColumn = (date: Date): number => {
-    // Find the column whose period contains this date
-    for (const col of columns) {
-      if (
-        isWithinInterval(date, { start: col.periodStart, end: col.periodEnd }) ||
-        date.getTime() === col.periodStart.getTime()
-      ) {
-        return col.index;
-      }
-    }
-    // Clamp to boundaries
-    if (columns.length === 0) return 0;
-    if (isBefore(date, columns[0].periodStart)) return 0;
-    return columns[columns.length - 1].index;
+    if (date.getFullYear() < year) return 0;
+    if (date.getFullYear() > year) return 11;
+    return date.getMonth();
   };
 
   return {
     columns,
     yearSpans,
-    totalColumns: columns.length,
+    totalColumns: 12,
     dateToColumn,
   };
 }
@@ -215,9 +72,47 @@ export function getTodayColumn(timeAxis: TimeAxisConfig): number {
   const first = timeAxis.columns[0];
   const last = timeAxis.columns[timeAxis.columns.length - 1];
 
-  if (isBefore(now, first.periodStart) || isAfter(now, last.periodEnd)) {
+  if (now < first.periodStart || now > last.periodEnd) {
     return -1;
   }
 
   return timeAxis.dateToColumn(now);
+}
+
+interface BarTask {
+  id: string;
+  startDate: string;
+  endDate: string;
+}
+
+/**
+ * Anti-overlap algorithm: assign each task to a track (row) so bars don't overlap.
+ * Returns a Map from taskId to trackIndex (0-based).
+ */
+export function computeBarTracks(tasks: BarTask[]): Map<string, number> {
+  const sorted = [...tasks].sort(
+    (a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+  );
+
+  const tracks: { endDate: Date }[] = [];
+  const result = new Map<string, number>();
+
+  for (const task of sorted) {
+    const start = new Date(task.startDate);
+    const end = new Date(task.endDate);
+
+    // Find first track where the previous task has ended before this one starts
+    let trackIndex = tracks.findIndex((t) => t.endDate < start);
+
+    if (trackIndex === -1) {
+      trackIndex = tracks.length;
+      tracks.push({ endDate: end });
+    } else {
+      tracks[trackIndex].endDate = end;
+    }
+
+    result.set(task.id, trackIndex);
+  }
+
+  return result;
 }

@@ -2,7 +2,6 @@
 
 import { useState, useMemo, useRef, useEffect } from "react";
 import { computeTimeAxis, getTodayColumn } from "@/lib/roadmap-utils";
-import type { ZoomLevel } from "@/lib/roadmap-utils";
 import { GanttSidebar } from "./GanttSidebar";
 import { GanttTimeline } from "./GanttTimeline";
 
@@ -28,7 +27,7 @@ interface RoadmapPhase {
 
 interface GanttChartProps {
   phases: RoadmapPhase[];
-  zoom: ZoomLevel;
+  year: number;
   onTaskClick: (task: RoadmapTask) => void;
   onEditPhase: (phase: RoadmapPhase) => void;
   onToggleCompletion: (task: RoadmapTask) => void;
@@ -36,7 +35,7 @@ interface GanttChartProps {
 
 export function GanttChart({
   phases,
-  zoom,
+  year,
   onTaskClick,
   onEditPhase,
   onToggleCompletion,
@@ -56,11 +55,8 @@ export function GanttChart({
     setExpandedMap((prev) => ({ ...prev, [phaseId]: !prev[phaseId] }));
   };
 
-  // Collect all tasks for time axis computation
-  const allTasks = useMemo(() => phases.flatMap((p) => p.tasks), [phases]);
-
-  // Compute time axis
-  const timeAxis = useMemo(() => computeTimeAxis(allTasks, zoom), [allTasks, zoom]);
+  // Compute time axis for the selected year
+  const timeAxis = useMemo(() => computeTimeAxis(year), [year]);
 
   // Auto-scroll to today on mount
   useEffect(() => {
@@ -86,12 +82,12 @@ export function GanttChart({
           onTogglePhase={togglePhase}
           onEditPhase={onEditPhase}
           onToggleCompletion={onToggleCompletion}
-          zoom={zoom}
+          selectedYear={year}
         />
         <GanttTimeline
           phases={phases}
           timeAxis={timeAxis}
-          zoom={zoom}
+          selectedYear={year}
           expandedMap={expandedMap}
           onTaskClick={onTaskClick}
         />

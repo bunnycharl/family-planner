@@ -1,7 +1,8 @@
 "use client";
 
+import { useMemo } from "react";
 import { cn } from "@/lib/utils";
-import type { ZoomLevel } from "@/lib/roadmap-utils";
+import { computeBarTracks } from "@/lib/roadmap-utils";
 
 interface RoadmapTask {
   id: string;
@@ -29,7 +30,7 @@ interface GanttSidebarProps {
   onTogglePhase: (phaseId: string) => void;
   onEditPhase: (phase: RoadmapPhase) => void;
   onToggleCompletion: (task: RoadmapTask) => void;
-  zoom: ZoomLevel;
+  selectedYear: number;
 }
 
 export function GanttSidebar({
@@ -38,18 +39,30 @@ export function GanttSidebar({
   onTogglePhase,
   onEditPhase,
   onToggleCompletion,
-  zoom,
+  selectedYear,
 }: GanttSidebarProps) {
   const sortedPhases = [...phases].sort((a, b) => a.position - b.position);
 
-  // Header height depends on zoom: year has 1 row, others have 2
-  const showYearRow = zoom !== "year";
+  // Compute row heights to match timeline
+  const phaseHeights = useMemo(() => {
+    return sortedPhases.map((phase) => {
+      const visibleTasks = phase.tasks.filter((t) => {
+        const start = new Date(t.startDate);
+        const end = new Date(t.endDate);
+        return start.getFullYear() <= selectedYear && end.getFullYear() >= selectedYear;
+      });
+      const trackMap = computeBarTracks(visibleTasks);
+      const maxTrack = visibleTasks.length > 0 ? Math.max(...Array.from(trackMap.values())) : 0;
+      const rowHeight = visibleTasks.length > 0 ? (maxTrack + 1) * 40 : 40;
+      return { visibleTasks, rowHeight };
+    });
+  }, [sortedPhases, selectedYear]);
 
   return (
     <div className="sticky left-0 z-20 w-[340px] shrink-0 bg-[var(--c-gray)]">
       {/* Header placeholder to match timeline header */}
       <div>
-        {showYearRow && <div className="h-[26px]" />}
+        <div className="h-[26px]" />
         <div className="flex h-[30px] items-center border-b border-white/20">
           <div className="w-[180px] px-3 text-[10px] font-bold uppercase text-[#999]">Фаза</div>
           <div className="flex-1 px-3 text-[10px] font-bold uppercase text-[#999]">Задача</div>
@@ -57,9 +70,9 @@ export function GanttSidebar({
       </div>
 
       {/* Phase groups */}
-      {sortedPhases.map((phase) => {
+      {sortedPhases.map((phase, phaseIdx) => {
         const isExpanded = expandedMap[phase.id] ?? true;
-        const sortedTasks = [...phase.tasks].sort((a, b) => a.position - b.position);
+        const { visibleTasks, rowHeight } = phaseHeights[phaseIdx];
 
         return (
           <div key={phase.id}>
@@ -109,43 +122,47 @@ export function GanttSidebar({
               </button>
             </div>
 
-            {/* Task rows */}
-            {isExpanded &&
-              sortedTasks.map((task) => (
-                <div key={task.id} className="flex h-10 items-center border-b border-white/20">
-                  {/* Empty phase column space */}
-                  <div className="w-[180px] shrink-0 px-3">
-                    {/* Completion checkbox */}
-                    <button
-                      type="button"
-                      onClick={() => onToggleCompletion(task)}
-                      className={cn(
-                        "flex h-5 w-5 items-center justify-center rounded-md border-2 transition-all cursor-pointer",
-                        task.status === "DONE"
-                          ? "border-[var(--c-mint)] bg-[var(--c-mint)]"
-                          : "border-[#ccc] hover:border-[var(--c-mint)]"
-                      )}
-                    >
-                      {task.status === "DONE" && (
-                        <svg
-                          className="h-3 w-3 text-white"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={3}
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                      )}
-                    </button>
+            {/* Task rows — match timeline height */}
+            {isExpanded && (
+              <div
+                className="relative border-b border-white/20 overflow-hidden"
+                style={{ height: rowHeight }}
+              >
+                {visibleTasks.map((task) => (
+                  <div key={task.id} className="flex h-10 items-center">
+                    <div className="w-[180px] shrink-0 px-3">
+                      <button
+                        type="button"
+                        onClick={() => onToggleCompletion(task)}
+                        className={cn(
+                          "flex h-5 w-5 items-center justify-center rounded-md border-2 transition-all cursor-pointer",
+                          task.status === "DONE"
+                            ? "border-[var(--c-mint)] bg-[var(--c-mint)]"
+                            : "border-[#ccc] hover:border-[var(--c-mint)]"
+                        )}
+                      >
+                        {task.status === "DONE" && (
+                          <svg
+                            className="h-3 w-3 text-white"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={3}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                      </button>
+                    </div>
+                    <div className="flex-1 truncate px-3 text-xs font-bold uppercase text-[var(--c-black)]">
+                      <span className={cn(task.status === "DONE" && "line-through opacity-50")}>
+                        {task.title}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex-1 truncate px-3 text-xs font-bold uppercase text-[var(--c-black)]">
-                    <span className={cn(task.status === "DONE" && "line-through opacity-50")}>
-                      {task.title}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
+            )}
           </div>
         );
       })}

@@ -6,31 +6,25 @@ import type { TimeColumn, YearSpan } from "@/lib/roadmap-utils";
 interface GanttHeaderProps {
   columns: TimeColumn[];
   yearSpans: YearSpan[];
-  zoom: "month" | "quarter" | "year";
 }
 
-export function GanttHeader({ columns, yearSpans, zoom }: GanttHeaderProps) {
-  // In year zoom, year spans are redundant (each column IS a year)
-  const showYearRow = zoom !== "year";
-
+export function GanttHeader({ columns, yearSpans }: GanttHeaderProps) {
   return (
     <>
       {/* Level 1: Year spans */}
-      {showYearRow && (
-        <div className="flex">
-          {yearSpans.map((span) => (
-            <div
-              key={span.year}
-              className="flex items-end justify-center pb-1 text-[10px] font-bold uppercase text-[#999]"
-              style={{ width: `${(span.colSpan / columns.length) * 100}%` }}
-            >
-              {span.year}
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="flex">
+        {yearSpans.map((span) => (
+          <div
+            key={span.year}
+            className="flex items-end justify-center pb-1 text-[10px] font-bold uppercase text-[#999]"
+            style={{ width: `${(span.colSpan / columns.length) * 100}%` }}
+          >
+            {span.year}
+          </div>
+        ))}
+      </div>
 
-      {/* Level 2: Period columns */}
+      {/* Level 2: Month columns */}
       <div className="flex">
         {columns.map((col) => (
           <div
