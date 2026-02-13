@@ -50,7 +50,7 @@ export function YearView({ currentDate, events, onMonthClick }: YearViewProps) {
   const eventColorMap = new Map<string, string>();
 
   events.forEach((event) => {
-    const dateKey = format(parseISO(event.startDate), "yyyy-MM-dd");
+    const dateKey = format(parseISO(event.date), "yyyy-MM-dd");
     eventDateSet.add(dateKey);
     if (event.category?.color) {
       eventColorMap.set(dateKey, event.category.color);

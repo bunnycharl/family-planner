@@ -4,7 +4,7 @@ import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { DragDropContext, type DropResult } from "@hello-pangea/dnd";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { KANBAN_COLUMNS, type TaskStatus, type TaskPriority } from "@/lib/constants";
+import { KANBAN_COLUMNS, type TaskStatus } from "@/lib/constants";
 import { useTasks } from "@/hooks/useTasks";
 import { useCategories } from "@/hooks/useCategories";
 import { KanbanColumn } from "./KanbanColumn";
@@ -17,9 +17,10 @@ interface Task {
   title: string;
   description?: string | null;
   status: TaskStatus;
-  priority: TaskPriority;
   position: number;
-  dueDate?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  phaseId?: string | null;
   categoryId?: string | null;
   assigneeId?: string | null;
   category?: {
@@ -82,17 +83,17 @@ export function KanbanBoard() {
       // Apply sorting
       if (sortByDate === "asc") {
         columnTasks = [...columnTasks].sort((a, b) => {
-          if (!a.dueDate && !b.dueDate) return a.position - b.position;
-          if (!a.dueDate) return 1;
-          if (!b.dueDate) return -1;
-          return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+          if (!a.endDate && !b.endDate) return a.position - b.position;
+          if (!a.endDate) return 1;
+          if (!b.endDate) return -1;
+          return new Date(a.endDate).getTime() - new Date(b.endDate).getTime();
         });
       } else if (sortByDate === "desc") {
         columnTasks = [...columnTasks].sort((a, b) => {
-          if (!a.dueDate && !b.dueDate) return a.position - b.position;
-          if (!a.dueDate) return 1;
-          if (!b.dueDate) return -1;
-          return new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime();
+          if (!a.endDate && !b.endDate) return a.position - b.position;
+          if (!a.endDate) return 1;
+          if (!b.endDate) return -1;
+          return new Date(b.endDate).getTime() - new Date(a.endDate).getTime();
         });
       } else {
         columnTasks = [...columnTasks].sort((a, b) => a.position - b.position);

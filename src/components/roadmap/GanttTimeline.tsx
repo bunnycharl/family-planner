@@ -7,14 +7,14 @@ import { GanttTodayMarker } from "./GanttTodayMarker";
 import { getTodayColumn } from "@/lib/roadmap-utils";
 import type { ZoomLevel } from "@/lib/roadmap-utils";
 
-interface Milestone {
+interface RoadmapTask {
   id: string;
-  name: string;
-  details: string | null;
+  title: string;
+  description: string | null;
   category: { id: string; name: string; color: string; icon?: string | null } | null;
   startDate: string;
   endDate: string;
-  isCompleted: boolean;
+  status: "TODO" | "IN_PROGRESS" | "DONE";
   position: number;
   phaseId: string;
 }
@@ -24,7 +24,7 @@ interface RoadmapPhase {
   name: string;
   emoji: string | null;
   position: number;
-  milestones: Milestone[];
+  tasks: RoadmapTask[];
 }
 
 interface GanttTimelineProps {
@@ -32,7 +32,7 @@ interface GanttTimelineProps {
   timeAxis: TimeAxisConfig;
   zoom: ZoomLevel;
   expandedMap: Record<string, boolean>;
-  onMilestoneClick: (milestone: Milestone) => void;
+  onTaskClick: (task: RoadmapTask) => void;
 }
 
 export function GanttTimeline({
@@ -40,7 +40,7 @@ export function GanttTimeline({
   timeAxis,
   zoom,
   expandedMap,
-  onMilestoneClick,
+  onTaskClick,
 }: GanttTimelineProps) {
   const todayCol = getTodayColumn(timeAxis);
 
@@ -52,7 +52,7 @@ export function GanttTimeline({
       {/* Header */}
       <GanttHeader columns={timeAxis.columns} yearSpans={timeAxis.yearSpans} zoom={zoom} />
 
-      {/* Milestone rows */}
+      {/* Task rows */}
       <div className="relative">
         {/* Today marker */}
         <GanttTodayMarker columnIndex={todayCol} totalColumns={timeAxis.totalColumns} />
@@ -70,30 +70,30 @@ export function GanttTimeline({
 
         {sortedPhases.map((phase) => {
           const isExpanded = expandedMap[phase.id] ?? true;
-          const sortedMilestones = [...phase.milestones].sort((a, b) => a.position - b.position);
+          const sortedTasks = [...phase.tasks].sort((a, b) => a.position - b.position);
 
           return (
             <div key={phase.id}>
               {/* Phase header row — empty in timeline (sidebar shows the name) */}
               <div className="h-10 border-b-2 border-white/40" />
 
-              {/* Milestone rows */}
+              {/* Task rows */}
               {isExpanded &&
-                sortedMilestones.map((milestone) => {
-                  const startCol = timeAxis.dateToColumn(new Date(milestone.startDate));
-                  const endCol = timeAxis.dateToColumn(new Date(milestone.endDate));
-                  const color = milestone.category?.color ?? "#999";
+                sortedTasks.map((task) => {
+                  const startCol = timeAxis.dateToColumn(new Date(task.startDate));
+                  const endCol = timeAxis.dateToColumn(new Date(task.endDate));
+                  const color = task.category?.color ?? "#999";
 
                   return (
-                    <div key={milestone.id} className="relative h-10 border-b border-white/20">
+                    <div key={task.id} className="relative h-10 border-b border-white/20">
                       <GanttBar
                         startCol={startCol}
                         endCol={endCol}
                         totalColumns={timeAxis.totalColumns}
                         color={color}
-                        label={milestone.name}
-                        isCompleted={milestone.isCompleted}
-                        onClick={() => onMilestoneClick(milestone)}
+                        label={task.title}
+                        isCompleted={task.status === "DONE"}
+                        onClick={() => onTaskClick(task)}
                       />
                     </div>
                   );

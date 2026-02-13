@@ -31,9 +31,7 @@ interface TimelineEvent {
   id: string;
   title: string;
   description?: string | null;
-  startDate: string;
-  isCompleted?: boolean;
-  color?: string | null;
+  date: string;
   category?: { id: string; name: string; color: string } | null;
 }
 
@@ -147,7 +145,7 @@ export function TimelineView() {
   // Distribute events into months
   const eventList = (events || []) as TimelineEvent[];
   eventList.forEach((evt) => {
-    const date = new Date(evt.startDate);
+    const date = new Date(evt.date);
     const monthKey = format(date, "yyyy-MM");
 
     const monthEntry = allMonths.find((m) => m.key === monthKey);
@@ -158,7 +156,7 @@ export function TimelineView() {
 
   // Sort events within each month by date
   allMonths.forEach((month) => {
-    month.events.sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+    month.events.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   });
 
   return (
@@ -316,7 +314,7 @@ export function TimelineView() {
                 const isCurrentMonth = monthKey === currentMonthKey;
                 const isPastMonth = monthDate < new Date(today.getFullYear(), today.getMonth(), 1);
                 const monthEvents = eventList.filter((evt) => {
-                  const evtDate = new Date(evt.startDate);
+                  const evtDate = new Date(evt.date);
                   return evtDate.getFullYear() === selectedYear && evtDate.getMonth() === monthIdx;
                 });
 
@@ -369,10 +367,10 @@ export function TimelineView() {
                       )}
                       {/* Event markers on mini timeline */}
                       {monthEvents.map((evt) => {
-                        const evtDate = new Date(evt.startDate);
+                        const evtDate = new Date(evt.date);
                         const dayPosition =
                           ((evtDate.getDate() - 1) / getDaysInMonth(evtDate)) * 100;
-                        const displayColor = evt.color || evt.category?.color || "var(--c-coral)";
+                        const displayColor = evt.category?.color || "var(--c-coral)";
                         return (
                           <div
                             key={evt.id}
@@ -391,8 +389,8 @@ export function TimelineView() {
                     <div className="flex-1 p-1 space-y-1 overflow-y-auto">
                       {monthEvents.length > 0 ? (
                         monthEvents.map((evt) => {
-                          const evtDate = new Date(evt.startDate);
-                          const displayColor = evt.color || evt.category?.color || "var(--c-coral)";
+                          const evtDate = new Date(evt.date);
+                          const displayColor = evt.category?.color || "var(--c-coral)";
                           const isPast = evtDate < today;
                           return (
                             <button
@@ -515,9 +513,7 @@ export function TimelineView() {
                           {monthEvents.length > 0 ? (
                             <div className="space-y-2">
                               {monthEvents.map((evt) => {
-                                const hasColor = !!evt.color;
-                                const displayColor =
-                                  evt.color || evt.category?.color || "var(--c-coral)";
+                                const displayColor = evt.category?.color || "var(--c-coral)";
 
                                 return (
                                   <button
@@ -529,59 +525,24 @@ export function TimelineView() {
                                       "hover:-translate-y-0.5",
                                       isCurrentMonth
                                         ? "bg-white/20 hover:bg-white/30"
-                                        : "bg-white hover:bg-white/80",
-                                      evt.isCompleted && "opacity-60"
+                                        : "bg-white hover:bg-white/80"
                                     )}
                                   >
                                     <div className="flex items-center gap-3">
                                       <span
-                                        className={cn(
-                                          "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
-                                          evt.isCompleted &&
-                                            "ring-2 ring-[var(--c-success)] ring-offset-1"
-                                        )}
+                                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
                                         style={{ backgroundColor: displayColor }}
                                       >
-                                        {evt.isCompleted ? (
-                                          <svg
-                                            className="h-4 w-4 text-white"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            strokeWidth={3}
-                                            stroke="currentColor"
-                                          >
-                                            <path
-                                              strokeLinecap="round"
-                                              strokeLinejoin="round"
-                                              d="M4.5 12.75l6 6 9-13.5"
-                                            />
-                                          </svg>
-                                        ) : hasColor ? (
-                                          <svg
-                                            className="h-4 w-4 text-white"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            strokeWidth={2}
-                                            stroke="currentColor"
-                                          >
-                                            <path
-                                              strokeLinecap="round"
-                                              strokeLinejoin="round"
-                                              d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2z"
-                                            />
-                                          </svg>
-                                        ) : (
-                                          <svg
-                                            className="h-4 w-4 text-white"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            strokeWidth={2}
-                                            stroke="currentColor"
-                                          >
-                                            <rect x="3" y="4" width="18" height="18" rx="2" />
-                                            <line x1="3" y1="10" x2="21" y2="10" />
-                                          </svg>
-                                        )}
+                                        <svg
+                                          className="h-4 w-4 text-white"
+                                          fill="none"
+                                          viewBox="0 0 24 24"
+                                          strokeWidth={2}
+                                          stroke="currentColor"
+                                        >
+                                          <rect x="3" y="4" width="18" height="18" rx="2" />
+                                          <line x1="3" y1="10" x2="21" y2="10" />
+                                        </svg>
                                       </span>
                                       <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2">
@@ -620,7 +581,7 @@ export function TimelineView() {
                                             : "bg-white text-[var(--c-black)]"
                                         )}
                                       >
-                                        {format(new Date(evt.startDate), "d", {
+                                        {format(new Date(evt.date), "d", {
                                           locale: ru,
                                         })}
                                       </span>
@@ -666,11 +627,9 @@ export function TimelineView() {
                 id: editingEvent.id,
                 title: editingEvent.title,
                 description: editingEvent.description,
-                startDate: editingEvent.startDate,
+                date: editingEvent.date,
                 categoryId: editingEvent.category?.id ?? null,
                 category: editingEvent.category,
-                isCompleted: editingEvent.isCompleted,
-                color: editingEvent.color,
               }
             : null
         }

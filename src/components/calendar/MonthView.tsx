@@ -35,8 +35,8 @@ export function MonthView({ currentDate, events, onDateClick, onEventClick }: Mo
 
   function getEventsForDay(day: Date): CalendarItem[] {
     return events.filter((event) => {
-      const eventStart = parseISO(event.startDate);
-      return isSameDay(eventStart, day);
+      const eventDate = parseISO(event.date);
+      return isSameDay(eventDate, day);
     });
   }
 

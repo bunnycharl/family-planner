@@ -17,7 +17,7 @@ interface DayViewProps {
 export function DayView({ currentDate, events, onEventClick, onDateChange }: DayViewProps) {
   const touchRef = useRef<{ startX: number; startY: number } | null>(null);
 
-  const dayEvents = events.filter((event) => isSameDay(new Date(event.startDate), currentDate));
+  const dayEvents = events.filter((event) => isSameDay(new Date(event.date), currentDate));
 
   const sorted = [...dayEvents].sort((a, b) => {
     if (a.itemType !== b.itemType) {

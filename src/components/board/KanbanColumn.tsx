@@ -9,9 +9,10 @@ interface Task {
   title: string;
   description?: string | null;
   status: "TODO" | "IN_PROGRESS" | "DONE";
-  priority: "LOW" | "MEDIUM" | "HIGH";
   position: number;
-  dueDate?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  phaseId?: string | null;
   category?: {
     name: string;
     color: string;

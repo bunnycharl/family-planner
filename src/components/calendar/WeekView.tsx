@@ -17,11 +17,10 @@ import { EventChip } from "./EventChip";
 interface CalendarEvent {
   id: string;
   title: string;
-  startDate: string;
-  endDate?: string | null;
+  date: string;
   category?: { id: string; name: string; color: string } | null;
   createdBy?: { id: string; name: string; avatarColor: string } | null;
-  assignees?: { id: string; name: string }[];
+  assignee?: { id: string; name: string } | null;
 }
 
 interface WeekViewProps {
@@ -131,8 +130,8 @@ export function WeekView({ currentDate, events, onDateClick, onEventClick }: Wee
 
   function getEventsForDay(day: Date): CalendarEvent[] {
     return events
-      .filter((event) => isSameDay(parseISO(event.startDate), day))
-      .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+      .filter((event) => isSameDay(parseISO(event.date), day))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }
 
   const mobileStartIdx = isMobile ? getMobileStartIdx() : 0;

@@ -20,18 +20,11 @@ import { YearView } from "./YearView";
 import { EventForm } from "./EventForm";
 import { TaskForm } from "../board/TaskForm";
 import { QuickAddMenu, type QuickAddOption } from "../ui/QuickAddMenu";
-import {
-  type CalendarItem,
-  eventToCalendarItem,
-  taskToCalendarItem,
-} from "@/types/calendar";
+import { type CalendarItem, eventToCalendarItem, taskToCalendarItem } from "@/types/calendar";
 
 const SSR_SAFE_DEFAULT: ViewMode = "day";
 
-function getDateRange(
-  date: Date,
-  viewMode: ViewMode
-): { start: string; end: string } {
+function getDateRange(date: Date, viewMode: ViewMode): { start: string; end: string } {
   switch (viewMode) {
     case "day":
       return {
@@ -61,9 +54,7 @@ export function CalendarView() {
   // Event form state
   const [formOpen, setFormOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<CalendarItem | null>(null);
-  const [defaultFormDate, setDefaultFormDate] = useState<Date | undefined>(
-    undefined
-  );
+  const [defaultFormDate, setDefaultFormDate] = useState<Date | undefined>(undefined);
 
   // Task form state
   const [taskFormOpen, setTaskFormOpen] = useState(false);
@@ -72,16 +63,14 @@ export function CalendarView() {
     title: string;
     description?: string | null;
     status: "TODO" | "IN_PROGRESS" | "DONE";
-    priority: "LOW" | "MEDIUM" | "HIGH";
-    dueDate?: string | null;
+    startDate?: string | null;
+    endDate?: string | null;
+    phaseId?: string | null;
     categoryId?: string | null;
     assigneeId?: string | null;
   } | null>(null);
 
-  const dateRange = useMemo(
-    () => getDateRange(currentDate, viewMode),
-    [currentDate, viewMode]
-  );
+  const dateRange = useMemo(() => getDateRange(currentDate, viewMode), [currentDate, viewMode]);
 
   const { events, mutate: mutateEvents } = useEvents({
     start: dateRange.start,
@@ -89,16 +78,15 @@ export function CalendarView() {
   });
 
   const { tasks, mutate: mutateTasks } = useTasks({
-    dueDateStart: dateRange.start,
-    dueDateEnd: dateRange.end,
-    hasDueDate: true,
+    endDateFrom: dateRange.start,
+    endDateTo: dateRange.end,
   });
 
   // Merge events and tasks into CalendarItem[]
   const calendarItems: CalendarItem[] = useMemo(() => {
     const eventItems = (events || []).map(eventToCalendarItem);
     const taskItems = (tasks || [])
-      .filter((t: { dueDate?: string | null }) => t.dueDate)
+      .filter((t: { endDate?: string | null }) => t.endDate)
       .map(taskToCalendarItem);
     return [...eventItems, ...taskItems];
   }, [events, tasks]);
@@ -119,17 +107,16 @@ export function CalendarView() {
     (item: CalendarItem) => {
       if (item.itemType === "task") {
         // Find original task data to open TaskForm
-        const originalTask = (tasks || []).find(
-          (t: { id: string }) => t.id === item.id
-        );
+        const originalTask = (tasks || []).find((t: { id: string }) => t.id === item.id);
         if (originalTask) {
           setSelectedTask({
             id: originalTask.id,
             title: originalTask.title,
             description: originalTask.description,
             status: originalTask.status,
-            priority: originalTask.priority,
-            dueDate: originalTask.dueDate,
+            startDate: originalTask.startDate,
+            endDate: originalTask.endDate,
+            phaseId: originalTask.phaseId,
             categoryId: originalTask.categoryId,
             assigneeId: originalTask.assigneeId,
           });
@@ -236,8 +223,7 @@ export function CalendarView() {
             ? {
                 id: selectedEvent.id,
                 title: selectedEvent.title,
-                startDate: selectedEvent.startDate,
-                endDate: selectedEvent.endDate,
+                date: selectedEvent.date,
                 categoryId: selectedEvent.category?.id ?? null,
                 category: selectedEvent.category,
               }

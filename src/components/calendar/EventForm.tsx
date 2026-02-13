@@ -5,19 +5,18 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useCategories } from "@/hooks/useCategories";
-import { ColorPicker } from "@/components/ui/ColorPicker";
+import useSWR from "swr";
+
+const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 interface CalendarEvent {
   id: string;
   title: string;
   description?: string | null;
-  startDate: string;
-  endDate?: string | null;
-  location?: string | null;
+  date: string;
   categoryId?: string | null;
   category?: { id: string; name: string; color: string } | null;
-  isCompleted?: boolean;
-  color?: string | null;
+  assigneeId?: string | null;
 }
 
 interface EventFormProps {
@@ -30,15 +29,14 @@ interface EventFormProps {
 
 export function EventForm({ isOpen, onClose, event, defaultDate, onSave }: EventFormProps) {
   const { categories } = useCategories();
+  const { data: users = [] } = useSWR<{ id: string; name: string }[]>("/api/users", fetcher);
   const isEditing = !!event;
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [startDate, setStartDate] = useState("");
+  const [date, setDate] = useState("");
   const [categoryId, setCategoryId] = useState("");
-  const [location, setLocation] = useState("");
-  const [isCompleted, setIsCompleted] = useState(false);
-  const [color, setColor] = useState<string | null>(null);
+  const [assigneeId, setAssigneeId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -47,26 +45,26 @@ export function EventForm({ isOpen, onClose, event, defaultDate, onSave }: Event
   const [categoryOpen, setCategoryOpen] = useState(false);
   const categoryRef = useRef<HTMLDivElement>(null);
 
+  // Custom assignee dropdown
+  const [assigneeOpen, setAssigneeOpen] = useState(false);
+  const assigneeRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (!isOpen) return;
 
     if (event) {
       setTitle(event.title);
       setDescription(event.description ?? "");
-      setLocation(event.location ?? "");
       setCategoryId(event.categoryId ?? "");
-      setStartDate(format(new Date(event.startDate), "yyyy-MM-dd"));
-      setIsCompleted(event.isCompleted ?? false);
-      setColor(event.color ?? null);
+      setDate(format(new Date(event.date), "yyyy-MM-dd"));
+      setAssigneeId(event.assigneeId ?? "");
     } else {
       const d = defaultDate ?? new Date();
       setTitle("");
       setDescription("");
-      setStartDate(format(d, "yyyy-MM-dd"));
+      setDate(format(d, "yyyy-MM-dd"));
       setCategoryId("");
-      setLocation("");
-      setIsCompleted(false);
-      setColor(null);
+      setAssigneeId("");
     }
   }, [isOpen, event, defaultDate]);
 
@@ -82,6 +80,18 @@ export function EventForm({ isOpen, onClose, event, defaultDate, onSave }: Event
     }
   }, [categoryOpen]);
 
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (assigneeRef.current && !assigneeRef.current.contains(e.target as Node)) {
+        setAssigneeOpen(false);
+      }
+    }
+    if (assigneeOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [assigneeOpen]);
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!title.trim()) return;
@@ -91,11 +101,9 @@ export function EventForm({ isOpen, onClose, event, defaultDate, onSave }: Event
     const payload = {
       title: title.trim(),
       description: description.trim() || undefined,
-      startDate: new Date(startDate + "T00:00:00").toISOString(),
+      date: new Date(date + "T00:00:00").toISOString(),
       categoryId: categoryId || undefined,
-      location: location.trim() || undefined,
-      isCompleted,
-      color: color || undefined,
+      assigneeId: assigneeId || undefined,
     };
 
     try {
@@ -152,6 +160,8 @@ export function EventForm({ isOpen, onClose, event, defaultDate, onSave }: Event
   const selectedCategory = categories.find((c: { id: string }) => c.id === categoryId) as
     | { id: string; name: string; color: string }
     | undefined;
+
+  const selectedAssignee = users.find((u) => u.id === assigneeId);
 
   return (
     <div className="fixed inset-0 z-[60]">
@@ -250,17 +260,17 @@ export function EventForm({ isOpen, onClose, event, defaultDate, onSave }: Event
             {/* Date */}
             <div>
               <label
-                htmlFor="event-start"
+                htmlFor="event-date"
                 className="block text-xs font-bold uppercase text-[#999] mb-1.5"
               >
                 Дата
               </label>
               <input
-                id="event-start"
+                id="event-date"
                 type="date"
                 required
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
                 className="w-full rounded-2xl border-2 border-[var(--c-black)] bg-white px-4 py-2.5 text-sm text-[var(--c-black)] focus:outline-none focus:ring-2 focus:ring-[var(--c-lavender)]/30 [&::-webkit-date-and-time-value]:text-left"
               />
             </div>
@@ -352,71 +362,81 @@ export function EventForm({ isOpen, onClose, event, defaultDate, onSave }: Event
               </div>
             </div>
 
-            {/* Location */}
+            {/* Assignee — custom dropdown */}
             <div>
-              <label
-                htmlFor="event-location"
-                className="block text-xs font-bold uppercase text-[#999] mb-1.5"
-              >
-                Место
-              </label>
-              <input
-                id="event-location"
-                type="text"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                placeholder="Место проведения"
-                className="w-full rounded-2xl border-2 border-[var(--c-black)] bg-white px-4 py-2.5 text-sm text-[var(--c-black)] placeholder:text-[#999] focus:outline-none focus:ring-2 focus:ring-[var(--c-lavender)]/30"
-              />
-            </div>
-
-            {/* Color picker with flag icon */}
-            <div>
-              <label className="block text-xs font-bold uppercase text-[#999] mb-2">
-                <span className="flex items-center gap-2">
+              <span className="block text-xs font-bold uppercase text-[#999] mb-1.5">
+                Ответственный
+              </span>
+              <div className="relative" ref={assigneeRef}>
+                <button
+                  type="button"
+                  onClick={() => setAssigneeOpen(!assigneeOpen)}
+                  className="flex w-full items-center justify-between rounded-2xl border-2 border-[var(--c-black)] px-4 py-2.5 text-sm bg-white text-left transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--c-lavender)]/30"
+                >
+                  <span className="truncate">
+                    {selectedAssignee ? (
+                      <span className="text-[var(--c-black)]">{selectedAssignee.name}</span>
+                    ) : (
+                      <span className="text-[#999]">Не назначен</span>
+                    )}
+                  </span>
                   <svg
-                    className="h-4 w-4 text-[#999]"
+                    className={cn(
+                      "h-4 w-4 shrink-0 text-[#999] transition-transform",
+                      assigneeOpen && "rotate-180"
+                    )}
                     fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2}
                     stroke="currentColor"
+                    viewBox="0 0 24 24"
                   >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2z"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
                     />
                   </svg>
-                  Цвет (флажок)
-                </span>
-              </label>
-              <ColorPicker
-                value={color ?? "#000000"}
-                onChange={(c) => setColor(c)}
-                showNone
-                onNone={() => setColor(null)}
-                isNone={color === null}
-              />
-            </div>
+                </button>
 
-            {/* Completed checkbox (only when editing) */}
-            {isEditing && (
-              <div className="flex items-center gap-3 p-3 rounded-2xl bg-[var(--c-gray)]">
-                <input
-                  id="event-completed"
-                  type="checkbox"
-                  checked={isCompleted}
-                  onChange={(e) => setIsCompleted(e.target.checked)}
-                  className="h-5 w-5 rounded cursor-pointer accent-[var(--c-black)]"
-                />
-                <label
-                  htmlFor="event-completed"
-                  className="text-sm font-bold text-[var(--c-black)] cursor-pointer"
-                >
-                  Выполнено
-                </label>
+                {assigneeOpen && (
+                  <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-56 overflow-y-auto rounded-2xl border-2 border-[var(--c-black)] bg-white shadow-lg">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAssigneeId("");
+                        setAssigneeOpen(false);
+                      }}
+                      className={cn(
+                        "flex w-full items-center gap-3 px-4 py-3 text-left text-sm transition-colors cursor-pointer",
+                        !assigneeId
+                          ? "bg-[var(--c-yellow)] text-[var(--c-black)] font-bold"
+                          : "text-[#666] hover:bg-[var(--c-gray)]"
+                      )}
+                    >
+                      Не назначен
+                    </button>
+                    {users.map((u) => (
+                      <button
+                        key={u.id}
+                        type="button"
+                        onClick={() => {
+                          setAssigneeId(u.id);
+                          setAssigneeOpen(false);
+                        }}
+                        className={cn(
+                          "flex w-full items-center gap-3 px-4 py-3 text-left text-sm transition-colors cursor-pointer",
+                          assigneeId === u.id
+                            ? "bg-[var(--c-yellow)] text-[var(--c-black)] font-bold"
+                            : "text-[#666] hover:bg-[var(--c-gray)]"
+                        )}
+                      >
+                        {u.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
 
           {/* Footer — always visible at bottom */}

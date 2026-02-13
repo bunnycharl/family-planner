@@ -13,8 +13,9 @@ interface TaskFormTask {
   title: string;
   description?: string | null;
   status: "TODO" | "IN_PROGRESS" | "DONE";
-  priority: "LOW" | "MEDIUM" | "HIGH";
-  dueDate?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  phaseId?: string | null;
   categoryId?: string | null;
   assigneeId?: string | null;
 }
@@ -31,12 +32,6 @@ const STATUS_OPTIONS = [
   { value: "TODO", label: "К выполнению" },
   { value: "IN_PROGRESS", label: "В процессе" },
   { value: "DONE", label: "Готово" },
-] as const;
-
-const PRIORITY_OPTIONS = [
-  { value: "LOW", label: "Низкий" },
-  { value: "MEDIUM", label: "Средний" },
-  { value: "HIGH", label: "Высокий" },
 ] as const;
 
 // Reusable custom dropdown
@@ -143,6 +138,10 @@ function CustomSelect({
 export function TaskForm({ isOpen, onClose, task, defaultStatus, onSave }: TaskFormProps) {
   const { categories } = useCategories();
   const { data: users = [] } = useSWR<{ id: string; name: string }[]>("/api/users", fetcher);
+  const { data: phases = [] } = useSWR<{ id: string; name: string; emoji: string | null }[]>(
+    "/api/roadmap/phases",
+    fetcher
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -150,8 +149,9 @@ export function TaskForm({ isOpen, onClose, task, defaultStatus, onSave }: TaskF
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState<"TODO" | "IN_PROGRESS" | "DONE">("TODO");
-  const [priority, setPriority] = useState<"LOW" | "MEDIUM" | "HIGH">("MEDIUM");
-  const [dueDate, setDueDate] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [phaseId, setPhaseId] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [assigneeId, setAssigneeId] = useState("");
 
@@ -161,16 +161,18 @@ export function TaskForm({ isOpen, onClose, task, defaultStatus, onSave }: TaskF
         setTitle(task.title);
         setDescription(task.description ?? "");
         setStatus(task.status);
-        setPriority(task.priority);
-        setDueDate(task.dueDate ? new Date(task.dueDate).toISOString().split("T")[0] : "");
+        setStartDate(task.startDate ? new Date(task.startDate).toISOString().split("T")[0] : "");
+        setEndDate(task.endDate ? new Date(task.endDate).toISOString().split("T")[0] : "");
+        setPhaseId(task.phaseId ?? "");
         setCategoryId(task.categoryId ?? "");
         setAssigneeId(task.assigneeId ?? "");
       } else {
         setTitle("");
         setDescription("");
         setStatus(defaultStatus ?? "TODO");
-        setPriority("MEDIUM");
-        setDueDate("");
+        setStartDate("");
+        setEndDate("");
+        setPhaseId("");
         setCategoryId("");
         setAssigneeId("");
       }
@@ -195,8 +197,9 @@ export function TaskForm({ isOpen, onClose, task, defaultStatus, onSave }: TaskF
       title: title.trim(),
       description: description.trim() || undefined,
       status,
-      priority,
-      dueDate: dueDate || undefined,
+      startDate: startDate || undefined,
+      endDate: endDate || undefined,
+      phaseId: phaseId || undefined,
       categoryId: categoryId || undefined,
       assigneeId: assigneeId || undefined,
     };
@@ -261,6 +264,14 @@ export function TaskForm({ isOpen, onClose, task, defaultStatus, onSave }: TaskF
   const assigneeOptions = [
     { value: "", label: "Не назначен" },
     ...users.map((u) => ({ value: u.id, label: u.name })),
+  ];
+
+  const phaseOptions = [
+    { value: "", label: "Без фазы" },
+    ...phases.map((p) => ({
+      value: p.id,
+      label: `${p.emoji ? p.emoji + " " : ""}${p.name}`,
+    })),
   ];
 
   return (
@@ -347,38 +358,49 @@ export function TaskForm({ isOpen, onClose, task, defaultStatus, onSave }: TaskF
               />
             </div>
 
-            {/* Status & Priority row */}
+            {/* Status */}
+            <CustomSelect
+              label="Статус"
+              value={status}
+              options={STATUS_OPTIONS.map((o) => ({
+                value: o.value,
+                label: o.label,
+              }))}
+              onChange={(v) => setStatus(v as "TODO" | "IN_PROGRESS" | "DONE")}
+            />
+
+            {/* Start Date & End Date */}
             <div className="grid grid-cols-2 gap-3">
-              <CustomSelect
-                label="Статус"
-                value={status}
-                options={STATUS_OPTIONS.map((o) => ({
-                  value: o.value,
-                  label: o.label,
-                }))}
-                onChange={(v) => setStatus(v as "TODO" | "IN_PROGRESS" | "DONE")}
-              />
-              <CustomSelect
-                label="Приоритет"
-                value={priority}
-                options={PRIORITY_OPTIONS.map((o) => ({
-                  value: o.value,
-                  label: o.label,
-                }))}
-                onChange={(v) => setPriority(v as "LOW" | "MEDIUM" | "HIGH")}
-              />
+              <div>
+                <label className="block text-xs font-bold uppercase text-[#999] mb-1.5">
+                  Начало
+                </label>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-full rounded-2xl border-2 border-[var(--c-black)] bg-white px-4 py-2.5 text-sm text-[var(--c-black)] focus:outline-none focus:ring-2 focus:ring-[var(--c-lavender)]/30 [&::-webkit-date-and-time-value]:text-left"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold uppercase text-[#999] mb-1.5">Срок</label>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="w-full rounded-2xl border-2 border-[var(--c-black)] bg-white px-4 py-2.5 text-sm text-[var(--c-black)] focus:outline-none focus:ring-2 focus:ring-[var(--c-lavender)]/30 [&::-webkit-date-and-time-value]:text-left"
+                />
+              </div>
             </div>
 
-            {/* Due Date */}
-            <div>
-              <label className="block text-xs font-bold uppercase text-[#999] mb-1.5">Срок</label>
-              <input
-                type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                className="w-full rounded-2xl border-2 border-[var(--c-black)] bg-white px-4 py-2.5 text-sm text-[var(--c-black)] focus:outline-none focus:ring-2 focus:ring-[var(--c-lavender)]/30 [&::-webkit-date-and-time-value]:text-left"
-              />
-            </div>
+            {/* Phase */}
+            <CustomSelect
+              label="Фаза роадмапа"
+              value={phaseId}
+              options={phaseOptions}
+              onChange={setPhaseId}
+              placeholder="Без фазы"
+            />
 
             {/* Category */}
             <CustomSelect

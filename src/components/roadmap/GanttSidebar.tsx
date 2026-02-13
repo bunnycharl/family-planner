@@ -3,14 +3,14 @@
 import { cn } from "@/lib/utils";
 import type { ZoomLevel } from "@/lib/roadmap-utils";
 
-interface Milestone {
+interface RoadmapTask {
   id: string;
-  name: string;
-  details: string | null;
+  title: string;
+  description: string | null;
   category: { id: string; name: string; color: string; icon?: string | null } | null;
   startDate: string;
   endDate: string;
-  isCompleted: boolean;
+  status: "TODO" | "IN_PROGRESS" | "DONE";
   position: number;
   phaseId: string;
 }
@@ -20,7 +20,7 @@ interface RoadmapPhase {
   name: string;
   emoji: string | null;
   position: number;
-  milestones: Milestone[];
+  tasks: RoadmapTask[];
 }
 
 interface GanttSidebarProps {
@@ -28,7 +28,7 @@ interface GanttSidebarProps {
   expandedMap: Record<string, boolean>;
   onTogglePhase: (phaseId: string) => void;
   onEditPhase: (phase: RoadmapPhase) => void;
-  onToggleCompletion: (milestone: Milestone) => void;
+  onToggleCompletion: (task: RoadmapTask) => void;
   zoom: ZoomLevel;
 }
 
@@ -52,14 +52,14 @@ export function GanttSidebar({
         {showYearRow && <div className="h-[26px]" />}
         <div className="flex h-[30px] items-center border-b border-white/20">
           <div className="w-[180px] px-3 text-[10px] font-bold uppercase text-[#999]">Фаза</div>
-          <div className="flex-1 px-3 text-[10px] font-bold uppercase text-[#999]">Веха</div>
+          <div className="flex-1 px-3 text-[10px] font-bold uppercase text-[#999]">Задача</div>
         </div>
       </div>
 
       {/* Phase groups */}
       {sortedPhases.map((phase) => {
         const isExpanded = expandedMap[phase.id] ?? true;
-        const sortedMilestones = [...phase.milestones].sort((a, b) => a.position - b.position);
+        const sortedTasks = [...phase.tasks].sort((a, b) => a.position - b.position);
 
         return (
           <div key={phase.id}>
@@ -109,24 +109,24 @@ export function GanttSidebar({
               </button>
             </div>
 
-            {/* Milestone rows */}
+            {/* Task rows */}
             {isExpanded &&
-              sortedMilestones.map((milestone) => (
-                <div key={milestone.id} className="flex h-10 items-center border-b border-white/20">
+              sortedTasks.map((task) => (
+                <div key={task.id} className="flex h-10 items-center border-b border-white/20">
                   {/* Empty phase column space */}
                   <div className="w-[180px] shrink-0 px-3">
                     {/* Completion checkbox */}
                     <button
                       type="button"
-                      onClick={() => onToggleCompletion(milestone)}
+                      onClick={() => onToggleCompletion(task)}
                       className={cn(
                         "flex h-5 w-5 items-center justify-center rounded-md border-2 transition-all cursor-pointer",
-                        milestone.isCompleted
+                        task.status === "DONE"
                           ? "border-[var(--c-mint)] bg-[var(--c-mint)]"
                           : "border-[#ccc] hover:border-[var(--c-mint)]"
                       )}
                     >
-                      {milestone.isCompleted && (
+                      {task.status === "DONE" && (
                         <svg
                           className="h-3 w-3 text-white"
                           fill="none"
@@ -140,8 +140,8 @@ export function GanttSidebar({
                     </button>
                   </div>
                   <div className="flex-1 truncate px-3 text-xs font-bold uppercase text-[var(--c-black)]">
-                    <span className={cn(milestone.isCompleted && "line-through opacity-50")}>
-                      {milestone.name}
+                    <span className={cn(task.status === "DONE" && "line-through opacity-50")}>
+                      {task.title}
                     </span>
                   </div>
                 </div>

@@ -10,9 +10,10 @@ interface TaskCardTask {
   title: string;
   description?: string | null;
   status: "TODO" | "IN_PROGRESS" | "DONE";
-  priority: "LOW" | "MEDIUM" | "HIGH";
   position: number;
-  dueDate?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  phaseId?: string | null;
   category?: {
     name: string;
     color: string;
@@ -33,12 +34,6 @@ interface TaskCardProps {
   index: number;
 }
 
-const PRIORITY_STYLES: Record<string, { bg: string; text: string; label: string }> = {
-  HIGH: { bg: "bg-[var(--c-coral)]", text: "text-white", label: "Высокий" },
-  MEDIUM: { bg: "bg-[var(--c-yellow)]", text: "text-[var(--c-black)]", label: "Средний" },
-  LOW: { bg: "bg-[var(--c-mint)]", text: "text-[var(--c-black)]", label: "Низкий" },
-};
-
 export function TaskCard({ task, onClick, index }: TaskCardProps) {
   const initials = task.assignee
     ? task.assignee.name
@@ -48,8 +43,6 @@ export function TaskCard({ task, onClick, index }: TaskCardProps) {
         .toUpperCase()
         .slice(0, 2)
     : null;
-
-  const priorityStyle = PRIORITY_STYLES[task.priority];
 
   return (
     <Draggable draggableId={task.id} index={index}>
@@ -65,19 +58,6 @@ export function TaskCard({ task, onClick, index }: TaskCardProps) {
             snapshot.isDragging && "shadow-xl ring-2 ring-[var(--c-lavender)] rotate-2 scale-105"
           )}
         >
-          {/* Priority badge */}
-          <div className="mb-2 flex items-center gap-2">
-            <span
-              className={cn(
-                "inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase",
-                priorityStyle.bg,
-                priorityStyle.text
-              )}
-            >
-              {priorityStyle.label}
-            </span>
-          </div>
-
           {/* Title */}
           <h4 className="text-sm font-bold text-[var(--c-black)] line-clamp-2 mb-2">
             {task.title}
@@ -92,7 +72,7 @@ export function TaskCard({ task, onClick, index }: TaskCardProps) {
           <div className="flex items-center justify-between pt-2">
             <div className="flex items-center gap-2 flex-wrap">
               {/* Due date */}
-              {task.dueDate && (
+              {task.endDate && (
                 <span className="inline-flex items-center gap-1 text-xs font-bold text-[#666]">
                   <svg
                     className="h-3.5 w-3.5"
@@ -103,7 +83,7 @@ export function TaskCard({ task, onClick, index }: TaskCardProps) {
                     <rect x="3" y="4" width="18" height="18" rx="2" />
                     <line x1="3" y1="10" x2="21" y2="10" />
                   </svg>
-                  {format(new Date(task.dueDate), "d MMM", { locale: ru })}
+                  {format(new Date(task.endDate), "d MMM", { locale: ru })}
                 </span>
               )}
 
