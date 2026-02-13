@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 import { useBudgetYear } from "@/hooks/finances/useBudgetYear";
 import { useBudgetMutations } from "@/hooks/finances/useBudgetMutations";
 import { YearSelector } from "@/components/finances/shared/YearSelector";
@@ -24,6 +25,7 @@ export default function FinanceSettingsPage() {
   const { data, isLoading, mutate } = useBudgetYear(year);
   const mutations = useBudgetMutations(year, mutate);
   const [section, setSection] = useState<SettingsSection>("members");
+  const [creating, setCreating] = useState(false);
 
   if (isLoading) {
     return (
@@ -43,17 +45,33 @@ export default function FinanceSettingsPage() {
           </p>
           <button
             type="button"
+            disabled={creating}
             onClick={async () => {
-              await fetch("/api/budget", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ year }),
-              });
-              mutate();
+              setCreating(true);
+              try {
+                const res = await fetch("/api/budget", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ year }),
+                });
+                if (!res.ok) {
+                  const err = await res.json().catch(() => ({}));
+                  throw new Error(err.error || "Не удалось создать бюджет");
+                }
+                await mutate();
+                toast.success(`Бюджет на ${year} создан`);
+              } catch (e) {
+                toast.error(e instanceof Error ? e.message : "Ошибка создания бюджета");
+              } finally {
+                setCreating(false);
+              }
             }}
-            className="rounded-full bg-[var(--c-lavender)] px-6 py-3 text-sm font-bold text-white hover:opacity-80 transition-opacity cursor-pointer"
+            className={cn(
+              "rounded-full bg-[var(--c-lavender)] px-6 py-3 text-sm font-bold text-white transition-opacity cursor-pointer",
+              creating ? "opacity-50 cursor-wait" : "hover:opacity-80"
+            )}
           >
-            Создать бюджет на {year}
+            {creating ? "Создаём..." : `Создать бюджет на ${year}`}
           </button>
         </div>
       </div>
