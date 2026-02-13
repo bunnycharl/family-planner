@@ -58,7 +58,7 @@ export function MonthView({ currentDate, events, onDateClick, onEventClick }: Mo
       </div>
 
       {/* Day cells */}
-      <div className="grid grid-cols-7 flex-1 gap-1">
+      <div className="grid grid-cols-7 flex-1 gap-2 sm:gap-3">
         {days.map((day) => {
           const dayEvents = getEventsForDay(day);
           const inCurrentMonth = isSameMonth(day, currentDate);
@@ -71,10 +71,10 @@ export function MonthView({ currentDate, events, onDateClick, onEventClick }: Mo
               onClick={() => onDateClick(day)}
               className={cn(
                 "min-h-[80px] cursor-pointer rounded-2xl p-2 transition-all sm:min-h-[100px]",
-                "hover:bg-[var(--c-gray)]",
-                !inCurrentMonth && "opacity-30",
-                inCurrentMonth && "bg-white",
-                today && "bg-[var(--c-yellow)]"
+                "border-2 hover:shadow-lg hover:-translate-y-0.5",
+                !inCurrentMonth && "opacity-30 border-transparent",
+                inCurrentMonth && "bg-white border-[var(--c-gray)]",
+                today && "bg-[var(--c-yellow)] border-[var(--c-black)]"
               )}
             >
               <div

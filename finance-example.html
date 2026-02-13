@@ -1,0 +1,489 @@
+<html lang="en" vid="0"><head vid="1">
+    <meta charset="UTF-8" vid="2">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" vid="3">
+    <title vid="4">Family Budget</title>
+    <style vid="5">
+        :root {
+            
+            --color-bg: #F1EFE9; 
+            --color-accent: #FF360D; 
+            --color-accent-dark: #cc2500;
+            --color-white: #FFFFFF;
+            --color-text-main: #FF360D; 
+            --color-text-dark: #4A1205; 
+            --color-border: #FF360D; 
+            
+            --font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            --radius-pill: 999px;
+            --radius-card: 24px;
+            
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 40px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--color-bg);
+            color: var(--color-text-main);
+            font-family: var(--font-family);
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.4;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+        }
+
+        
+        h1, h2, h3, h4 {
+            font-weight: 500;
+            letter-spacing: -0.03em; 
+        }
+
+        .text-huge {
+            font-size: 3rem;
+            line-height: 1;
+        }
+
+        .text-lg {
+            font-size: 1.5rem;
+        }
+
+        .text-md {
+            font-size: 1.125rem;
+        }
+
+        .text-sm {
+            font-size: 0.875rem;
+            letter-spacing: -0.01em;
+        }
+
+        .text-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+
+        
+        .app-container {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            height: 100%;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        
+        .panel-summary {
+            padding: var(--spacing-lg);
+            border-right: 1px solid rgba(255, 54, 13, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xl);
+            overflow-y: auto;
+        }
+
+        .header-logo {
+            font-family: 'Georgia', serif; 
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--color-text-main);
+            margin-bottom: var(--spacing-md);
+        }
+
+        
+        .card-balance {
+            background-color: var(--color-accent);
+            color: var(--color-white);
+            border-radius: var(--radius-card);
+            padding: var(--spacing-lg);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 280px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(255, 54, 13, 0.15);
+        }
+
+        .card-balance .label {
+            opacity: 0.9;
+            font-size: 0.875rem;
+        }
+
+        .card-balance .amount {
+            font-size: 3.5rem;
+            font-weight: 500;
+            letter-spacing: -0.04em;
+            margin-top: auto;
+        }
+
+        .card-balance .trend {
+            margin-top: var(--spacing-sm);
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            opacity: 0.9;
+        }
+
+        
+        .chart-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1;
+            max-width: 240px;
+            margin: 0 auto;
+        }
+
+        .chart-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--color-accent) 0% 65%, 
+                transparent 65% 100%
+            );
+            
+            -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 24px), #fff calc(100% - 23px));
+            mask: radial-gradient(farthest-side, transparent calc(100% - 24px), #fff calc(100% - 23px));
+        }
+
+        .chart-legend {
+            margin-top: var(--spacing-md);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-sm);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+            color: var(--color-text-dark);
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: var(--color-accent);
+            border-radius: 50%;
+        }
+
+        .dot.faded {
+            opacity: 0.3;
+        }
+
+        
+        .panel-content {
+            padding: var(--spacing-xl);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .search-pill {
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-pill);
+            padding: 10px 20px;
+            width: 300px;
+            font-size: 0.875rem;
+            color: var(--color-text-main);
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: var(--spacing-md);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        
+        .filters {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .filter-chip {
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-pill);
+            padding: 8px 16px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .filter-chip.active {
+            background-color: var(--color-accent);
+            color: var(--color-white);
+        }
+
+        .filter-chip:hover:not(.active) {
+            background-color: rgba(255, 54, 13, 0.05);
+        }
+
+        
+        .transaction-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .list-header {
+            display: grid;
+            grid-template-columns: 3fr 2fr 2fr 1fr;
+            padding: var(--spacing-sm) 0;
+            border-bottom: 1px solid var(--color-border);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--color-text-dark);
+            opacity: 0.7;
+        }
+
+        .list-row {
+            display: grid;
+            grid-template-columns: 3fr 2fr 2fr 1fr;
+            padding: 24px 0; 
+            border-bottom: 1px solid var(--color-border);
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .list-row:hover {
+            background-color: rgba(255, 54, 13, 0.03);
+            
+        }
+
+        .merchant-name {
+            font-size: 1.25rem; 
+            font-weight: 500;
+            letter-spacing: -0.02em;
+        }
+
+        .transaction-meta {
+            font-size: 0.9rem;
+            color: var(--color-text-dark);
+        }
+
+        .amount {
+            font-family: var(--font-family);
+            font-weight: 500;
+            font-size: 1.1rem;
+            text-align: right;
+        }
+
+        
+        .fab {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            background-color: var(--color-accent);
+            color: var(--color-white);
+            height: 56px;
+            padding: 0 24px;
+            border-radius: var(--radius-pill);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(255, 54, 13, 0.3);
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+            transition: transform 0.2s;
+        }
+
+        .fab:hover {
+            transform: translateY(-2px);
+        }
+
+        
+        @media (max-width: 1024px) {
+            .app-container {
+                grid-template-columns: 280px 1fr;
+            }
+            .merchant-name { font-size: 1.1rem; }
+        }
+        
+        
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            .panel-summary {
+                display: none; 
+            }
+        }
+
+    </style>
+</head>
+<body vid="6">
+
+    <div class="app-container" vid="7">
+        
+        <aside class="panel-summary" vid="8">
+            <div class="header-logo" vid="9">family_</div>
+            
+            
+            <div class="card-balance" vid="10">
+                <div style="z-index: 2;" vid="11">
+                    <div class="label" vid="12">Total Budget</div>
+                    <div class="amount" vid="13">$4,250</div>
+                    <div class="trend" vid="14">
+                        <span vid="15">↓</span> 12% under limit
+                    </div>
+                </div>
+                
+                <div style="position: absolute; bottom: -20px; right: -20px; width: 120px; height: 120px; background: rgba(255,255,255,0.1); border-radius: 50%;" vid="16"></div>
+            </div>
+
+            
+            <div style="text-align: center;" vid="17">
+                <h3 class="text-md" style="margin-bottom: 24px; text-align: left;" vid="18">Spending by Category</h3>
+                <div class="chart-container" vid="19">
+                    <div class="chart-circle" vid="20"></div>
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.5rem; font-weight: 500;" vid="21">
+                        65%
+                    </div>
+                </div>
+                <div class="chart-legend" vid="22">
+                    <div class="legend-item" vid="23"><div class="dot" vid="24"></div> Essentials</div>
+                    <div class="legend-item" vid="25"><div class="dot faded" vid="26"></div> Lifestyle</div>
+                    <div class="legend-item" vid="27"><div class="dot faded" vid="28"></div> Savings</div>
+                    <div class="legend-item" vid="29"><div class="dot faded" vid="30"></div> Debt</div>
+                </div>
+            </div>
+            
+            
+            <div style="margin-top: auto; border-top: 1px solid var(--color-border); padding-top: 24px;" vid="31">
+                <div class="text-sm" style="display: flex; gap: 16px; color: var(--color-text-dark);" vid="32">
+                    <span vid="33">Settings</span>
+                    <span vid="34">Reports</span>
+                    <span vid="35">Accounts</span>
+                </div>
+            </div>
+        </aside>
+
+        
+        <main class="panel-content" vid="36">
+            
+            <header class="top-nav" vid="37">
+                <h2 class="text-huge" vid="38">October</h2>
+                
+                <div class="search-pill" vid="39">
+                    <span style="opacity: 0.5" vid="40">Search transactions...</span>
+                    <span vid="41">Q</span>
+                </div>
+            </header>
+
+            
+            <div class="filters" vid="42">
+                <div class="filter-chip active" vid="43">All Transactions</div>
+                <div class="filter-chip" vid="44">Groceries</div>
+                <div class="filter-chip" vid="45">Housing</div>
+                <div class="filter-chip" vid="46">Transport</div>
+                <div class="filter-chip" vid="47">Entertainment</div>
+                <div class="filter-chip" vid="48">Utilities</div>
+                <div class="filter-chip" vid="49">Kids</div>
+            </div>
+
+            
+            <div class="transaction-list" vid="50">
+                <div class="list-header" vid="51">
+                    <span vid="52">Merchant</span>
+                    <span vid="53">Category</span>
+                    <span vid="54">Date</span>
+                    <span style="text-align: right;" vid="55">Amount</span>
+                </div>
+
+                
+                <div class="list-row" vid="56">
+                    <span class="merchant-name" vid="57">Whole Foods Market</span>
+                    <span class="transaction-meta" vid="58">Groceries</span>
+                    <span class="transaction-meta" vid="59">Oct 24</span>
+                    <span class="amount" vid="60">$184.20</span>
+                </div>
+
+                
+                <div class="list-row" vid="61">
+                    <span class="merchant-name" vid="62">Shell Station</span>
+                    <span class="transaction-meta" vid="63">Transport</span>
+                    <span class="transaction-meta" vid="64">Oct 23</span>
+                    <span class="amount" vid="65">$45.00</span>
+                </div>
+
+                
+                <div class="list-row" vid="66">
+                    <span class="merchant-name" vid="67">Netflix Subscription</span>
+                    <span class="transaction-meta" vid="68">Entertainment</span>
+                    <span class="transaction-meta" vid="69">Oct 21</span>
+                    <span class="amount" vid="70">$15.99</span>
+                </div>
+
+                
+                <div class="list-row" vid="71">
+                    <span class="merchant-name" vid="72">City Water &amp; Power</span>
+                    <span class="transaction-meta" vid="73">Utilities</span>
+                    <span class="transaction-meta" vid="74">Oct 20</span>
+                    <span class="amount" vid="75">$124.50</span>
+                </div>
+
+                
+                <div class="list-row" vid="76">
+                    <span class="merchant-name" vid="77">Trader Joe's</span>
+                    <span class="transaction-meta" vid="78">Groceries</span>
+                    <span class="transaction-meta" vid="79">Oct 18</span>
+                    <span class="amount" vid="80">$67.33</span>
+                </div>
+                
+                 
+                 <div class="list-row" vid="81">
+                    <span class="merchant-name" vid="82">Piano Lessons</span>
+                    <span class="transaction-meta" vid="83">Kids</span>
+                    <span class="transaction-meta" vid="84">Oct 17</span>
+                    <span class="amount" vid="85">$80.00</span>
+                </div>
+                
+                
+                <div class="list-row" vid="86">
+                    <span class="merchant-name" vid="87">Uniqlo</span>
+                    <span class="transaction-meta" vid="88">Clothing</span>
+                    <span class="transaction-meta" vid="89">Oct 15</span>
+                    <span class="amount" vid="90">$42.90</span>
+                </div>
+            </div>
+        </main>
+        
+        
+        <button class="fab" vid="91">
+            <span vid="92">+</span> Add Transaction
+        </button>
+    </div>
+
+
+</body></html>
