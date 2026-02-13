@@ -5,6 +5,7 @@ import useSWR from "swr";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useCategories } from "@/hooks/useCategories";
+import { DateRangePicker } from "@/components/ui/DateRangePicker";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -51,6 +52,7 @@ function CustomSelect({
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -61,6 +63,20 @@ function CustomSelect({
     if (open) {
       document.addEventListener("mousedown", handleClickOutside);
       return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [open]);
+
+  // Auto-scroll into view when dropdown opens
+  useEffect(() => {
+    if (open && dropdownRef.current) {
+      setTimeout(() => {
+        if (dropdownRef.current) {
+          dropdownRef.current.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest",
+          });
+        }
+      }, 50);
     }
   }, [open]);
 
@@ -104,7 +120,10 @@ function CustomSelect({
         </button>
 
         {open && (
-          <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-56 overflow-y-auto rounded-2xl border-2 border-[var(--c-black)] bg-white shadow-lg">
+          <div
+            ref={dropdownRef}
+            className="absolute left-0 right-0 top-full z-50 mt-2 max-h-56 overflow-y-auto rounded-2xl border-2 border-[var(--c-black)] bg-white shadow-2xl"
+          >
             {options.map((opt) => (
               <button
                 key={opt.value}
@@ -292,7 +311,7 @@ export function TaskForm({ isOpen, onClose, task, defaultStatus, onSave }: TaskF
       {/* Modal — full screen on mobile */}
       <div
         className={cn(
-          "absolute inset-0 z-10 bg-white flex flex-col",
+          "absolute inset-0 z-10 bg-white flex flex-col rounded-b-3xl",
           "md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2",
           "md:max-w-lg md:w-full md:rounded-3xl md:shadow-xl md:max-h-[90vh]"
         )}
@@ -379,29 +398,14 @@ export function TaskForm({ isOpen, onClose, task, defaultStatus, onSave }: TaskF
               onChange={(v) => setStatus(v as "TODO" | "IN_PROGRESS" | "DONE")}
             />
 
-            {/* Start Date & End Date */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-bold uppercase text-[#999] mb-1.5">
-                  Начало
-                </label>
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full rounded-2xl border-2 border-[var(--c-black)] bg-white px-4 py-2.5 text-sm text-[var(--c-black)] focus:outline-none focus:ring-2 focus:ring-[var(--c-lavender)]/30 [&::-webkit-date-and-time-value]:text-left"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold uppercase text-[#999] mb-1.5">Срок</label>
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="w-full rounded-2xl border-2 border-[var(--c-black)] bg-white px-4 py-2.5 text-sm text-[var(--c-black)] focus:outline-none focus:ring-2 focus:ring-[var(--c-lavender)]/30 [&::-webkit-date-and-time-value]:text-left"
-                />
-              </div>
-            </div>
+            {/* Date Range Picker */}
+            <DateRangePicker
+              label="Период выполнения"
+              startDate={startDate}
+              endDate={endDate}
+              onStartDateChange={setStartDate}
+              onEndDateChange={setEndDate}
+            />
 
             {/* Show on Roadmap */}
             <div>
