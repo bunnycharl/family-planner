@@ -104,14 +104,17 @@ export function TimelineView() {
   });
 
   // Auto-scroll to today section on mount
+  // Uses manual scrollTop instead of scrollIntoView to avoid scrolling parent containers (header)
   useEffect(() => {
     if (!isLoading && todayRef.current) {
       requestAnimationFrame(() => {
         if (!todayRef.current) return;
         const container = todayRef.current.closest(".overflow-y-auto") as HTMLElement | null;
         if (container) {
-          todayRef.current.scrollIntoView({ block: "start" });
-          container.scrollTop = Math.max(0, container.scrollTop - 70);
+          const containerRect = container.getBoundingClientRect();
+          const elementRect = todayRef.current.getBoundingClientRect();
+          const offset = elementRect.top - containerRect.top + container.scrollTop;
+          container.scrollTop = Math.max(0, offset - 70);
         }
       });
     }

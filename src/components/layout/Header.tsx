@@ -32,7 +32,7 @@ export function Header() {
   const avatarColor = session?.user?.avatarColor || "#FF6B6B";
 
   return (
-    <header className="flex h-14 items-center justify-between bg-white px-4 md:hidden">
+    <header className="flex h-14 shrink-0 items-center justify-between bg-white px-4 md:hidden">
       {/* Brand — sticker style */}
       <div className="flex items-center gap-1">
         <span className="bg-[var(--c-black)] text-white px-3 py-1 rounded-lg text-sm font-extrabold uppercase">

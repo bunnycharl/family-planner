@@ -9,7 +9,6 @@ const navItems = [
   { label: "Таймлайн", href: "/timeline" },
   { label: "Роадмап", href: "/roadmap" },
   { label: "Канбан", href: "/board" },
-  { label: "События", href: "/events" },
   { label: "Финансы", href: "/finances" },
 ];
 
