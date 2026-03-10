@@ -12,7 +12,28 @@ async function main() {
     create: { id: "default-family-id", name: "Наша семья" },
   });
 
-  // Users are configured via environment variables
+  // Master admin account (platform operator, not a family member)
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (adminEmail && adminPassword) {
+    const hashedPassword = await bcrypt.hash(adminPassword, 12);
+    await prisma.user.upsert({
+      where: { email: adminEmail },
+      update: { hashedPassword, isAdmin: true },
+      create: {
+        name: "Admin",
+        email: adminEmail,
+        hashedPassword,
+        isAdmin: true,
+        familyId: defaultFamily.id,
+      },
+    });
+    console.log(`  Admin: ${adminEmail}`);
+  } else {
+    console.log("  Admin: skipped (set ADMIN_EMAIL and ADMIN_PASSWORD)");
+  }
+
+  // Regular family users configured via environment variables
   const users = [
     {
       email: process.env.SEED_USER1_EMAIL,
@@ -34,7 +55,6 @@ async function main() {
       console.log(`Skipping user: missing env vars`);
       continue;
     }
-    const isFirstUser = createdUsers.length === 0;
     const hashedPassword = await bcrypt.hash(userData.password, 10);
     const user = await prisma.user.upsert({
       where: { email: userData.email },
@@ -45,7 +65,6 @@ async function main() {
         hashedPassword,
         avatarColor: userData.avatarColor,
         familyId: defaultFamily.id,
-        isAdmin: isFirstUser,
       },
     });
     createdUsers.push(user);
