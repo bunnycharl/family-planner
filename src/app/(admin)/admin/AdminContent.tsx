@@ -38,6 +38,15 @@ export function AdminContent() {
   const [userColor, setUserColor] = useState("#6366f1");
   const [isCreatingUser, setIsCreatingUser] = useState(false);
 
+  // Change password state
+  const [changePwdUserId, setChangePwdUserId] = useState<string | null>(null);
+  const [changePwdFamilyId, setChangePwdFamilyId] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [isChangingPwd, setIsChangingPwd] = useState(false);
+
+  // Delete state
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
+
   async function handleCreateFamily(e: FormEvent) {
     e.preventDefault();
     if (!newFamilyName.trim()) return;
@@ -68,6 +77,7 @@ export function AdminContent() {
     setUserEmail("");
     setUserPassword("");
     setUserColor("#6366f1");
+    setChangePwdUserId(null);
   }
 
   function closeAddUser() {
@@ -103,6 +113,62 @@ export function AdminContent() {
       toast.error(err instanceof Error ? err.message : "Ошибка создания пользователя");
     } finally {
       setIsCreatingUser(false);
+    }
+  }
+
+  function openChangePwd(familyId: string, userId: string) {
+    setChangePwdUserId(userId);
+    setChangePwdFamilyId(familyId);
+    setNewPassword("");
+    setAddUserFamilyId(null);
+  }
+
+  function closeChangePwd() {
+    setChangePwdUserId(null);
+    setChangePwdFamilyId(null);
+    setNewPassword("");
+  }
+
+  async function handleChangePwd(e: FormEvent) {
+    e.preventDefault();
+    if (!newPassword.trim() || !changePwdUserId || !changePwdFamilyId) return;
+    setIsChangingPwd(true);
+    try {
+      const res = await fetch(`/api/admin/families/${changePwdFamilyId}/users/${changePwdUserId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: newPassword }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error ?? "Ошибка смены пароля");
+      }
+      toast.success("Пароль изменён");
+      closeChangePwd();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Ошибка смены пароля");
+    } finally {
+      setIsChangingPwd(false);
+    }
+  }
+
+  async function handleDeleteUser(familyId: string, userId: string, userName: string) {
+    if (!confirm(`Удалить участника «${userName}»? Это действие нельзя отменить.`)) return;
+    setDeletingUserId(userId);
+    try {
+      const res = await fetch(`/api/admin/families/${familyId}/users/${userId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error ?? "Ошибка удаления пользователя");
+      }
+      toast.success("Участник удалён");
+      mutate();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Ошибка удаления пользователя");
+    } finally {
+      setDeletingUserId(null);
     }
   }
 
@@ -222,25 +288,92 @@ export function AdminContent() {
                 {family.users.length > 0 && (
                   <div className="space-y-2 mb-4">
                     {family.users.map((user) => (
-                      <div
-                        key={user.id}
-                        className="flex items-center gap-3 rounded-2xl bg-[var(--c-gray)] px-4 py-3"
-                      >
-                        <span
-                          className="inline-block h-8 w-8 rounded-full shrink-0"
-                          style={{ backgroundColor: user.avatarColor }}
-                        />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-bold uppercase text-[var(--c-black)] truncate">
-                            {user.name}
-                            {user.isAdmin && (
-                              <span className="ml-2 text-[10px] font-bold uppercase bg-[var(--c-coral)] text-white rounded-full px-2 py-0.5">
-                                Админ
-                              </span>
-                            )}
-                          </p>
-                          <p className="text-xs text-[#999] truncate">{user.email}</p>
+                      <div key={user.id} className="rounded-2xl bg-[var(--c-gray)] overflow-hidden">
+                        <div className="flex items-center gap-3 px-4 py-3">
+                          <span
+                            className="inline-block h-8 w-8 rounded-full shrink-0"
+                            style={{ backgroundColor: user.avatarColor }}
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold uppercase text-[var(--c-black)] truncate">
+                              {user.name}
+                              {user.isAdmin && (
+                                <span className="ml-2 text-[10px] font-bold uppercase bg-[var(--c-coral)] text-white rounded-full px-2 py-0.5">
+                                  Админ
+                                </span>
+                              )}
+                            </p>
+                            <p className="text-xs text-[#999] truncate">{user.email}</p>
+                          </div>
+                          {!user.isAdmin && (
+                            <div className="flex items-center gap-2 shrink-0">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  changePwdUserId === user.id
+                                    ? closeChangePwd()
+                                    : openChangePwd(family.id, user.id)
+                                }
+                                className="rounded-full border-2 border-[var(--c-black)] px-3 py-1 text-[10px] font-bold uppercase text-[var(--c-black)] hover:bg-[var(--c-black)]/5 transition-all cursor-pointer"
+                              >
+                                Пароль
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteUser(family.id, user.id, user.name)}
+                                disabled={deletingUserId === user.id}
+                                className="rounded-full border-2 border-red-400 px-3 py-1 text-[10px] font-bold uppercase text-red-500 hover:bg-red-50 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                {deletingUserId === user.id ? "..." : "Удалить"}
+                              </button>
+                            </div>
+                          )}
                         </div>
+
+                        {/* Change password inline form */}
+                        {changePwdUserId === user.id && changePwdFamilyId === family.id && (
+                          <form
+                            onSubmit={handleChangePwd}
+                            className="border-t-2 border-white px-4 py-3 flex flex-wrap items-end gap-3"
+                          >
+                            <div className="flex-1 min-w-[180px]">
+                              <label className="block text-xs font-bold uppercase tracking-wide text-[#999] mb-1.5">
+                                Новый пароль
+                              </label>
+                              <input
+                                type="password"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                placeholder="Введите новый пароль"
+                                autoFocus
+                                className={cn(
+                                  "w-full rounded-2xl border-2 border-[var(--c-black)] bg-white px-4 py-2.5 text-sm font-medium",
+                                  "text-[var(--c-black)] placeholder:text-[#bbb] focus:outline-none transition-colors"
+                                )}
+                              />
+                            </div>
+                            <div className="flex gap-2">
+                              <button
+                                type="submit"
+                                disabled={isChangingPwd || !newPassword.trim()}
+                                className={cn(
+                                  "rounded-full px-5 py-2.5 text-xs font-bold uppercase cursor-pointer",
+                                  "text-white bg-[var(--c-black)] hover:opacity-80 transition-all",
+                                  "disabled:opacity-50 disabled:cursor-not-allowed"
+                                )}
+                              >
+                                {isChangingPwd ? "Сохранение..." : "Сохранить"}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={closeChangePwd}
+                                className="rounded-full border-2 border-[var(--c-black)] px-5 py-2.5 text-xs font-bold uppercase text-[var(--c-black)] hover:bg-[var(--c-black)]/5 transition-all cursor-pointer"
+                              >
+                                Отмена
+                              </button>
+                            </div>
+                          </form>
+                        )}
                       </div>
                     ))}
                   </div>
