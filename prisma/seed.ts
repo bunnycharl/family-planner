@@ -28,12 +28,13 @@ async function main() {
     },
   ];
 
-  const createdUsers = [];
+  const createdUsers: { id: string; name: string }[] = [];
   for (const userData of users) {
     if (!userData.email || !userData.name || !userData.password) {
       console.log(`Skipping user: missing env vars`);
       continue;
     }
+    const isFirstUser = createdUsers.length === 0;
     const hashedPassword = await bcrypt.hash(userData.password, 10);
     const user = await prisma.user.upsert({
       where: { email: userData.email },
@@ -44,6 +45,7 @@ async function main() {
         hashedPassword,
         avatarColor: userData.avatarColor,
         familyId: defaultFamily.id,
+        isAdmin: isFirstUser,
       },
     });
     createdUsers.push(user);

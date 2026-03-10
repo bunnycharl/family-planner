@@ -67,6 +67,24 @@ export function Sidebar() {
 
         <div className="flex-1" />
 
+        {/* Admin (visible only to admins) */}
+        {session?.user?.isAdmin && (
+          <Link
+            href="/admin"
+            className={cn(
+              "relative flex items-center rounded-full px-5 py-4 font-bold text-base uppercase transition-all cursor-pointer",
+              pathname.startsWith("/admin")
+                ? "bg-[var(--c-coral)] text-white"
+                : "text-[var(--c-black)] hover:bg-[var(--c-gray)] hover:translate-x-2"
+            )}
+          >
+            <span>Админ</span>
+            {pathname.startsWith("/admin") && (
+              <span className="absolute right-5 text-[10px]">●</span>
+            )}
+          </Link>
+        )}
+
         {/* Settings */}
         <Link
           href={settingsItem.href}

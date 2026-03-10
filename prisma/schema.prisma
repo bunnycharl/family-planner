@@ -27,6 +27,7 @@ model User {
   email          String   @unique
   hashedPassword String
   avatarColor    String   @default("#6366f1")
+  isAdmin        Boolean  @default(false)
   familyId       String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt

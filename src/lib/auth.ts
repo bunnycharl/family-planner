@@ -38,6 +38,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           email: user.email,
           avatarColor: user.avatarColor,
           familyId: user.familyId,
+          isAdmin: user.isAdmin,
         };
       },
     }),
@@ -49,6 +50,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.id = user.id;
         token.avatarColor = (user as { avatarColor?: string }).avatarColor;
         token.familyId = (user as { familyId?: string }).familyId;
+        token.isAdmin = (user as { isAdmin?: boolean }).isAdmin ?? false;
       }
       return token;
     },
@@ -57,6 +59,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = token.id as string;
         session.user.avatarColor = token.avatarColor as string;
         session.user.familyId = token.familyId as string;
+        session.user.isAdmin = token.isAdmin as boolean;
       }
       return session;
     },

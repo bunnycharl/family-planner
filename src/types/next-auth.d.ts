@@ -8,6 +8,7 @@ declare module "next-auth" {
       email: string;
       avatarColor: string;
       familyId: string;
+      isAdmin: boolean;
     };
   }
 }
@@ -17,5 +18,6 @@ declare module "next-auth/jwt" {
     id: string;
     avatarColor: string;
     familyId: string;
+    isAdmin: boolean;
   }
 }
