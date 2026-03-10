@@ -26,7 +26,7 @@ export const POST = withAuth(async (request, session, context) => {
     const { fromMonth, toMonths } = result.data;
 
     const budgetYear = await prisma.budgetYear.findUnique({
-      where: { year },
+      where: { year_familyId: { year, familyId: session.user.familyId } },
       include: {
         incomeCategories: {
           include: {

@@ -4,7 +4,7 @@ import { createBudgetYearSchema } from "@/lib/finances/validations";
 import { withAuth } from "@/lib/api-utils";
 import { logger } from "@/lib/logger";
 
-export const POST = withAuth(async (request) => {
+export const POST = withAuth(async (request, session) => {
   try {
     const body = await request.json();
     const result = createBudgetYearSchema.safeParse(body);
@@ -19,7 +19,7 @@ export const POST = withAuth(async (request) => {
     const { year, baseCurrency } = result.data;
 
     const existing = await prisma.budgetYear.findUnique({
-      where: { year },
+      where: { year_familyId: { year, familyId: session.user.familyId } },
     });
 
     if (existing) {
@@ -27,7 +27,7 @@ export const POST = withAuth(async (request) => {
     }
 
     const budgetYear = await prisma.budgetYear.create({
-      data: { year, baseCurrency },
+      data: { year, baseCurrency, familyId: session.user.familyId },
     });
 
     return NextResponse.json(budgetYear, { status: 201 });

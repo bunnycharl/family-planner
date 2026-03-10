@@ -18,7 +18,9 @@ export const PUT = withAuth(async (request, session, context) => {
       );
     }
 
-    const existing = await prisma.roadmapPhase.findUnique({ where: { id } });
+    const existing = await prisma.roadmapPhase.findFirst({
+      where: { id, familyId: session.user.familyId },
+    });
     if (!existing) {
       return NextResponse.json({ error: "Фаза не найдена" }, { status: 404 });
     }
@@ -45,7 +47,9 @@ export const DELETE = withAuth(async (request, session, context) => {
   const { id } = await context!.params;
 
   try {
-    const existing = await prisma.roadmapPhase.findUnique({ where: { id } });
+    const existing = await prisma.roadmapPhase.findFirst({
+      where: { id, familyId: session.user.familyId },
+    });
     if (!existing) {
       return NextResponse.json({ error: "Фаза не найдена" }, { status: 404 });
     }

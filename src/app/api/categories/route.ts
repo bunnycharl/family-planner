@@ -4,9 +4,10 @@ import { createCategorySchema } from "@/lib/validations/category";
 import { withAuth } from "@/lib/api-utils";
 import { logger } from "@/lib/logger";
 
-export const GET = withAuth(async () => {
+export const GET = withAuth(async (request, session) => {
   try {
     const categories = await prisma.category.findMany({
+      where: { familyId: session.user.familyId },
       orderBy: {
         name: "asc",
       },
@@ -19,7 +20,7 @@ export const GET = withAuth(async () => {
   }
 });
 
-export const POST = withAuth(async (request) => {
+export const POST = withAuth(async (request, session) => {
   try {
     const body = await request.json();
     const result = createCategorySchema.safeParse(body);
@@ -32,7 +33,7 @@ export const POST = withAuth(async (request) => {
     }
 
     const category = await prisma.category.create({
-      data: result.data,
+      data: { ...result.data, familyId: session.user.familyId },
     });
 
     return NextResponse.json(category, { status: 201 });

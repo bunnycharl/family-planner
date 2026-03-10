@@ -1,11 +1,21 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import useSWR from "swr";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useCategories } from "@/hooks/useCategories";
 import { ColorPicker } from "@/components/ui/ColorPicker";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatarColor: string;
+}
+
+const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 interface Category {
   id: string;
@@ -24,6 +34,52 @@ export default function SettingsPage() {
 
 function SettingsContent() {
   const { categories, isLoading, mutate } = useCategories();
+  const {
+    data: members,
+    isLoading: membersLoading,
+    mutate: mutateMembers,
+  } = useSWR<User[]>("/api/users", fetcher);
+
+  const [memberName, setMemberName] = useState("");
+  const [memberEmail, setMemberEmail] = useState("");
+  const [memberPassword, setMemberPassword] = useState("");
+  const [memberColor, setMemberColor] = useState("#6366f1");
+  const [isAddingMember, setIsAddingMember] = useState(false);
+
+  async function handleAddMember(e: FormEvent) {
+    e.preventDefault();
+    if (!memberName.trim() || !memberEmail.trim() || !memberPassword.trim()) return;
+
+    setIsAddingMember(true);
+    try {
+      const res = await fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: memberName.trim(),
+          email: memberEmail.trim(),
+          password: memberPassword,
+          avatarColor: memberColor,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error ?? "Ошибка создания участника");
+      }
+
+      toast.success("Участник добавлен");
+      setMemberName("");
+      setMemberEmail("");
+      setMemberPassword("");
+      setMemberColor("#6366f1");
+      mutateMembers();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Ошибка создания участника");
+    } finally {
+      setIsAddingMember(false);
+    }
+  }
 
   // Add form state
   const [newName, setNewName] = useState("");
@@ -134,6 +190,125 @@ function SettingsContent() {
           Настройки
         </span>
       </h1>
+
+      {/* Family members management */}
+      <section className="bg-[var(--c-gray)] rounded-3xl p-5 md:p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <span className="bg-[var(--c-black)] text-white rounded-full px-3 py-1 text-xs font-bold uppercase">
+            Участники семьи
+          </span>
+        </div>
+
+        {membersLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-white border-t-[var(--c-lavender)]" />
+          </div>
+        ) : members && members.length > 0 ? (
+          <div className="space-y-2 mb-6">
+            {members.map((member) => (
+              <div key={member.id} className="flex items-center gap-3 rounded-2xl bg-white p-4">
+                <span
+                  className="inline-block h-8 w-8 rounded-full shrink-0"
+                  style={{ backgroundColor: member.avatarColor }}
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold uppercase text-[var(--c-black)] truncate">
+                    {member.name}
+                  </p>
+                  <p className="text-xs text-[#999] truncate">{member.email}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : null}
+
+        <form
+          onSubmit={handleAddMember}
+          className={cn(
+            "space-y-4",
+            members && members.length > 0 && "border-t-2 border-white pt-5"
+          )}
+        >
+          <h3 className="text-sm font-bold uppercase text-[var(--c-black)]">Добавить участника</h3>
+
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="flex-1 min-w-[160px]">
+              <label className="block text-xs font-bold uppercase tracking-wide text-[#999] mb-1.5">
+                Имя
+              </label>
+              <input
+                type="text"
+                value={memberName}
+                onChange={(e) => setMemberName(e.target.value)}
+                placeholder="Имя участника"
+                className={cn(
+                  "w-full rounded-2xl border-2 border-[var(--c-black)] bg-white px-4 py-3 text-sm font-medium",
+                  "text-[var(--c-black)] placeholder:text-[#bbb]",
+                  "focus:outline-none focus:ring-2 focus:ring-[var(--c-black)]/20 focus:border-[var(--c-black)]"
+                )}
+              />
+            </div>
+            <div className="flex-1 min-w-[160px]">
+              <label className="block text-xs font-bold uppercase tracking-wide text-[#999] mb-1.5">
+                Email
+              </label>
+              <input
+                type="email"
+                value={memberEmail}
+                onChange={(e) => setMemberEmail(e.target.value)}
+                placeholder="email@example.com"
+                className={cn(
+                  "w-full rounded-2xl border-2 border-[var(--c-black)] bg-white px-4 py-3 text-sm font-medium",
+                  "text-[var(--c-black)] placeholder:text-[#bbb]",
+                  "focus:outline-none focus:ring-2 focus:ring-[var(--c-black)]/20 focus:border-[var(--c-black)]"
+                )}
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="flex-1 min-w-[160px]">
+              <label className="block text-xs font-bold uppercase tracking-wide text-[#999] mb-1.5">
+                Пароль
+              </label>
+              <input
+                type="password"
+                value={memberPassword}
+                onChange={(e) => setMemberPassword(e.target.value)}
+                placeholder="Минимум 6 символов"
+                className={cn(
+                  "w-full rounded-2xl border-2 border-[var(--c-black)] bg-white px-4 py-3 text-sm font-medium",
+                  "text-[var(--c-black)] placeholder:text-[#bbb]",
+                  "focus:outline-none focus:ring-2 focus:ring-[var(--c-black)]/20 focus:border-[var(--c-black)]"
+                )}
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={
+                isAddingMember ||
+                !memberName.trim() ||
+                !memberEmail.trim() ||
+                !memberPassword.trim()
+              }
+              className={cn(
+                "rounded-full px-6 py-3 text-sm font-bold uppercase cursor-pointer",
+                "text-white bg-[var(--c-black)] hover:opacity-80 transition-all",
+                "disabled:opacity-50 disabled:cursor-not-allowed"
+              )}
+            >
+              {isAddingMember ? "Создание..." : "Добавить"}
+            </button>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wide text-[#999] mb-2">
+              Цвет аватара
+            </label>
+            <ColorPicker value={memberColor} onChange={setMemberColor} />
+          </div>
+        </form>
+      </section>
 
       {/* Categories management */}
       <section className="bg-[var(--c-gray)] rounded-3xl p-5 md:p-6">

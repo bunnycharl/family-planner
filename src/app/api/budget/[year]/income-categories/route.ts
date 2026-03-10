@@ -25,8 +25,8 @@ export const POST = withAuth(async (request, session, context) => {
 
     const { userId, name, type, taxRateId, formula } = result.data;
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
+    const user = await prisma.user.findFirst({
+      where: { id: userId, familyId: session.user.familyId },
     });
 
     if (!user) {
@@ -34,7 +34,7 @@ export const POST = withAuth(async (request, session, context) => {
     }
 
     const budgetYear = await prisma.budgetYear.findUnique({
-      where: { year },
+      where: { year_familyId: { year, familyId: session.user.familyId } },
     });
 
     if (!budgetYear) {

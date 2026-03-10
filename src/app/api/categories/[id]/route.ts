@@ -18,6 +18,13 @@ export const PUT = withAuth(async (request, session, context) => {
       );
     }
 
+    const existing = await prisma.category.findFirst({
+      where: { id, familyId: session.user.familyId },
+    });
+    if (!existing) {
+      return NextResponse.json({ error: "Category not found" }, { status: 404 });
+    }
+
     const category = await prisma.category.update({
       where: { id },
       data: result.data,
@@ -34,6 +41,13 @@ export const DELETE = withAuth(async (request, session, context) => {
   const { id } = await context!.params;
 
   try {
+    const toDelete = await prisma.category.findFirst({
+      where: { id, familyId: session.user.familyId },
+    });
+    if (!toDelete) {
+      return NextResponse.json({ error: "Category not found" }, { status: 404 });
+    }
+
     await prisma.category.delete({
       where: { id },
     });

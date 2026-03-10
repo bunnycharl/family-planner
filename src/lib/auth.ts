@@ -26,10 +26,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null;
         }
 
-        const isValid = await bcrypt.compare(
-          credentials.password as string,
-          user.hashedPassword
-        );
+        const isValid = await bcrypt.compare(credentials.password as string, user.hashedPassword);
 
         if (!isValid) {
           return null;
@@ -40,6 +37,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           name: user.name,
           email: user.email,
           avatarColor: user.avatarColor,
+          familyId: user.familyId,
         };
       },
     }),
@@ -50,6 +48,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id;
         token.avatarColor = (user as { avatarColor?: string }).avatarColor;
+        token.familyId = (user as { familyId?: string }).familyId;
       }
       return token;
     },
@@ -57,6 +56,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (session.user) {
         session.user.id = token.id as string;
         session.user.avatarColor = token.avatarColor as string;
+        session.user.familyId = token.familyId as string;
       }
       return session;
     },

@@ -5,6 +5,13 @@ import { seedBudget } from "./seed-budget";
 const prisma = new PrismaClient();
 
 async function main() {
+  // Ensure default family exists
+  const defaultFamily = await prisma.family.upsert({
+    where: { id: "default-family-id" },
+    update: {},
+    create: { id: "default-family-id", name: "Наша семья" },
+  });
+
   // Users are configured via environment variables
   const users = [
     {
@@ -36,6 +43,7 @@ async function main() {
         email: userData.email,
         hashedPassword,
         avatarColor: userData.avatarColor,
+        familyId: defaultFamily.id,
       },
     });
     createdUsers.push(user);
@@ -54,9 +62,9 @@ async function main() {
 
   for (const cat of categories) {
     await prisma.category.upsert({
-      where: { name: cat.name },
+      where: { name_familyId: { name: cat.name, familyId: defaultFamily.id } },
       update: {},
-      create: cat,
+      create: { ...cat, familyId: defaultFamily.id },
     });
   }
 

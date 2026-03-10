@@ -8,8 +8,8 @@ export const GET = withAuth(async (request, session, context) => {
   const { id } = await context!.params;
 
   try {
-    const event = await prisma.event.findUnique({
-      where: { id },
+    const event = await prisma.event.findFirst({
+      where: { id, familyId: session.user.familyId },
       include: {
         category: true,
         createdBy: true,
@@ -50,6 +50,13 @@ export const PUT = withAuth(async (request, session, context) => {
       updateData.date = new Date(data.date);
     }
 
+    const existing = await prisma.event.findFirst({
+      where: { id, familyId: session.user.familyId },
+    });
+    if (!existing) {
+      return NextResponse.json({ error: "Event not found" }, { status: 404 });
+    }
+
     const event = await prisma.event.update({
       where: { id },
       data: updateData,
@@ -71,6 +78,13 @@ export const DELETE = withAuth(async (request, session, context) => {
   const { id } = await context!.params;
 
   try {
+    const toDelete = await prisma.event.findFirst({
+      where: { id, familyId: session.user.familyId },
+    });
+    if (!toDelete) {
+      return NextResponse.json({ error: "Event not found" }, { status: 404 });
+    }
+
     await prisma.event.delete({
       where: { id },
     });

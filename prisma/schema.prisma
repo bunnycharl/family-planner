@@ -7,31 +7,54 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Family {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users         User[]
+  events        Event[]
+  tasks         Task[]
+  categories    Category[]
+  roadmapPhases RoadmapPhase[]
+  budgetYears   BudgetYear[]
+}
+
 model User {
   id             String   @id @default(cuid())
   name           String
   email          String   @unique
   hashedPassword String
   avatarColor    String   @default("#6366f1")
+  familyId       String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
+  family           Family                 @relation(fields: [familyId], references: [id])
   createdEvents    Event[]                @relation("EventCreator")
   assignedEvents   Event[]                @relation("EventAssignee")
   createdTasks     Task[]                 @relation("TaskCreator")
   assignedTasks    Task[]                 @relation("TaskAssignee")
   incomeCategories BudgetIncomeCategory[] @relation("BudgetIncomeCategories")
+
+  @@index([familyId])
 }
 
 model Category {
   id        String   @id @default(cuid())
-  name      String   @unique
+  name      String
   color     String
   icon      String?
+  familyId  String
   createdAt DateTime @default(now())
 
+  family Family @relation(fields: [familyId], references: [id])
   events Event[]
   tasks  Task[]
+
+  @@unique([name, familyId])
+  @@index([familyId])
 }
 
 model Event {
@@ -39,9 +62,11 @@ model Event {
   title       String
   description String?
   date        DateTime
+  familyId    String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  family      Family    @relation(fields: [familyId], references: [id])
   categoryId  String?
   category    Category? @relation(fields: [categoryId], references: [id])
   createdById String
@@ -53,6 +78,7 @@ model Event {
   @@index([categoryId])
   @@index([createdById])
   @@index([assigneeId])
+  @@index([familyId])
 }
 
 model Task {
@@ -63,9 +89,11 @@ model Task {
   position    Int           @default(0)
   startDate   DateTime
   endDate     DateTime
+  familyId    String
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
+  family      Family        @relation(fields: [familyId], references: [id])
   categoryId  String?
   category    Category?     @relation(fields: [categoryId], references: [id])
   createdById String
@@ -81,22 +109,28 @@ model Task {
   @@index([assigneeId])
   @@index([phaseId])
   @@index([endDate])
+  @@index([familyId])
 }
 
 // ─── Budget / Finances (v2) ────────────────────────────────
 
 model BudgetYear {
   id           String   @id @default(cuid())
-  year         Int      @unique
+  year         Int
+  familyId     String
   baseCurrency String   @default("RUB")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  family                Family                 @relation(fields: [familyId], references: [id])
   incomeCategories      BudgetIncomeCategory[]
   taxRates              TaxRate[]
   expenseGroups         BudgetExpenseGroup[]
   currencyRates         CurrencyRate[]
   transactionCategories TransactionCategory[]
+
+  @@unique([year, familyId])
+  @@index([familyId])
 }
 
 model BudgetIncomeCategory {
@@ -256,10 +290,13 @@ model RoadmapPhase {
   name      String
   emoji     String?
   position  Int      @default(0)
+  familyId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  tasks Task[]
+  family Family @relation(fields: [familyId], references: [id])
+  tasks  Task[]
 
   @@index([position])
+  @@index([familyId])
 }

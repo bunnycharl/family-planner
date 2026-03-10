@@ -4,14 +4,16 @@ import { createEventSchema } from "@/lib/validations/event";
 import { withAuth } from "@/lib/api-utils";
 import { logger } from "@/lib/logger";
 
-export const GET = withAuth(async (request) => {
+export const GET = withAuth(async (request, session) => {
   const { searchParams } = new URL(request.url);
   const start = searchParams.get("start");
   const end = searchParams.get("end");
   const categoryId = searchParams.get("categoryId");
   const createdById = searchParams.get("createdById");
 
-  const where: Record<string, unknown> = {};
+  const where: Record<string, unknown> = {
+    familyId: session.user.familyId,
+  };
 
   if (start || end) {
     where.date = {};
@@ -70,6 +72,7 @@ export const POST = withAuth(async (request, session) => {
         ...data,
         date: new Date(data.date),
         createdById: session.user!.id!,
+        familyId: session.user.familyId,
       },
       include: {
         category: true,

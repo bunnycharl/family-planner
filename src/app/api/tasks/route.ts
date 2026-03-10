@@ -4,7 +4,7 @@ import { createTaskSchema } from "@/lib/validations/task";
 import { withAuth } from "@/lib/api-utils";
 import { logger } from "@/lib/logger";
 
-export const GET = withAuth(async (request) => {
+export const GET = withAuth(async (request, session) => {
   const { searchParams } = new URL(request.url);
   const status = searchParams.get("status");
   const categoryId = searchParams.get("categoryId");
@@ -13,7 +13,9 @@ export const GET = withAuth(async (request) => {
   const endDateTo = searchParams.get("endDateTo");
   const phaseId = searchParams.get("phaseId");
 
-  const where: Record<string, unknown> = {};
+  const where: Record<string, unknown> = {
+    familyId: session.user.familyId,
+  };
 
   if (status) {
     where.status = status;
@@ -78,7 +80,7 @@ export const POST = withAuth(async (request, session) => {
     const data = result.data;
 
     const maxPositionResult = await prisma.task.aggregate({
-      where: { status: data.status },
+      where: { status: data.status, familyId: session.user.familyId },
       _max: { position: true },
     });
 
@@ -91,6 +93,7 @@ export const POST = withAuth(async (request, session) => {
         endDate: new Date(data.endDate),
         position,
         createdById: session.user!.id!,
+        familyId: session.user.familyId,
       },
       include: {
         category: true,

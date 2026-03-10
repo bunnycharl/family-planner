@@ -14,7 +14,7 @@ export const GET = withAuth(async (request, session, context) => {
 
   try {
     const budgetYear = await prisma.budgetYear.findUnique({
-      where: { year },
+      where: { year_familyId: { year, familyId: session.user.familyId } },
     });
 
     if (!budgetYear) {
@@ -59,7 +59,7 @@ export const POST = withAuth(async (request, session, context) => {
     }
 
     const budgetYear = await prisma.budgetYear.findUnique({
-      where: { year },
+      where: { year_familyId: { year, familyId: session.user.familyId } },
     });
 
     if (!budgetYear) {

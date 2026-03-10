@@ -3,12 +3,13 @@ import bcrypt from "bcryptjs";
 
 export async function seedBudget(prisma: PrismaClient) {
   const year = 2026;
+  const defaultFamilyId = "default-family-id";
 
   // 1. Create BudgetYear
   const budgetYear = await prisma.budgetYear.upsert({
-    where: { year },
+    where: { year_familyId: { year, familyId: defaultFamilyId } },
     update: {},
-    create: { year, baseCurrency: "RUB" },
+    create: { year, baseCurrency: "RUB", familyId: defaultFamilyId },
   });
 
   // 2. Tax Rates
@@ -27,12 +28,22 @@ export async function seedBudget(prisma: PrismaClient) {
   const nikita = await prisma.user.upsert({
     where: { email: "nikita@example.com" },
     update: {},
-    create: { name: "Никита", email: "nikita@example.com", hashedPassword },
+    create: {
+      name: "Никита",
+      email: "nikita@example.com",
+      hashedPassword,
+      familyId: defaultFamilyId,
+    },
   });
   const darya = await prisma.user.upsert({
     where: { email: "darya@example.com" },
     update: {},
-    create: { name: "Дарья", email: "darya@example.com", hashedPassword },
+    create: {
+      name: "Дарья",
+      email: "darya@example.com",
+      hashedPassword,
+      familyId: defaultFamilyId,
+    },
   });
 
   // 4. Income Categories — Nikita (FIXED)

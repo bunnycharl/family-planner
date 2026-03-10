@@ -8,8 +8,8 @@ export const GET = withAuth(async (request, session, context) => {
   const { id } = await context!.params;
 
   try {
-    const task = await prisma.task.findUnique({
-      where: { id },
+    const task = await prisma.task.findFirst({
+      where: { id, familyId: session.user.familyId },
       include: {
         category: true,
         createdBy: true,
@@ -59,6 +59,13 @@ export const PUT = withAuth(async (request, session, context) => {
       updateData.phaseId = null;
     }
 
+    const existing = await prisma.task.findFirst({
+      where: { id, familyId: session.user.familyId },
+    });
+    if (!existing) {
+      return NextResponse.json({ error: "Task not found" }, { status: 404 });
+    }
+
     const task = await prisma.task.update({
       where: { id },
       data: updateData,
@@ -93,6 +100,13 @@ export const PATCH = withAuth(async (request, session, context) => {
 
     const data = result.data;
 
+    const existing2 = await prisma.task.findFirst({
+      where: { id, familyId: session.user.familyId },
+    });
+    if (!existing2) {
+      return NextResponse.json({ error: "Task not found" }, { status: 404 });
+    }
+
     const task = await prisma.task.update({
       where: { id },
       data: {
@@ -118,6 +132,13 @@ export const DELETE = withAuth(async (request, session, context) => {
   const { id } = await context!.params;
 
   try {
+    const toDelete = await prisma.task.findFirst({
+      where: { id, familyId: session.user.familyId },
+    });
+    if (!toDelete) {
+      return NextResponse.json({ error: "Task not found" }, { status: 404 });
+    }
+
     await prisma.task.delete({
       where: { id },
     });

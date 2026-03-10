@@ -4,9 +4,10 @@ import { createRoadmapPhaseSchema } from "@/lib/validations/roadmap";
 import { withAuth } from "@/lib/api-utils";
 import { logger } from "@/lib/logger";
 
-export const GET = withAuth(async () => {
+export const GET = withAuth(async (request, session) => {
   try {
     const phases = await prisma.roadmapPhase.findMany({
+      where: { familyId: session.user.familyId },
       include: {
         tasks: {
           include: { category: true, assignee: true },
@@ -23,7 +24,7 @@ export const GET = withAuth(async () => {
   }
 });
 
-export const POST = withAuth(async (request) => {
+export const POST = withAuth(async (request, session) => {
   try {
     const body = await request.json();
     const result = createRoadmapPhaseSchema.safeParse(body);
@@ -40,6 +41,7 @@ export const POST = withAuth(async (request) => {
     let position = data.position;
     if (position === undefined) {
       const maxPositionResult = await prisma.roadmapPhase.aggregate({
+        where: { familyId: session.user.familyId },
         _max: { position: true },
       });
       position = (maxPositionResult._max.position ?? -1) + 1;
@@ -50,6 +52,7 @@ export const POST = withAuth(async (request) => {
         name: data.name,
         emoji: data.emoji,
         position,
+        familyId: session.user.familyId,
       },
       include: {
         tasks: {
