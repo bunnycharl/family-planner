@@ -271,13 +271,13 @@ export function AdminContent() {
                       </div>
                       <div className="flex-1 min-w-[150px]">
                         <label className="block text-xs font-bold uppercase tracking-wide text-[#999] mb-1.5">
-                          Email
+                          Логин
                         </label>
                         <input
-                          type="email"
+                          type="text"
                           value={userEmail}
                           onChange={(e) => setUserEmail(e.target.value)}
-                          placeholder="email@example.com"
+                          placeholder="Любой логин"
                           className={cn(
                             "w-full rounded-2xl border-2 border-[var(--c-black)] bg-[var(--c-gray)] px-4 py-3 text-sm font-medium",
                             "text-[var(--c-black)] placeholder:text-[#bbb] focus:outline-none focus:bg-white transition-colors"

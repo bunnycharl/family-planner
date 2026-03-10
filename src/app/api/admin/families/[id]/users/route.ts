@@ -7,7 +7,7 @@ import bcrypt from "bcryptjs";
 
 const createUserSchema = z.object({
   name: z.string().min(1).max(100),
-  email: z.string().email(),
+  email: z.string().min(1).max(200),
   password: z.string().min(6).max(100),
   avatarColor: z
     .string()
@@ -38,7 +38,7 @@ export const POST = withAdmin(async (request, _session, context) => {
     const existing = await prisma.user.findUnique({ where: { email: result.data.email } });
     if (existing) {
       return NextResponse.json(
-        { error: "Пользователь с таким email уже существует" },
+        { error: "Пользователь с таким логином уже существует" },
         { status: 409 }
       );
     }
