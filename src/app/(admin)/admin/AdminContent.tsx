@@ -91,7 +91,10 @@ export function AdminContent() {
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error ?? "Ошибка создания пользователя");
+        const detail = data.issues?.[0]
+          ? `${data.issues[0].path.join(".")}: ${data.issues[0].message}`
+          : null;
+        throw new Error(detail ?? data.error ?? "Ошибка создания пользователя");
       }
       toast.success("Участник добавлен");
       closeAddUser();

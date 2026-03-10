@@ -11,6 +11,7 @@ const createFamilySchema = z.object({
 export const GET = withAdmin(async () => {
   try {
     const families = await prisma.family.findMany({
+      where: { id: { not: "admin-system-id" } },
       orderBy: { createdAt: "asc" },
       include: {
         users: {

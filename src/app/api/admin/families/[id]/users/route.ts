@@ -8,7 +8,7 @@ import bcrypt from "bcryptjs";
 const createUserSchema = z.object({
   name: z.string().min(1).max(100),
   email: z.string().min(1).max(200),
-  password: z.string().min(6).max(100),
+  password: z.string().min(1).max(100),
   avatarColor: z
     .string()
     .regex(/^#[0-9a-fA-F]{6}$/)

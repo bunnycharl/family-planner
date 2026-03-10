@@ -12,20 +12,27 @@ async function main() {
     create: { id: "default-family-id", name: "Наша семья" },
   });
 
-  // Master admin account (platform operator, not a family member)
+  // System family for admin accounts (not visible to regular users)
+  const adminFamily = await prisma.family.upsert({
+    where: { id: "admin-system-id" },
+    update: {},
+    create: { id: "admin-system-id", name: "System" },
+  });
+
+  // Master admin account (platform operator, belongs to system family)
   const adminEmail = process.env.ADMIN_EMAIL;
   const adminPassword = process.env.ADMIN_PASSWORD;
   if (adminEmail && adminPassword) {
     const hashedPassword = await bcrypt.hash(adminPassword, 12);
     await prisma.user.upsert({
       where: { email: adminEmail },
-      update: { hashedPassword, isAdmin: true },
+      update: { hashedPassword, isAdmin: true, familyId: adminFamily.id },
       create: {
         name: "Admin",
         email: adminEmail,
         hashedPassword,
         isAdmin: true,
-        familyId: defaultFamily.id,
+        familyId: adminFamily.id,
       },
     });
     console.log(`  Admin: ${adminEmail}`);
